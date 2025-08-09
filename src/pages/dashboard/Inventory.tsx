@@ -46,6 +46,7 @@ const Inventory: React.FC = () => {
         title="Inventory | Dealer Dashboard"
         description="Manage vehicle inventory for your dealership. View, filter, and update vehicles."
         canonical="/app/inventory"
+        noIndex
       />
       <section className="animate-fade-in">
         <h1 className="text-2xl font-semibold mb-4">Inventory</h1>

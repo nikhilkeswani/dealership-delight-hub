@@ -28,6 +28,7 @@ const Leads: React.FC = () => {
         title="Leads | Dealer Dashboard"
         description="Track and manage sales leads for your dealership."
         canonical="/app/leads"
+        noIndex
       />
       <section className="animate-fade-in">
         <h1 className="text-2xl font-semibold mb-4">Leads</h1>

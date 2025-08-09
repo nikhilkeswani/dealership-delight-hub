@@ -1,5 +1,6 @@
 import { useParams } from "react-router-dom";
 import SEO from "@/components/SEO";
+import { Helmet } from "react-helmet-async";
 import VehicleCard, { VehicleData } from "@/components/VehicleCard";
 import { Button } from "@/components/ui/button";
 import sedan from "@/assets/cars/sedan.jpg";
@@ -40,6 +41,31 @@ const DealerSite = () => {
   const { slug } = useParams();
   const dealerName = (slug || "demo-motors").replace(/-/g, " ").replace(/\b\w/g, (l) => l.toUpperCase());
   const address = "1600 Amphitheatre Parkway, Mountain View, CA";
+  const currentUrl = typeof window !== "undefined" ? window.location.href : undefined;
+  const vehiclesStructured = sampleVehicles.map((v) => ({
+    "@type": "Vehicle",
+    name: v.title,
+    description: v.description,
+    image: v.images?.[0],
+    offers: {
+      "@type": "Offer",
+      priceCurrency: "USD",
+      price: String((v.price || "").replace(/[^0-9.]/g, "")) || undefined,
+      availability: "https://schema.org/InStock",
+      url: currentUrl,
+    },
+  }));
+  const structuredData = {
+    "@context": "https://schema.org",
+    "@type": "AutoDealer",
+    name: dealerName,
+    url: currentUrl,
+    address: {
+      "@type": "PostalAddress",
+      streetAddress: address,
+    },
+    makesOffer: vehiclesStructured,
+  };
   const mapEmbed = `https://www.google.com/maps?q=${encodeURIComponent(address)}&output=embed`;
 
   return (
@@ -48,6 +74,9 @@ const DealerSite = () => {
         title={`${dealerName} – Inventory & Test Drives | DealerDelight`}
         description={`${dealerName}: Browse vehicles, book test drives, and contact our showroom. Powered by DealerDelight.`}
       />
+      <Helmet>
+        <script type="application/ld+json">{JSON.stringify(structuredData)}</script>
+      </Helmet>
 
       <header className="border-b">
         <div className="container py-6 flex items-center justify-between">

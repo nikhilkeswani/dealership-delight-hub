@@ -6,7 +6,7 @@ const Signup = () => {
   const { toast } = useToast();
   return (
     <div className="min-h-screen bg-background">
-      <SEO title="Create your DealerDelight account" description="Sign up to launch your dealership site in minutes." />
+      <SEO title="Create your DealerDelight account" description="Sign up to launch your dealership site in minutes." noIndex />
 
       <main className="container py-16">
         <h1 className="text-3xl md:text-4xl font-semibold mb-4">Create your account</h1>

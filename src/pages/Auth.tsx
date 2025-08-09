@@ -73,7 +73,7 @@ const Auth = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <SEO title="Log in or Sign up – DealerDelight" description="Access your DealerDelight dashboard with secure email and password authentication." />
+      <SEO title="Log in or Sign up – DealerDelight" description="Access your DealerDelight dashboard with secure email and password authentication." noIndex />
 
       <main className="container py-16">
         <header className="mb-8">

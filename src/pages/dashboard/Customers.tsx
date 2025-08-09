@@ -27,6 +27,7 @@ const Customers: React.FC = () => {
         title="Customers | Dealer Dashboard"
         description="View and manage your dealership's customers."
         canonical="/app/customers"
+        noIndex
       />
       <section className="animate-fade-in">
         <h1 className="text-2xl font-semibold mb-4">Customers</h1>

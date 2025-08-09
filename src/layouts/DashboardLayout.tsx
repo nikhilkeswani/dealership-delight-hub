@@ -17,6 +17,8 @@ import {
   SidebarInset,
   useSidebar,
 } from "@/components/ui/sidebar";
+import { useQueryClient } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 
 const navItems = [
   { title: "Inventory", url: "/app/inventory", icon: Car },
@@ -25,11 +27,39 @@ const navItems = [
 ];
 
 function AppSidebar() {
-  
+  const queryClient = useQueryClient();
   const { state } = useSidebar();
   const isCollapsed = state === "collapsed";
   const location = useLocation();
   const isActive = (path: string) => location.pathname === path;
+
+  const prefetch = (path: string) => {
+    if (path.includes("/inventory")) {
+      queryClient.prefetchQuery({
+        queryKey: ["vehicles"],
+        queryFn: async () => {
+          const { data } = await supabase.from("vehicles").select("id").limit(1);
+          return data ?? [];
+        },
+      });
+    } else if (path.includes("/leads")) {
+      queryClient.prefetchQuery({
+        queryKey: ["leads"],
+        queryFn: async () => {
+          const { data } = await supabase.from("leads").select("id").limit(1);
+          return data ?? [];
+        },
+      });
+    } else if (path.includes("/customers")) {
+      queryClient.prefetchQuery({
+        queryKey: ["customers"],
+        queryFn: async () => {
+          const { data } = await supabase.from("customers").select("id").limit(1);
+          return data ?? [];
+        },
+      });
+    }
+  };
 
   return (
     <Sidebar collapsible="icon" variant="inset">
@@ -44,6 +74,7 @@ function AppSidebar() {
                     <NavLink
                       to={item.url}
                       end
+                      onMouseEnter={() => prefetch(item.url)}
                       className={({ isActive: routeActive }) =>
                         `${routeActive ? "bg-muted text-primary font-medium" : "hover:bg-muted/50"} flex items-center px-2 py-2 rounded-md`
                       }
