@@ -1,0 +1,79 @@
+import React from "react";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { SEO } from "@/components/SEO";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+
+const Leads: React.FC = () => {
+  const { data, isLoading, error } = useQuery({
+    queryKey: ["leads"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("leads")
+        .select("id, first_name, last_name, email, phone, status, source, created_at")
+        .order("created_at", { ascending: false });
+      if (error) throw error;
+      return data ?? [];
+    },
+  });
+
+  return (
+    <>
+      <SEO
+        title="Leads | Dealer Dashboard"
+        description="Track and manage sales leads for your dealership."
+        canonical="/app/leads"
+      />
+      <section>
+        <h1 className="text-2xl font-semibold mb-4">Leads</h1>
+        <Card>
+          <CardHeader>
+            <CardTitle>Recent Leads</CardTitle>
+            <CardDescription>New inquiries and their status</CardDescription>
+          </CardHeader>
+          <CardContent>
+            {isLoading && <div className="text-muted-foreground">Loading leads...</div>}
+            {error && <div className="text-destructive">{(error as any).message}</div>}
+            {!isLoading && !error && (
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Name</TableHead>
+                    <TableHead>Email</TableHead>
+                    <TableHead>Phone</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead>Source</TableHead>
+                    <TableHead>Created</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {data && data.length > 0 ? (
+                    data.map((l) => (
+                      <TableRow key={l.id}>
+                        <TableCell>{l.first_name} {l.last_name}</TableCell>
+                        <TableCell>{l.email}</TableCell>
+                        <TableCell>{l.phone ?? "-"}</TableCell>
+                        <TableCell className="capitalize">{l.status}</TableCell>
+                        <TableCell className="capitalize">{l.source}</TableCell>
+                        <TableCell>{new Date(l.created_at).toLocaleString()}</TableCell>
+                      </TableRow>
+                    ))
+                  ) : (
+                    <TableRow>
+                      <TableCell colSpan={6} className="text-center text-muted-foreground">
+                        No leads found.
+                      </TableCell>
+                    </TableRow>
+                  )}
+                </TableBody>
+              </Table>
+            )}
+          </CardContent>
+        </Card>
+      </section>
+    </>
+  );
+};
+
+export default Leads;
