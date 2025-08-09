@@ -14,6 +14,7 @@ import {
   SidebarMenuItem,
   SidebarMenuButton,
   SidebarTrigger,
+  SidebarInset,
   useSidebar,
 } from "@/components/ui/sidebar";
 
@@ -31,7 +32,7 @@ function AppSidebar() {
   const isActive = (path: string) => location.pathname === path;
 
   return (
-    <Sidebar collapsible="icon">
+    <Sidebar collapsible="icon" variant="inset">
       <SidebarContent>
         <SidebarGroup>
           <SidebarGroupLabel>Dealer CRM</SidebarGroupLabel>
@@ -64,26 +65,23 @@ function AppSidebar() {
 const DashboardLayout: React.FC = () => {
   return (
     <SidebarProvider>
-      <header className="sticky top-0 z-50 h-14 flex items-center justify-between border-b px-4 bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        {/* Global sidebar trigger (provided by SidebarProvider) */}
-        <div className="flex items-center gap-2">
-          <SidebarTrigger className="mr-2" />
-          <h1 className="text-lg font-semibold">Dealer Dashboard</h1>
-        </div>
-        <div className="flex items-center gap-2">
-          <Button variant="outline" onClick={robustSignOut}>
-            Sign out
-          </Button>
-        </div>
-      </header>
-
-      <div className="flex min-h-[calc(100vh-3.5rem)] w-full">
-        <AppSidebar />
-
-        <main className="flex-1 p-4 md:p-6">
+      <AppSidebar />
+      <SidebarInset>
+        <header className="sticky top-0 z-50 border-b bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+          <div className="flex h-14 items-center gap-2 px-4">
+            <SidebarTrigger className="mr-2" />
+            <div className="text-lg font-semibold">Dealer CRM</div>
+            <div className="ml-auto">
+              <Button variant="outline" onClick={robustSignOut}>
+                Sign out
+              </Button>
+            </div>
+          </div>
+        </header>
+        <div className="p-4 md:p-6">
           <Outlet />
-        </main>
-      </div>
+        </div>
+      </SidebarInset>
     </SidebarProvider>
   );
 };

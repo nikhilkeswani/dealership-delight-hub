@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Button } from "@/components/ui/button";
 import { formatCurrency, formatNumber } from "@/lib/format";
 
 const Inventory: React.FC = () => {
@@ -49,9 +50,12 @@ const Inventory: React.FC = () => {
       <section className="animate-fade-in">
         <h1 className="text-2xl font-semibold mb-4">Inventory</h1>
         <Card>
-          <CardHeader>
-            <CardTitle>Vehicles</CardTitle>
-            <CardDescription>Your current listed vehicles</CardDescription>
+          <CardHeader className="flex items-center justify-between">
+            <div>
+              <CardTitle>Vehicles</CardTitle>
+              <CardDescription>Your current listed vehicles</CardDescription>
+            </div>
+            <Button size="sm">Add Vehicle</Button>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -87,45 +91,47 @@ const Inventory: React.FC = () => {
             )}
             {error && <div className="text-destructive">{(error as any).message}</div>}
             {!isLoading && !error && (
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Year</TableHead>
-                    <TableHead>Make</TableHead>
-                    <TableHead>Model</TableHead>
-                    <TableHead>Mileage</TableHead>
-                    <TableHead>Price</TableHead>
-                    <TableHead>Status</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {filtered && filtered.length > 0 ? (
-                    filtered.map((v: any) => (
-                      <TableRow key={v.id}>
-                        <TableCell>{v.year}</TableCell>
-                        <TableCell>{v.make}</TableCell>
-                        <TableCell>{v.model}</TableCell>
-                        <TableCell>{v.mileage != null ? formatNumber(Number(v.mileage)) : "-"}</TableCell>
-                        <TableCell>{v.price != null ? formatCurrency(Number(v.price)) : "-"}</TableCell>
-                        <TableCell>
-                          <Badge
-                            variant={String(v.status).toLowerCase() === "sold" ? "destructive" : String(v.status).toLowerCase() === "pending" ? "outline" : "secondary"}
-                            className="capitalize"
-                          >
-                            {v.status ?? "-"}
-                          </Badge>
+              <div className="overflow-x-auto">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Year</TableHead>
+                      <TableHead>Make</TableHead>
+                      <TableHead>Model</TableHead>
+                      <TableHead>Mileage</TableHead>
+                      <TableHead>Price</TableHead>
+                      <TableHead>Status</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {filtered && filtered.length > 0 ? (
+                      filtered.map((v: any) => (
+                        <TableRow key={v.id}>
+                          <TableCell>{v.year}</TableCell>
+                          <TableCell>{v.make}</TableCell>
+                          <TableCell>{v.model}</TableCell>
+                          <TableCell>{v.mileage != null ? formatNumber(Number(v.mileage)) : "-"}</TableCell>
+                          <TableCell>{v.price != null ? formatCurrency(Number(v.price)) : "-"}</TableCell>
+                          <TableCell>
+                            <Badge
+                              variant={String(v.status).toLowerCase() === "sold" ? "destructive" : String(v.status).toLowerCase() === "pending" ? "outline" : "secondary"}
+                              className="capitalize"
+                            >
+                              {v.status ?? "-"}
+                            </Badge>
+                          </TableCell>
+                        </TableRow>
+                      ))
+                    ) : (
+                      <TableRow>
+                        <TableCell colSpan={6} className="text-center text-muted-foreground">
+                          No vehicles found.
                         </TableCell>
                       </TableRow>
-                    ))
-                  ) : (
-                    <TableRow>
-                      <TableCell colSpan={6} className="text-center text-muted-foreground">
-                        No vehicles found.
-                      </TableCell>
-                    </TableRow>
-                  )}
-                </TableBody>
-              </Table>
+                    )}
+                  </TableBody>
+                </Table>
+              </div>
             )}
           </CardContent>
         </Card>

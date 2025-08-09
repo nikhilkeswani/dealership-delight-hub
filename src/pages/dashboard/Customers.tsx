@@ -5,6 +5,7 @@ import { SEO } from "@/components/SEO";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Button } from "@/components/ui/button";
 import { formatCurrency, formatDate } from "@/lib/format";
 
 const Customers: React.FC = () => {
@@ -30,9 +31,12 @@ const Customers: React.FC = () => {
       <section className="animate-fade-in">
         <h1 className="text-2xl font-semibold mb-4">Customers</h1>
         <Card>
-          <CardHeader>
-            <CardTitle>Customer List</CardTitle>
-            <CardDescription>All customers associated with your dealership</CardDescription>
+          <CardHeader className="flex items-center justify-between">
+            <div>
+              <CardTitle>Customer List</CardTitle>
+              <CardDescription>All customers associated with your dealership</CardDescription>
+            </div>
+            <Button size="sm">Add Customer</Button>
           </CardHeader>
           <CardContent>
             {isLoading && (
@@ -44,38 +48,40 @@ const Customers: React.FC = () => {
             )}
             {error && <div className="text-destructive">{(error as any).message}</div>}
             {!isLoading && !error && (
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Name</TableHead>
-                    <TableHead>Email</TableHead>
-                    <TableHead>Phone</TableHead>
-                    <TableHead>Location</TableHead>
-                    <TableHead>Total Spent</TableHead>
-                    <TableHead>Created</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {data && data.length > 0 ? (
-                    data.map((c: any) => (
-                      <TableRow key={c.id}>
-                        <TableCell>{c.first_name} {c.last_name}</TableCell>
-                        <TableCell>{c.email}</TableCell>
-                        <TableCell>{c.phone ?? "-"}</TableCell>
-                        <TableCell>{[c.city, c.state].filter(Boolean).join(", ")}</TableCell>
-                        <TableCell>{formatCurrency(Number(c.total_spent ?? 0))}</TableCell>
-                        <TableCell>{formatDate(c.created_at)}</TableCell>
-                      </TableRow>
-                    ))
-                  ) : (
+              <div className="overflow-x-auto">
+                <Table>
+                  <TableHeader>
                     <TableRow>
-                      <TableCell colSpan={6} className="text-center text-muted-foreground">
-                        No customers found.
-                      </TableCell>
+                      <TableHead>Name</TableHead>
+                      <TableHead>Email</TableHead>
+                      <TableHead>Phone</TableHead>
+                      <TableHead>Location</TableHead>
+                      <TableHead>Total Spent</TableHead>
+                      <TableHead>Created</TableHead>
                     </TableRow>
-                  )}
-                </TableBody>
-              </Table>
+                  </TableHeader>
+                  <TableBody>
+                    {data && data.length > 0 ? (
+                      data.map((c: any) => (
+                        <TableRow key={c.id}>
+                          <TableCell>{c.first_name} {c.last_name}</TableCell>
+                          <TableCell>{c.email}</TableCell>
+                          <TableCell>{c.phone ?? "-"}</TableCell>
+                          <TableCell>{[c.city, c.state].filter(Boolean).join(", ")}</TableCell>
+                          <TableCell>{formatCurrency(Number(c.total_spent ?? 0))}</TableCell>
+                          <TableCell>{formatDate(c.created_at)}</TableCell>
+                        </TableRow>
+                      ))
+                    ) : (
+                      <TableRow>
+                        <TableCell colSpan={6} className="text-center text-muted-foreground">
+                          No customers found.
+                        </TableCell>
+                      </TableRow>
+                    )}
+                  </TableBody>
+                </Table>
+              </div>
             )}
           </CardContent>
         </Card>
