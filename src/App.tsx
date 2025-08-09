@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { HelmetProvider } from "react-helmet-async";
 import React, { lazy, Suspense } from "react";
 import ProtectedRoute from "./components/ProtectedRoute";
+import RequireDealer from "./components/RequireDealer";
 
 const Index = lazy(() => import("./pages/Index"));
 const NotFound = lazy(() => import("./pages/NotFound"));
@@ -15,6 +16,7 @@ const DashboardLayout = lazy(() => import("./layouts/DashboardLayout"));
 const Inventory = lazy(() => import("./pages/dashboard/Inventory"));
 const Leads = lazy(() => import("./pages/dashboard/Leads"));
 const Customers = lazy(() => import("./pages/dashboard/Customers"));
+const Onboarding = lazy(() => import("./pages/Onboarding"));
 
 const queryClient = new QueryClient();
 
@@ -37,7 +39,9 @@ const App = () => (
                 path="/app/*"
                 element={
                   <ProtectedRoute>
-                    <DashboardLayout />
+                    <RequireDealer>
+                      <DashboardLayout />
+                    </RequireDealer>
                   </ProtectedRoute>
                 }
               >
@@ -45,6 +49,7 @@ const App = () => (
                 <Route path="inventory" element={<Inventory />} />
                 <Route path="leads" element={<Leads />} />
                 <Route path="customers" element={<Customers />} />
+                <Route path="onboarding" element={<Onboarding />} />
               </Route>
 
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}

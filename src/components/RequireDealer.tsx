@@ -1,0 +1,27 @@
+import React from "react";
+import { Navigate, useLocation } from "react-router-dom";
+import { useDealer } from "@/hooks/useDealer";
+
+const RequireDealer: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const { data: dealer, isLoading } = useDealer();
+  const location = useLocation();
+
+  // Allow access to onboarding route without a dealer profile
+  const isOnboarding = location.pathname.includes("/app/onboarding");
+
+  if (isLoading) {
+    return (
+      <div className="min-h-[50vh] flex items-center justify-center text-muted-foreground">
+        Loading...
+      </div>
+    );
+  }
+
+  if (!dealer && !isOnboarding) {
+    return <Navigate to="/app/onboarding" replace />;
+  }
+
+  return <>{children}</>;
+};
+
+export default RequireDealer;
