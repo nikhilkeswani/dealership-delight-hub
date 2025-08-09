@@ -14,6 +14,7 @@ import {
   SidebarMenuItem,
   SidebarMenuButton,
   SidebarTrigger,
+  useSidebar,
 } from "@/components/ui/sidebar";
 
 const navItems = [
@@ -24,6 +25,8 @@ const navItems = [
 
 function AppSidebar() {
   
+  const { state } = useSidebar();
+  const isCollapsed = state === "collapsed";
   const location = useLocation();
   const isActive = (path: string) => location.pathname === path;
 
@@ -45,7 +48,7 @@ function AppSidebar() {
                       }
                     >
                       <item.icon className="mr-2 h-4 w-4" />
-                      <span>{item.title}</span>
+                      {!isCollapsed && <span>{item.title}</span>}
                     </NavLink>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
@@ -61,7 +64,7 @@ function AppSidebar() {
 const DashboardLayout: React.FC = () => {
   return (
     <SidebarProvider>
-      <header className="h-14 flex items-center justify-between border-b px-4">
+      <header className="sticky top-0 z-50 h-14 flex items-center justify-between border-b px-4 bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         {/* Global sidebar trigger (provided by SidebarProvider) */}
         <div className="flex items-center gap-2">
           <SidebarTrigger className="mr-2" />
@@ -77,7 +80,7 @@ const DashboardLayout: React.FC = () => {
       <div className="flex min-h-[calc(100vh-3.5rem)] w-full">
         <AppSidebar />
 
-        <main className="flex-1 p-4">
+        <main className="flex-1 p-4 md:p-6">
           <Outlet />
         </main>
       </div>

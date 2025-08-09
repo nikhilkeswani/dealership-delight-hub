@@ -4,6 +4,9 @@ import { supabase } from "@/integrations/supabase/client";
 import { SEO } from "@/components/SEO";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
+import { formatDate } from "@/lib/format";
 
 const Leads: React.FC = () => {
   const { data, isLoading, error } = useQuery({
@@ -25,7 +28,7 @@ const Leads: React.FC = () => {
         description="Track and manage sales leads for your dealership."
         canonical="/app/leads"
       />
-      <section>
+      <section className="animate-fade-in">
         <h1 className="text-2xl font-semibold mb-4">Leads</h1>
         <Card>
           <CardHeader>
@@ -33,7 +36,13 @@ const Leads: React.FC = () => {
             <CardDescription>New inquiries and their status</CardDescription>
           </CardHeader>
           <CardContent>
-            {isLoading && <div className="text-muted-foreground">Loading leads...</div>}
+            {isLoading && (
+              <div className="space-y-2">
+                {[...Array(6)].map((_, i) => (
+                  <Skeleton key={i} className="h-10 w-full" />
+                ))}
+              </div>
+            )}
             {error && <div className="text-destructive">{(error as any).message}</div>}
             {!isLoading && !error && (
               <Table>
@@ -49,14 +58,16 @@ const Leads: React.FC = () => {
                 </TableHeader>
                 <TableBody>
                   {data && data.length > 0 ? (
-                    data.map((l) => (
+                    data.map((l: any) => (
                       <TableRow key={l.id}>
                         <TableCell>{l.first_name} {l.last_name}</TableCell>
                         <TableCell>{l.email}</TableCell>
                         <TableCell>{l.phone ?? "-"}</TableCell>
-                        <TableCell className="capitalize">{l.status}</TableCell>
+                        <TableCell>
+                          <Badge variant="secondary" className="capitalize">{l.status ?? "-"}</Badge>
+                        </TableCell>
                         <TableCell className="capitalize">{l.source}</TableCell>
-                        <TableCell>{new Date(l.created_at).toLocaleString()}</TableCell>
+                        <TableCell>{formatDate(l.created_at)}</TableCell>
                       </TableRow>
                     ))
                   ) : (

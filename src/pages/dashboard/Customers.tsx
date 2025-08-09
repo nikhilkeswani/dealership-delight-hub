@@ -4,6 +4,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { SEO } from "@/components/SEO";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Skeleton } from "@/components/ui/skeleton";
+import { formatCurrency, formatDate } from "@/lib/format";
 
 const Customers: React.FC = () => {
   const { data, isLoading, error } = useQuery({
@@ -25,7 +27,7 @@ const Customers: React.FC = () => {
         description="View and manage your dealership's customers."
         canonical="/app/customers"
       />
-      <section>
+      <section className="animate-fade-in">
         <h1 className="text-2xl font-semibold mb-4">Customers</h1>
         <Card>
           <CardHeader>
@@ -33,7 +35,13 @@ const Customers: React.FC = () => {
             <CardDescription>All customers associated with your dealership</CardDescription>
           </CardHeader>
           <CardContent>
-            {isLoading && <div className="text-muted-foreground">Loading customers...</div>}
+            {isLoading && (
+              <div className="space-y-2">
+                {[...Array(6)].map((_, i) => (
+                  <Skeleton key={i} className="h-10 w-full" />
+                ))}
+              </div>
+            )}
             {error && <div className="text-destructive">{(error as any).message}</div>}
             {!isLoading && !error && (
               <Table>
@@ -49,14 +57,14 @@ const Customers: React.FC = () => {
                 </TableHeader>
                 <TableBody>
                   {data && data.length > 0 ? (
-                    data.map((c) => (
+                    data.map((c: any) => (
                       <TableRow key={c.id}>
                         <TableCell>{c.first_name} {c.last_name}</TableCell>
                         <TableCell>{c.email}</TableCell>
                         <TableCell>{c.phone ?? "-"}</TableCell>
                         <TableCell>{[c.city, c.state].filter(Boolean).join(", ")}</TableCell>
-                        <TableCell>{c.total_spent ? `$${Number(c.total_spent).toLocaleString()}` : "$0"}</TableCell>
-                        <TableCell>{new Date(c.created_at).toLocaleDateString()}</TableCell>
+                        <TableCell>{formatCurrency(Number(c.total_spent ?? 0))}</TableCell>
+                        <TableCell>{formatDate(c.created_at)}</TableCell>
                       </TableRow>
                     ))
                   ) : (
