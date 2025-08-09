@@ -1,4 +1,6 @@
 import { Button } from "@/components/ui/button";
+import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "@/components/ui/accordion";
+import { Car, Users, CalendarCheck, BarChart3, Palette, Globe, Check } from "lucide-react";
 import SEO from "@/components/SEO";
 
 const Index = () => {
@@ -64,35 +66,113 @@ const Index = () => {
 
       <main>
         <section id="features" className="container py-16 md:py-24">
-          <div className="grid md:grid-cols-3 gap-8">
-            <div className="space-y-2">
-              <h2 className="text-2xl font-semibold">Built for conversion</h2>
-              <p className="text-muted-foreground">Lightning-fast pages, clear CTAs, and modern layouts to turn visitors into buyers.</p>
-            </div>
-            <div className="space-y-2">
-              <h2 className="text-2xl font-semibold">Dealer website + CRM</h2>
-              <p className="text-muted-foreground">Manage inventory, leads, appointments, and analytics in one place.</p>
-            </div>
-            <div className="space-y-2">
-              <h2 className="text-2xl font-semibold">SEO done right</h2>
-              <p className="text-muted-foreground">Meta tags, clean URLs, sitemap, and structured data out of the box.</p>
-            </div>
+          <div className="text-center max-w-2xl mx-auto mb-10">
+            <h2 className="text-3xl font-semibold">Everything dealers need</h2>
+            <p className="text-muted-foreground">Inventory, leads, bookings, analytics—built for conversion.</p>
           </div>
 
-          <div className="mt-10 grid md:grid-cols-3 gap-6">
-            {[
-              { title: "Inventory CRUD", text: "Create, edit, and publish vehicle listings with image uploads.", },
-              { title: "Lead Management", text: "Track inquiries, status, and sources with notes.", },
-              { title: "Bookings", text: "Customers can book test drives and appointments.", },
-              { title: "Analytics", text: "Page views, conversion rate, and most viewed vehicles.", },
-              { title: "Branding", text: "Logo, colors, hero text, and font presets.", },
-              { title: "Domains", text: "Free subdomain or connect your custom domain.", },
-            ].map((f) => (
-              <div key={f.title} className="rounded-lg border bg-card p-5">
-                <h3 className="font-medium mb-1">{f.title}</h3>
-                <p className="text-sm text-muted-foreground">{f.text}</p>
+          <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-6">
+            <div className="rounded-lg border bg-card p-5">
+              <div className="flex items-start gap-3">
+                <div className="h-10 w-10 rounded-md bg-secondary flex items-center justify-center">
+                  <Car className="h-5 w-5" />
+                </div>
+                <div>
+                  <h3 className="font-medium mb-1">Inventory CRUD</h3>
+                  <p className="text-sm text-muted-foreground">Create, edit, and publish vehicle listings with image uploads.</p>
+                </div>
               </div>
-            ))}
+            </div>
+            <div className="rounded-lg border bg-card p-5">
+              <div className="flex items-start gap-3">
+                <div className="h-10 w-10 rounded-md bg-secondary flex items-center justify-center">
+                  <Users className="h-5 w-5" />
+                </div>
+                <div>
+                  <h3 className="font-medium mb-1">Lead Management</h3>
+                  <p className="text-sm text-muted-foreground">Track inquiries, status, and sources with notes.</p>
+                </div>
+              </div>
+            </div>
+            <div className="rounded-lg border bg-card p-5">
+              <div className="flex items-start gap-3">
+                <div className="h-10 w-10 rounded-md bg-secondary flex items-center justify-center">
+                  <CalendarCheck className="h-5 w-5" />
+                </div>
+                <div>
+                  <h3 className="font-medium mb-1">Bookings</h3>
+                  <p className="text-sm text-muted-foreground">Customers can book test drives and appointments.</p>
+                </div>
+              </div>
+            </div>
+            <div className="rounded-lg border bg-card p-5">
+              <div className="flex items-start gap-3">
+                <div className="h-10 w-10 rounded-md bg-secondary flex items-center justify-center">
+                  <BarChart3 className="h-5 w-5" />
+                </div>
+                <div>
+                  <h3 className="font-medium mb-1">Analytics</h3>
+                  <p className="text-sm text-muted-foreground">Page views, conversion rate, and most viewed vehicles.</p>
+                </div>
+              </div>
+            </div>
+            <div className="rounded-lg border bg-card p-5">
+              <div className="flex items-start gap-3">
+                <div className="h-10 w-10 rounded-md bg-secondary flex items-center justify-center">
+                  <Palette className="h-5 w-5" />
+                </div>
+                <div>
+                  <h3 className="font-medium mb-1">Branding</h3>
+                  <p className="text-sm text-muted-foreground">Logo, colors, hero text, and font presets.</p>
+                </div>
+              </div>
+            </div>
+            <div className="rounded-lg border bg-card p-5">
+              <div className="flex items-start gap-3">
+                <div className="h-10 w-10 rounded-md bg-secondary flex items-center justify-center">
+                  <Globe className="h-5 w-5" />
+                </div>
+                <div>
+                  <h3 className="font-medium mb-1">Domains</h3>
+                  <p className="text-sm text-muted-foreground">Free subdomain or connect your custom domain.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section id="how-it-works" className="border-t bg-muted/30">
+          <div className="container py-16 md:py-24">
+            <h2 className="text-3xl font-semibold text-center mb-10">How it works</h2>
+            <div className="grid md:grid-cols-3 gap-6">
+              <div className="rounded-xl border bg-card p-6">
+                <div className="text-sm text-muted-foreground">Step 1</div>
+                <h3 className="text-xl font-semibold mt-1">Sign up</h3>
+                <p className="text-sm text-muted-foreground mt-2">Create your account and complete a short onboarding.</p>
+              </div>
+              <div className="rounded-xl border bg-card p-6">
+                <div className="text-sm text-muted-foreground">Step 2</div>
+                <h3 className="text-xl font-semibold mt-1">Add inventory</h3>
+                <p className="text-sm text-muted-foreground mt-2">Import or create vehicle listings with photos and details.</p>
+              </div>
+              <div className="rounded-xl border bg-card p-6">
+                <div className="text-sm text-muted-foreground">Step 3</div>
+                <h3 className="text-xl font-semibold mt-1">Publish & track</h3>
+                <p className="text-sm text-muted-foreground mt-2">Go live on your domain and track leads and performance.</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section aria-label="Trusted by dealers" className="border-t">
+          <div className="container py-10">
+            <p className="text-center text-sm text-muted-foreground mb-6">Trusted by growing dealerships</p>
+            <div className="flex flex-wrap items-center justify-center gap-8 text-muted-foreground">
+              <span className="opacity-80">AutoNova</span>
+              <span className="opacity-80">City Motors</span>
+              <span className="opacity-80">Prime Auto</span>
+              <span className="opacity-80">Velocity Cars</span>
+            </div>
           </div>
         </section>
 
@@ -105,30 +185,55 @@ const Index = () => {
                 <p className="text-muted-foreground mt-1">Up to 50 listings, SEO, analytics, bookings, branded subdomain.</p>
                 <div className="mt-4 text-3xl font-semibold">$29<span className="text-base text-muted-foreground">/mo</span></div>
                 <ul className="mt-4 space-y-2 text-sm">
-                  <li>• 50 listings</li>
-                  <li>• Basic SEO & analytics</li>
-                  <li>• Booking calendar</li>
-                  <li>• dealername.dealerdelight.com</li>
+                  <li className="flex items-start gap-2"><Check className="h-4 w-4 mt-0.5" /> 50 listings</li>
+                  <li className="flex items-start gap-2"><Check className="h-4 w-4 mt-0.5" /> Basic SEO & analytics</li>
+                  <li className="flex items-start gap-2"><Check className="h-4 w-4 mt-0.5" /> Booking calendar</li>
+                  <li className="flex items-start gap-2"><Check className="h-4 w-4 mt-0.5" /> dealername.dealerdelight.com</li>
                 </ul>
-                <Button asChild variant="hero" size="xl" className="mt-6 w-full">
+                <Button asChild variant="outline" size="xl" className="mt-6 w-full">
                   <a href="/app">Start Basic</a>
                 </Button>
               </div>
-              <div className="rounded-xl border bg-card p-6">
+              <div className="rounded-xl border bg-card p-6 relative">
+                <span className="absolute -top-3 right-4 rounded-full bg-primary/10 text-primary text-xs px-3 py-1 border">Most popular</span>
                 <h3 className="text-xl font-semibold">Premium</h3>
                 <p className="text-muted-foreground mt-1">Unlimited listings, advanced SEO & analytics, custom domain, priority support.</p>
                 <div className="mt-4 text-3xl font-semibold">$79<span className="text-base text-muted-foreground">/mo</span></div>
                 <ul className="mt-4 space-y-2 text-sm">
-                  <li>• Unlimited listings</li>
-                  <li>• Advanced SEO & analytics</li>
-                  <li>• Custom domain support</li>
-                  <li>• Advanced branding</li>
+                  <li className="flex items-start gap-2"><Check className="h-4 w-4 mt-0.5" /> Unlimited listings</li>
+                  <li className="flex items-start gap-2"><Check className="h-4 w-4 mt-0.5" /> Advanced SEO & analytics</li>
+                  <li className="flex items-start gap-2"><Check className="h-4 w-4 mt-0.5" /> Custom domain support</li>
+                  <li className="flex items-start gap-2"><Check className="h-4 w-4 mt-0.5" /> Advanced branding</li>
                 </ul>
                 <Button asChild variant="hero" size="xl" className="mt-6 w-full">
                   <a href="/app">Go Premium</a>
                 </Button>
               </div>
             </div>
+          </div>
+        </section>
+
+        <section id="faq" className="border-t">
+          <div className="container py-16 md:py-24">
+            <h2 className="text-3xl font-semibold text-center mb-8">Frequently asked questions</h2>
+            <Accordion type="single" collapsible className="max-w-3xl mx-auto">
+              <AccordionItem value="item-1">
+                <AccordionTrigger>Can I use my own domain?</AccordionTrigger>
+                <AccordionContent>Yes. Connect your custom domain on the Premium plan or use a free subdomain.</AccordionContent>
+              </AccordionItem>
+              <AccordionItem value="item-2">
+                <AccordionTrigger>Do I need a developer to set this up?</AccordionTrigger>
+                <AccordionContent>No. Everything is no‑code. Most dealers go live in under 30 minutes.</AccordionContent>
+              </AccordionItem>
+              <AccordionItem value="item-3">
+                <AccordionTrigger>Can I import my existing inventory?</AccordionTrigger>
+                <AccordionContent>Yes. You can bulk add vehicles and upload photos easily.</AccordionContent>
+              </AccordionItem>
+              <AccordionItem value="item-4">
+                <AccordionTrigger>Is SEO included?</AccordionTrigger>
+                <AccordionContent>Yes. We handle meta tags, sitemap, clean URLs, and structured data best practices.</AccordionContent>
+              </AccordionItem>
+            </Accordion>
           </div>
         </section>
       </main>
