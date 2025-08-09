@@ -19,14 +19,14 @@ const Auth = () => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       if (event === "SIGNED_IN" && session?.user) {
         // Full refresh to ensure clean state
-        window.location.href = "/";
+        window.location.href = "/app";
       }
     });
 
     // Then load any existing session
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session?.user) {
-        window.location.href = "/";
+        window.location.href = "/app";
       }
     });
 

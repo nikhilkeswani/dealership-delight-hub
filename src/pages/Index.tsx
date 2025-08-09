@@ -24,7 +24,7 @@ const Index = () => {
               <a href="#features" className="hover:opacity-80">Features</a>
               <a href="#pricing" className="hover:opacity-80">Pricing</a>
               <a href="/dealer/demo-motors" className="hover:opacity-80">Live Demo</a>
-              <a href="/auth" className="hover:opacity-80">Sign in</a>
+              <a href="/app" className="hover:opacity-80">Sign in</a>
             </div>
           </nav>
 
@@ -38,7 +38,7 @@ const Index = () => {
               </p>
               <div className="flex flex-col sm:flex-row gap-3">
                 <Button asChild variant="hero" size="xl">
-                  <a href="/auth" aria-label="Get started with DealerDelight">Get started free</a>
+                  <a href="/app" aria-label="Get started with DealerDelight">Get started free</a>
                 </Button>
                 <Button asChild variant="outline" size="xl">
                   <a href="/dealer/demo-motors" aria-label="View live demo">View live demo</a>
@@ -111,7 +111,7 @@ const Index = () => {
                   <li>• dealername.dealerdelight.com</li>
                 </ul>
                 <Button asChild variant="hero" size="xl" className="mt-6 w-full">
-                  <a href="/auth">Start Basic</a>
+                  <a href="/app">Start Basic</a>
                 </Button>
               </div>
               <div className="rounded-xl border bg-card p-6">
@@ -125,7 +125,7 @@ const Index = () => {
                   <li>• Advanced branding</li>
                 </ul>
                 <Button asChild variant="hero" size="xl" className="mt-6 w-full">
-                  <a href="/auth">Go Premium</a>
+                  <a href="/app">Go Premium</a>
                 </Button>
               </div>
             </div>
