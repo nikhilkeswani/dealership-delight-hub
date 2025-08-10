@@ -10,6 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { formatCurrency, formatNumber } from "@/lib/format";
+import PageHeader from "@/components/common/PageHeader";
 
 const Inventory: React.FC = () => {
   const { data, isLoading, error } = useQuery({
@@ -49,7 +50,11 @@ const Inventory: React.FC = () => {
         noIndex
       />
       <section className="animate-fade-in">
-        <h1 className="text-2xl font-semibold mb-4">Inventory</h1>
+        <PageHeader
+          title="Inventory"
+          description="Manage your vehicles with a refined interface."
+          actions={<Button size="sm" variant="hero">Add Vehicle</Button>}
+        />
         <Card>
           <CardHeader className="flex items-center justify-between">
             <div>
@@ -92,46 +97,40 @@ const Inventory: React.FC = () => {
             )}
             {error && <div className="text-destructive">{(error as any).message}</div>}
             {!isLoading && !error && (
-              <div className="overflow-x-auto">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Year</TableHead>
-                      <TableHead>Make</TableHead>
-                      <TableHead>Model</TableHead>
-                      <TableHead>Mileage</TableHead>
-                      <TableHead>Price</TableHead>
-                      <TableHead>Status</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {filtered && filtered.length > 0 ? (
-                      filtered.map((v: any) => (
-                        <TableRow key={v.id}>
-                          <TableCell>{v.year}</TableCell>
-                          <TableCell>{v.make}</TableCell>
-                          <TableCell>{v.model}</TableCell>
-                          <TableCell>{v.mileage != null ? formatNumber(Number(v.mileage)) : "-"}</TableCell>
-                          <TableCell>{v.price != null ? formatCurrency(Number(v.price)) : "-"}</TableCell>
-                          <TableCell>
+              <div>
+                {filtered && filtered.length > 0 ? (
+                  <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                    {filtered.map((v: any) => (
+                      <Card
+                        key={v.id}
+                        className="relative overflow-hidden bg-card/60 backdrop-blur border hover-scale"
+                      >
+                        <CardHeader className="pb-2">
+                          <div className="flex items-start justify-between gap-2">
+                            <CardTitle className="text-base">{v.year} {v.make} {v.model}</CardTitle>
                             <Badge
                               variant={String(v.status).toLowerCase() === "sold" ? "destructive" : String(v.status).toLowerCase() === "pending" ? "outline" : "secondary"}
                               className="capitalize"
                             >
                               {v.status ?? "-"}
                             </Badge>
-                          </TableCell>
-                        </TableRow>
-                      ))
-                    ) : (
-                      <TableRow>
-                        <TableCell colSpan={6} className="text-center text-muted-foreground">
-                          No vehicles found.
-                        </TableCell>
-                      </TableRow>
-                    )}
-                  </TableBody>
-                </Table>
+                          </div>
+                          <CardDescription className="text-3xl font-semibold mt-1">
+                            {v.price != null ? formatCurrency(Number(v.price)) : "-"}
+                          </CardDescription>
+                        </CardHeader>
+                        <CardContent className="text-sm text-muted-foreground flex items-center justify-between">
+                          <div>
+                            Mileage: {v.mileage != null ? formatNumber(Number(v.mileage)) : "-"}
+                          </div>
+                          <Button size="sm" variant="outline">View</Button>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="py-12 text-center text-muted-foreground">No vehicles found.</div>
+                )}
               </div>
             )}
           </CardContent>

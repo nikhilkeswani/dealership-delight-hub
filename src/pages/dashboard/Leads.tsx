@@ -54,41 +54,34 @@ const Leads: React.FC = () => {
             )}
             {error && <div className="text-destructive">{(error as any).message}</div>}
             {!isLoading && !error && (
-              <div className="overflow-x-auto">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Name</TableHead>
-                      <TableHead>Email</TableHead>
-                      <TableHead>Phone</TableHead>
-                      <TableHead>Status</TableHead>
-                      <TableHead>Source</TableHead>
-                      <TableHead>Created</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {data && data.length > 0 ? (
-                      data.map((l: any) => (
-                        <TableRow key={l.id}>
-                          <TableCell>{l.first_name} {l.last_name}</TableCell>
-                          <TableCell>{l.email}</TableCell>
-                          <TableCell>{l.phone ?? "-"}</TableCell>
-                          <TableCell>
+              <div>
+                {data && data.length > 0 ? (
+                  <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                    {data.map((l: any) => (
+                      <Card key={l.id} className="relative overflow-hidden bg-card/60 backdrop-blur border hover-scale">
+                        <CardHeader className="pb-2">
+                          <div className="flex items-start justify-between gap-2">
+                            <CardTitle className="text-base">{l.first_name} {l.last_name}</CardTitle>
                             <StatusBadge status={l.status ?? "-"} className="capitalize" />
-                          </TableCell>
-                          <TableCell className="capitalize">{l.source}</TableCell>
-                          <TableCell>{formatDate(l.created_at)}</TableCell>
-                        </TableRow>
-                      ))
-                    ) : (
-                      <TableRow>
-                        <TableCell colSpan={6} className="text-center text-muted-foreground">
-                          No leads found.
-                        </TableCell>
-                      </TableRow>
-                    )}
-                  </TableBody>
-                </Table>
+                          </div>
+                          <CardDescription className="mt-1">{l.email || "-"}</CardDescription>
+                        </CardHeader>
+                        <CardContent className="text-sm text-muted-foreground flex items-center justify-between">
+                          <div>
+                            <div>Phone: {l.phone ?? "-"}</div>
+                            <div className="capitalize">Source: {l.source ?? "-"}</div>
+                          </div>
+                          <div className="text-right">
+                            <div className="text-xs">Created</div>
+                            <div className="font-medium">{formatDate(l.created_at)}</div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="py-12 text-center text-muted-foreground">No leads found.</div>
+                )}
               </div>
             )}
           </CardContent>

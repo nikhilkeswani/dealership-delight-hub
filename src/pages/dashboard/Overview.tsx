@@ -223,7 +223,7 @@ const Overview: React.FC = () => {
         title="Dashboard Overview | Dealer CRM"
         description="Clean, data-driven overview of your dealership performance: inventory, leads, sales, and appointments."
       />
-      <main className="space-y-6">
+      <main className="space-y-6 animate-fade-in">
         <PageHeader
           title="Dashboard Overview"
           description="Your dealership at a glance"
@@ -258,16 +258,30 @@ const Overview: React.FC = () => {
         </section>
 
         <section className="grid gap-4 lg:grid-cols-2">
-          {sales6mLoading ? (
-            <Skeleton className="h-[320px] w-full" />
-          ) : (
-            <MonthlySalesChart data={sales6m ?? []} />
-          )}
-          {leadsStatusLoading ? (
-            <Skeleton className="h-[320px] w-full" />
-          ) : (
-            <LeadsStatusDonut data={leadsStatusData ?? []} />
-          )}
+          <Card>
+            <CardHeader>
+              <CardTitle>Sales (6 months)</CardTitle>
+            </CardHeader>
+            <CardContent>
+              {sales6mLoading ? (
+                <Skeleton className="h-[320px] w-full" />
+              ) : (
+                <MonthlySalesChart data={sales6m ?? []} />
+              )}
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader>
+              <CardTitle>Leads by Status</CardTitle>
+            </CardHeader>
+            <CardContent>
+              {leadsStatusLoading ? (
+                <Skeleton className="h-[320px] w-full" />
+              ) : (
+                <LeadsStatusDonut data={leadsStatusData ?? []} />
+              )}
+            </CardContent>
+          </Card>
         </section>
 
         <section>

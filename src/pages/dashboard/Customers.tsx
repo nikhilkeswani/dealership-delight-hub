@@ -13,6 +13,7 @@ import { useToast } from "@/hooks/use-toast";
 import CustomerFormDialog from "@/components/customers/CustomerFormDialog";
 import CustomerDrawer, { type Customer } from "@/components/customers/CustomerDrawer";
 import { Download, Plus } from "lucide-react";
+import PageHeader from "@/components/common/PageHeader";
 
 const Customers: React.FC = () => {
   const { toast } = useToast();
@@ -140,20 +141,20 @@ const Customers: React.FC = () => {
         noIndex
       />
       <section className="animate-fade-in space-y-4">
-        <header className="flex items-center justify-between">
-          <div>
-            <h1 className="text-2xl font-semibold">Customers</h1>
-            <p className="text-sm text-muted-foreground">Customer directory and insights</p>
-          </div>
-          <div className="flex items-center gap-2">
-            <Button variant="outline" onClick={handleExport}>
-              <Download className="h-4 w-4 mr-2" /> Export CSV
-            </Button>
-            <Button onClick={onAdd}>
-              <Plus className="h-4 w-4 mr-2" /> Add Customer
-            </Button>
-          </div>
-        </header>
+        <PageHeader
+          title="Customers"
+          description="Customer directory and insights"
+          actions={
+            <div className="flex items-center gap-2">
+              <Button variant="outline" onClick={handleExport}>
+                <Download className="h-4 w-4 mr-2" /> Export CSV
+              </Button>
+              <Button onClick={onAdd} variant="hero">
+                <Plus className="h-4 w-4 mr-2" /> Add Customer
+              </Button>
+            </div>
+          }
+        />
 
         <section aria-label="KPIs" className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           <Card>
@@ -220,46 +221,37 @@ const Customers: React.FC = () => {
             )}
             {error && <div className="text-destructive">{(error as any).message}</div>}
             {!isLoading && !error && (
-              <div className="overflow-x-auto">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Name</TableHead>
-                      <TableHead>Email</TableHead>
-                      <TableHead>Phone</TableHead>
-                      <TableHead>Location</TableHead>
-                      <TableHead>Total Spent</TableHead>
-                      <TableHead>Created</TableHead>
-                      <TableHead className="text-right">Actions</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {pageRows && pageRows.length > 0 ? (
-                      pageRows.map((c) => (
-                        <TableRow key={c.id} className="cursor-pointer" onClick={() => onView(c)}>
-                          <TableCell className="font-medium">{c.first_name} {c.last_name}</TableCell>
-                          <TableCell>{c.email}</TableCell>
-                          <TableCell>{c.phone ?? "-"}</TableCell>
-                          <TableCell>{[c.city, c.state].filter(Boolean).join(", ")}</TableCell>
-                          <TableCell>{formatCurrency(Number(c.total_spent ?? 0))}</TableCell>
-                          <TableCell>{formatDate(c.created_at)}</TableCell>
-                          <TableCell className="text-right" onClick={(e) => e.stopPropagation()}>
-                            <div className="flex justify-end gap-2">
-                              <Button size="sm" variant="outline" onClick={() => onEdit(c)}>Edit</Button>
-                              <Button size="sm" variant="ghost" onClick={() => onDelete(c)}>Delete</Button>
-                            </div>
-                          </TableCell>
-                        </TableRow>
-                      ))
-                    ) : (
-                      <TableRow>
-                        <TableCell colSpan={7} className="text-center text-muted-foreground">
-                          No customers found.
-                        </TableCell>
-                      </TableRow>
-                    )}
-                  </TableBody>
-                </Table>
+              <>
+                {pageRows && pageRows.length > 0 ? (
+                  <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                    {pageRows.map((c) => (
+                      <Card
+                        key={c.id}
+                        className="relative overflow-hidden bg-card/60 backdrop-blur border hover-scale cursor-pointer"
+                        onClick={() => onView(c)}
+                      >
+                        <CardHeader className="pb-2">
+                          <CardTitle className="text-base">{c.first_name} {c.last_name}</CardTitle>
+                          <CardDescription>{c.email || "-"}</CardDescription>
+                        </CardHeader>
+                        <CardContent className="text-sm text-muted-foreground flex items-start justify-between gap-4">
+                          <div className="space-y-1">
+                            <div>Phone: {c.phone ?? "-"}</div>
+                            <div>Location: {[c.city, c.state].filter(Boolean).join(", ") || "-"}</div>
+                            <div>Joined: {formatDate(c.created_at)}</div>
+                          </div>
+                          <div className="flex flex-col gap-2" onClick={(e) => e.stopPropagation()}>
+                            <Button size="sm" variant="outline" onClick={() => onEdit(c)}>Edit</Button>
+                            <Button size="sm" variant="ghost" onClick={() => onDelete(c)}>Delete</Button>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="py-12 text-center text-muted-foreground">No customers found.</div>
+                )}
+
                 <div className="flex items-center justify-between mt-4 text-sm text-muted-foreground">
                   <div>
                     Page {page} of {pageCount}
@@ -273,7 +265,7 @@ const Customers: React.FC = () => {
                     </Button>
                   </div>
                 </div>
-              </div>
+              </>
             )}
           </CardContent>
         </Card>
