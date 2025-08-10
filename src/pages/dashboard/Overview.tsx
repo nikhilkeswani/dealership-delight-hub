@@ -15,6 +15,7 @@ import { NavLink } from "react-router-dom";
 import MonthlySalesChart from "@/components/dashboard/charts/MonthlySalesChart";
 import LeadsStatusDonut from "@/components/dashboard/charts/LeadsStatusDonut";
 import QuickActions from "@/components/dashboard/QuickActions";
+import ActivityFeed from "@/components/dashboard/ActivityFeed";
 
 
 const startOfMonth = () => {
@@ -272,78 +273,15 @@ const Overview: React.FC = () => {
           )}
         </section>
 
-        <section className="grid gap-4 lg:grid-cols-2">
-          <Card>
-            <CardHeader>
-              <CardTitle>Recent Leads</CardTitle>
-            </CardHeader>
-            <CardContent>
-              {recentLoading ? (
-                <div className="space-y-2">
-                  <Skeleton className="h-9 w-full" />
-                  <Skeleton className="h-9 w-full" />
-                  <Skeleton className="h-9 w-full" />
-                </div>
-              ) : recentLeads && recentLeads.length > 0 ? (
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Name</TableHead>
-                      <TableHead>Email</TableHead>
-                      <TableHead>Phone</TableHead>
-                      <TableHead>Status</TableHead>
-                      <TableHead>Created</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {recentLeads.map((lead: any) => (
-                      <TableRow key={lead.id}>
-                        <TableCell>{lead.first_name} {lead.last_name}</TableCell>
-                        <TableCell>{lead.email}</TableCell>
-                        <TableCell>{lead.phone || "-"}</TableCell>
-                        <TableCell>
-                          <Badge variant="secondary">{lead.status}</Badge>
-                        </TableCell>
-                        <TableCell>{formatDate(lead.created_at)}</TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              ) : (
-                <p className="text-sm text-muted-foreground">No recent leads.</p>
-              )}
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle>Today’s Appointments</CardTitle>
-            </CardHeader>
-            <CardContent>
-              {apptLoading ? (
-                <div className="space-y-2">
-                  <Skeleton className="h-9 w-full" />
-                  <Skeleton className="h-9 w-full" />
-                </div>
-              ) : todaysAppointments && todaysAppointments.length > 0 ? (
-                <ul className="space-y-3">
-                  {todaysAppointments.map((a: any) => (
-                    <li key={a.id} className="flex items-center justify-between">
-                      <div>
-                        <div className="font-medium">{a.first_name} {a.last_name}</div>
-                        <div className="text-xs text-muted-foreground">{a.email} {a.phone ? `• ${a.phone}` : ""}</div>
-                      </div>
-                      <Badge variant="outline">{a.status}</Badge>
-                    </li>
-                  ))}
-                </ul>
-              ) : (
-                <div className="text-sm text-muted-foreground">
-                  No appointments scheduled for today. <NavLink to="/app/leads" className="underline">Create one</NavLink>.
-                </div>
-              )}
-            </CardContent>
-          </Card>
+        <section>
+          {recentLoading || apptLoading ? (
+            <div className="grid gap-4 lg:grid-cols-2">
+              <Skeleton className="h-[300px] w-full" />
+              <Skeleton className="h-[300px] w-full" />
+            </div>
+          ) : (
+            <ActivityFeed recentLeads={recentLeads ?? []} todaysAppointments={todaysAppointments ?? []} />
+          )}
         </section>
 
         <section>
