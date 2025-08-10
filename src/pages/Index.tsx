@@ -46,7 +46,7 @@ const Index = () => {
                   <a href="/dealer/demo-motors" aria-label="View live demo">View live demo</a>
                 </Button>
               </div>
-              <p className="text-xs text-muted-foreground">No credit card required • Mobile-first • SEO-ready</p>
+              <p className="text-xs text-muted-foreground">• No credit card required • Mobile-first • SEO-ready</p>
             </div>
             <div className="relative">
               <div className="rounded-xl border bg-card p-4 shadow-sm">
