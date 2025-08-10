@@ -12,6 +12,10 @@ import StatCard from "@/components/dashboard/StatCard";
 import { useDealer } from "@/hooks/useDealer";
 import { formatCurrency, formatDate } from "@/lib/format";
 import { NavLink } from "react-router-dom";
+import MonthlySalesChart from "@/components/dashboard/charts/MonthlySalesChart";
+import LeadsStatusDonut from "@/components/dashboard/charts/LeadsStatusDonut";
+import QuickActions from "@/components/dashboard/QuickActions";
+
 
 const startOfMonth = () => {
   const d = new Date();
@@ -36,6 +40,13 @@ const startOfTomorrow = () => {
 const last30Days = () => {
   const d = new Date();
   d.setDate(d.getDate() - 30);
+  return d.toISOString();
+};
+
+const sixMonthsAgo = () => {
+  const d = new Date();
+  d.setMonth(d.getMonth() - 5, 1); // include current month as month 6
+  d.setHours(0, 0, 0, 0);
   return d.toISOString();
 };
 
@@ -112,6 +123,57 @@ const Overview: React.FC = () => {
         .eq("status", "converted");
       if (error) throw error;
       return count ?? 0;
+    },
+  });
+
+  const { data: sales6m, isLoading: sales6mLoading } = useQuery({
+    queryKey: ["sales-6m", dealerId],
+    enabled: !!dealerId,
+    queryFn: async () => {
+      const from = sixMonthsAgo();
+      const { data, error } = await supabase
+        .from("sales")
+        .select("sale_price,sale_date")
+        .eq("dealer_id", dealerId!)
+        .gte("sale_date", from)
+        .lt("sale_date", startOfNextMonth());
+      if (error) throw error;
+      const map = new Map<string, number>();
+      const now = new Date();
+      for (let i = 5; i >= 0; i--) {
+        const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+        const key = `${d.getFullYear()}-${d.getMonth()}`;
+        map.set(key, 0);
+      }
+      (data ?? []).forEach((row: any) => {
+        const d = new Date(row.sale_date);
+        const key = `${d.getFullYear()}-${d.getMonth()}`;
+        map.set(key, (map.get(key) || 0) + Number(row.sale_price || 0));
+      });
+      const result = Array.from(map.entries()).map(([key, total]) => {
+        const [y, m] = key.split("-").map(Number);
+        const label = new Date(y, m, 1).toLocaleString(undefined, { month: "short" });
+        return { month: label, total };
+      });
+      return result;
+    },
+  });
+
+  const { data: leadsStatusData, isLoading: leadsStatusLoading } = useQuery({
+    queryKey: ["leads-status", dealerId],
+    enabled: !!dealerId,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("leads")
+        .select("status")
+        .eq("dealer_id", dealerId!);
+      if (error) throw error;
+      const counts: Record<string, number> = {};
+      (data ?? []).forEach((l: any) => {
+        counts[l.status] = (counts[l.status] || 0) + 1;
+      });
+      const names = ["new", "contacted", "qualified", "converted", "lost"];
+      return names.map((name) => ({ name, value: counts[name] || 0 }));
     },
   });
 
@@ -198,6 +260,19 @@ const Overview: React.FC = () => {
         </section>
 
         <section className="grid gap-4 lg:grid-cols-2">
+          {sales6mLoading ? (
+            <Skeleton className="h-[320px] w-full" />
+          ) : (
+            <MonthlySalesChart data={sales6m ?? []} />
+          )}
+          {leadsStatusLoading ? (
+            <Skeleton className="h-[320px] w-full" />
+          ) : (
+            <LeadsStatusDonut data={leadsStatusData ?? []} />
+          )}
+        </section>
+
+        <section className="grid gap-4 lg:grid-cols-2">
           <Card>
             <CardHeader>
               <CardTitle>Recent Leads</CardTitle>
@@ -269,6 +344,10 @@ const Overview: React.FC = () => {
               )}
             </CardContent>
           </Card>
+        </section>
+
+        <section>
+          <QuickActions />
         </section>
       </main>
     </>

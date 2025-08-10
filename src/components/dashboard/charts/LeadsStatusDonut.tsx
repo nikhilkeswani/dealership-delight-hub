@@ -35,8 +35,9 @@ const LeadsStatusDonut: React.FC<Props> = ({ data }) => {
             <ChartTooltip content={<ChartTooltipContent />} />
             <ChartLegend content={<ChartLegendContent nameKey="name" />} />
           </PieChart>
-          <div className="mt-2 text-center text-xs text-muted-foreground">Total: {total}</div>
         </ChartContainer>
+        <div className="mt-2 text-center text-xs text-muted-foreground">Total: {total}</div>
+
       </CardContent>
     </Card>
   );
