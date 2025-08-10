@@ -9,6 +9,7 @@ import type { TablesInsert } from "@/integrations/supabase/types";
 import { SEO } from "@/components/SEO";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { useQueryClient } from "@tanstack/react-query";
 import {
   Form,
   FormControl,
@@ -33,6 +34,7 @@ type FormValues = z.infer<typeof schema>;
 
 const Onboarding: React.FC = () => {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
 
   const form = useForm<FormValues>({
     resolver: zodResolver(schema),
@@ -99,6 +101,10 @@ const Onboarding: React.FC = () => {
         ]);
 
       if (siteErr) throw siteErr;
+
+      // Ensure dealer cache updates before redirecting
+      await queryClient.invalidateQueries({ queryKey: ["dealer"] });
+      await queryClient.refetchQueries({ queryKey: ["dealer"] });
 
       toast.success("Dealer profile created. You're all set!");
       navigate("/app", { replace: true });

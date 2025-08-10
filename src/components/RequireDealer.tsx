@@ -17,6 +17,11 @@ const RequireDealer: React.FC<{ children: React.ReactNode }> = ({ children }) =>
     );
   }
 
+  // If dealer profile exists but user is on onboarding, redirect into the app
+  if (dealer && isOnboarding) {
+    return <Navigate to="/app" replace />;
+  }
+
   if (!dealer && !isOnboarding) {
     return <Navigate to="/app/onboarding" replace />;
   }
