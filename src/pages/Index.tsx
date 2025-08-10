@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "@/components/ui/accordion";
 import { Car, Users, CalendarCheck, BarChart3, Palette, Globe, Check } from "lucide-react";
 import SEO from "@/components/SEO";
+import { Link } from "react-router-dom";
 
 const Index = () => {
   return (
@@ -25,8 +26,8 @@ const Index = () => {
             <div className="hidden md:flex items-center gap-6 text-sm">
               <a href="#features" className="hover:opacity-80">Features</a>
               <a href="#pricing" className="hover:opacity-80">Pricing</a>
-              <a href="/dealer/demo-motors" className="hover:opacity-80">Live Demo</a>
-              <a href="/app" className="hover:opacity-80">Sign in</a>
+              <Link to="/dealer/demo-motors" className="hover:opacity-80">Live Demo</Link>
+              <Link to="/auth" className="hover:opacity-80">Sign in</Link>
             </div>
           </nav>
 
@@ -40,10 +41,10 @@ const Index = () => {
               </p>
               <div className="flex flex-col sm:flex-row gap-3">
                 <Button asChild variant="hero" size="xl">
-                  <a href="/app" aria-label="Get started with DealerDelight">Get started free</a>
+                  <Link to="/auth" aria-label="Get started with DealerDelight">Get started free</Link>
                 </Button>
                 <Button asChild variant="outline" size="xl">
-                  <a href="/dealer/demo-motors" aria-label="View live demo">View live demo</a>
+                  <Link to="/dealer/demo-motors" aria-label="View live demo">View live demo</Link>
                 </Button>
               </div>
               <p className="text-xs text-muted-foreground">• No credit card required • Mobile-first • SEO-ready</p>
@@ -191,7 +192,7 @@ const Index = () => {
                   <li className="flex items-start gap-2"><Check className="h-4 w-4 mt-0.5" /> dealername.dealerdelight.com</li>
                 </ul>
                 <Button asChild variant="outline" size="xl" className="mt-6 w-full">
-                  <a href="/app">Start Basic</a>
+                  <Link to="/auth">Start Basic</Link>
                 </Button>
               </div>
               <div className="rounded-xl border bg-card p-6 relative">
@@ -206,7 +207,7 @@ const Index = () => {
                   <li className="flex items-start gap-2"><Check className="h-4 w-4 mt-0.5" /> Advanced branding</li>
                 </ul>
                 <Button asChild variant="hero" size="xl" className="mt-6 w-full">
-                  <a href="/app">Go Premium</a>
+                  <Link to="/auth">Go Premium</Link>
                 </Button>
               </div>
             </div>
@@ -244,7 +245,7 @@ const Index = () => {
           <nav className="flex gap-5">
             <a href="#features">Features</a>
             <a href="#pricing">Pricing</a>
-            <a href="/dealer/demo-motors">Live Demo</a>
+            <Link to="/dealer/demo-motors">Live Demo</Link>
           </nav>
         </div>
       </footer>
