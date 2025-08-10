@@ -1,0 +1,278 @@
+import React from "react";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { SEO } from "@/components/SEO";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
+import { LayoutDashboard, ShoppingCart, Users, TrendingUp } from "lucide-react";
+import StatCard from "@/components/dashboard/StatCard";
+import { useDealer } from "@/hooks/useDealer";
+import { formatCurrency, formatDate } from "@/lib/format";
+import { NavLink } from "react-router-dom";
+
+const startOfMonth = () => {
+  const d = new Date();
+  return new Date(d.getFullYear(), d.getMonth(), 1).toISOString();
+};
+const startOfNextMonth = () => {
+  const d = new Date();
+  return new Date(d.getFullYear(), d.getMonth() + 1, 1).toISOString();
+};
+const startOfToday = () => {
+  const d = new Date();
+  d.setHours(0, 0, 0, 0);
+  return d.toISOString();
+};
+const startOfTomorrow = () => {
+  const d = new Date();
+  d.setHours(0, 0, 0, 0);
+  d.setDate(d.getDate() + 1);
+  return d.toISOString();
+};
+
+const last30Days = () => {
+  const d = new Date();
+  d.setDate(d.getDate() - 30);
+  return d.toISOString();
+};
+
+const Overview: React.FC = () => {
+  const { data: dealer, isLoading: dealerLoading } = useDealer();
+  const dealerId = dealer?.id;
+
+  const { data: vehiclesCount, isLoading: vehiclesLoading } = useQuery({
+    queryKey: ["vehicles-count", dealerId],
+    enabled: !!dealerId,
+    queryFn: async () => {
+      const { count, error } = await supabase
+        .from("vehicles")
+        .select("id", { count: "exact", head: true })
+        .eq("dealer_id", dealerId!);
+      if (error) throw error;
+      return count ?? 0;
+    },
+  });
+
+  const { data: activeLeadsCount, isLoading: leadsLoading } = useQuery({
+    queryKey: ["active-leads-count", dealerId],
+    enabled: !!dealerId,
+    queryFn: async () => {
+      const { count, error } = await supabase
+        .from("leads")
+        .select("id", { count: "exact", head: true })
+        .eq("dealer_id", dealerId!)
+        .in("status", ["new", "contacted", "qualified"]);
+      if (error) throw error;
+      return count ?? 0;
+    },
+  });
+
+  const { data: monthlySales, isLoading: salesLoading } = useQuery({
+    queryKey: ["monthly-sales", dealerId],
+    enabled: !!dealerId,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("sales")
+        .select("sale_price,sale_date")
+        .eq("dealer_id", dealerId!)
+        .gte("sale_date", startOfMonth())
+        .lt("sale_date", startOfNextMonth());
+      if (error) throw error;
+      const total = (data ?? []).reduce((sum: number, row: any) => sum + Number(row.sale_price ?? 0), 0);
+      return total;
+    },
+  });
+
+  const { data: totalLeads30 } = useQuery({
+    queryKey: ["total-leads-30", dealerId],
+    enabled: !!dealerId,
+    queryFn: async () => {
+      const { count, error } = await supabase
+        .from("leads")
+        .select("id", { count: "exact", head: true })
+        .eq("dealer_id", dealerId!)
+        .gte("created_at", last30Days());
+      if (error) throw error;
+      return count ?? 0;
+    },
+  });
+
+  const { data: convertedLeads30 } = useQuery({
+    queryKey: ["converted-leads-30", dealerId],
+    enabled: !!dealerId,
+    queryFn: async () => {
+      const { count, error } = await supabase
+        .from("leads")
+        .select("id", { count: "exact", head: true })
+        .eq("dealer_id", dealerId!)
+        .gte("created_at", last30Days())
+        .eq("status", "converted");
+      if (error) throw error;
+      return count ?? 0;
+    },
+  });
+
+  const conversionRate = React.useMemo(() => {
+    if (!totalLeads30 || totalLeads30 === 0) return 0;
+    return Math.round(((convertedLeads30 ?? 0) / totalLeads30) * 100);
+  }, [totalLeads30, convertedLeads30]);
+
+  const { data: recentLeads, isLoading: recentLoading } = useQuery({
+    queryKey: ["recent-leads", dealerId],
+    enabled: !!dealerId,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("leads")
+        .select("id,first_name,last_name,email,phone,status,created_at")
+        .eq("dealer_id", dealerId!)
+        .order("created_at", { ascending: false })
+        .limit(5);
+      if (error) throw error;
+      return data ?? [];
+    },
+  });
+
+  const { data: todaysAppointments, isLoading: apptLoading } = useQuery({
+    queryKey: ["todays-appointments", dealerId],
+    enabled: !!dealerId,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("leads")
+        .select("id,first_name,last_name,email,phone,status,follow_up_date")
+        .eq("dealer_id", dealerId!)
+        .gte("follow_up_date", startOfToday())
+        .lt("follow_up_date", startOfTomorrow())
+        .order("follow_up_date", { ascending: true });
+      if (error) throw error;
+      return data ?? [];
+    },
+  });
+
+  const anyLoading = dealerLoading || vehiclesLoading || leadsLoading || salesLoading;
+
+  return (
+    <>
+      <SEO
+        title="Dashboard Overview | Dealer CRM"
+        description="Clean, data-driven overview of your dealership performance: inventory, leads, sales, and appointments."
+      />
+      <main className="space-y-6">
+        <header className="flex items-center justify-between">
+          <div>
+            <h1 className="text-2xl font-semibold tracking-tight">Dashboard Overview</h1>
+            <p className="text-sm text-muted-foreground">Your dealership at a glance</p>
+          </div>
+          <NavLink to="/app/leads">
+            <Button variant="default">Manage Leads</Button>
+          </NavLink>
+        </header>
+
+        <section aria-label="Key metrics" className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <StatCard
+            title="Total Inventory"
+            value={vehiclesCount ?? 0}
+            icon={LayoutDashboard}
+            isLoading={anyLoading}
+          />
+          <StatCard
+            title="Active Leads"
+            value={activeLeadsCount ?? 0}
+            icon={Users}
+            isLoading={anyLoading}
+          />
+          <StatCard
+            title="Monthly Sales"
+            value={formatCurrency(monthlySales ?? 0)}
+            icon={ShoppingCart}
+            isLoading={anyLoading}
+          />
+          <StatCard
+            title="Conversion Rate"
+            value={`${conversionRate}%`}
+            icon={TrendingUp}
+            isLoading={anyLoading}
+          />
+        </section>
+
+        <section className="grid gap-4 lg:grid-cols-2">
+          <Card>
+            <CardHeader>
+              <CardTitle>Recent Leads</CardTitle>
+            </CardHeader>
+            <CardContent>
+              {recentLoading ? (
+                <div className="space-y-2">
+                  <Skeleton className="h-9 w-full" />
+                  <Skeleton className="h-9 w-full" />
+                  <Skeleton className="h-9 w-full" />
+                </div>
+              ) : recentLeads && recentLeads.length > 0 ? (
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Name</TableHead>
+                      <TableHead>Email</TableHead>
+                      <TableHead>Phone</TableHead>
+                      <TableHead>Status</TableHead>
+                      <TableHead>Created</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {recentLeads.map((lead: any) => (
+                      <TableRow key={lead.id}>
+                        <TableCell>{lead.first_name} {lead.last_name}</TableCell>
+                        <TableCell>{lead.email}</TableCell>
+                        <TableCell>{lead.phone || "-"}</TableCell>
+                        <TableCell>
+                          <Badge variant="secondary">{lead.status}</Badge>
+                        </TableCell>
+                        <TableCell>{formatDate(lead.created_at)}</TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              ) : (
+                <p className="text-sm text-muted-foreground">No recent leads.</p>
+              )}
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Today’s Appointments</CardTitle>
+            </CardHeader>
+            <CardContent>
+              {apptLoading ? (
+                <div className="space-y-2">
+                  <Skeleton className="h-9 w-full" />
+                  <Skeleton className="h-9 w-full" />
+                </div>
+              ) : todaysAppointments && todaysAppointments.length > 0 ? (
+                <ul className="space-y-3">
+                  {todaysAppointments.map((a: any) => (
+                    <li key={a.id} className="flex items-center justify-between">
+                      <div>
+                        <div className="font-medium">{a.first_name} {a.last_name}</div>
+                        <div className="text-xs text-muted-foreground">{a.email} {a.phone ? `• ${a.phone}` : ""}</div>
+                      </div>
+                      <Badge variant="outline">{a.status}</Badge>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <div className="text-sm text-muted-foreground">
+                  No appointments scheduled for today. <NavLink to="/app/leads" className="underline">Create one</NavLink>.
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </section>
+      </main>
+    </>
+  );
+};
+
+export default Overview;

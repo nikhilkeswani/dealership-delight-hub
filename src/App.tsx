@@ -13,6 +13,7 @@ const NotFound = lazy(() => import("./pages/NotFound"));
 const DealerSite = lazy(() => import("./pages/DealerSite"));
 const Auth = lazy(() => import("./pages/Auth"));
 const DashboardLayout = lazy(() => import("./layouts/DashboardLayout"));
+const Overview = lazy(() => import("./pages/dashboard/Overview"));
 const Inventory = lazy(() => import("./pages/dashboard/Inventory"));
 const Leads = lazy(() => import("./pages/dashboard/Leads"));
 const Customers = lazy(() => import("./pages/dashboard/Customers"));
@@ -45,7 +46,8 @@ const App = () => (
                   </ProtectedRoute>
                 }
               >
-                <Route index element={<Navigate to="inventory" replace />} />
+                <Route index element={<Navigate to="overview" replace />} />
+                <Route path="overview" element={<Overview />} />
                 <Route path="inventory" element={<Inventory />} />
                 <Route path="leads" element={<Leads />} />
                 <Route path="customers" element={<Customers />} />

@@ -1,6 +1,6 @@
 import React from "react";
 import { Outlet, NavLink, useLocation } from "react-router-dom";
-import { Car, Users, Inbox } from "lucide-react";
+import { Car, Users, Inbox, LayoutDashboard } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { robustSignOut } from "@/lib/auth";
 import {
@@ -21,6 +21,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
 const navItems = [
+  { title: "Dashboard", url: "/app/overview", icon: LayoutDashboard },
   { title: "Inventory", url: "/app/inventory", icon: Car },
   { title: "Leads", url: "/app/leads", icon: Inbox },
   { title: "Customers", url: "/app/customers", icon: Users },
