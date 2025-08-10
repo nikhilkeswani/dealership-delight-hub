@@ -80,7 +80,7 @@ const Auth = () => {
           <h1 className="text-3xl md:text-4xl font-semibold">{mode === "signin" ? "Welcome back" : "Create your account"}</h1>
           <p className="text-muted-foreground mt-2 max-w-2xl">
             {mode === "signin"
-              ? "Sign in to manage your inventory, leads, bookings, and analytics."
+              ? "Sign in to manage your website, inventory, leads, bookings, and analytics."
               : "Sign up to launch your dealer website and CRM in minutes."}
           </p>
         </header>
