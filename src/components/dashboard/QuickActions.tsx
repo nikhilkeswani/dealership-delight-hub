@@ -6,7 +6,7 @@ import { Plus, Users, Car } from "lucide-react";
 
 const QuickActions: React.FC = () => {
   return (
-    <Card className="hover-scale">
+    <Card className="glass-card hover-scale">
       <CardHeader>
         <CardTitle>Quick actions</CardTitle>
       </CardHeader>

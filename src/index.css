@@ -136,4 +136,14 @@ All colors MUST be HSL.
   .hover-scale {
     @apply transition-transform duration-200 hover:scale-105;
   }
+
+  /* Premium glass surface */
+  .glass-card {
+    @apply rounded-xl border bg-card/60 backdrop-blur supports-[backdrop-filter]:bg-card/50 shadow-sm;
+  }
+
+  /* Rounded icon chip */
+  .icon-chip {
+    @apply h-9 w-9 rounded-full bg-muted text-muted-foreground flex items-center justify-center;
+  }
 }

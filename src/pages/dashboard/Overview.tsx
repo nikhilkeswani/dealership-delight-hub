@@ -257,32 +257,6 @@ const Overview: React.FC = () => {
           />
         </section>
 
-        <section className="grid gap-4 lg:grid-cols-2">
-          <Card>
-            <CardHeader>
-              <CardTitle>Sales (6 months)</CardTitle>
-            </CardHeader>
-            <CardContent>
-              {sales6mLoading ? (
-                <Skeleton className="h-[320px] w-full" />
-              ) : (
-                <MonthlySalesChart data={sales6m ?? []} />
-              )}
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader>
-              <CardTitle>Leads by Status</CardTitle>
-            </CardHeader>
-            <CardContent>
-              {leadsStatusLoading ? (
-                <Skeleton className="h-[320px] w-full" />
-              ) : (
-                <LeadsStatusDonut data={leadsStatusData ?? []} />
-              )}
-            </CardContent>
-          </Card>
-        </section>
 
         <section>
           {recentLoading || apptLoading ? (

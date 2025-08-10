@@ -33,7 +33,7 @@ type Props = {
 const ActivityFeed: React.FC<Props> = ({ recentLeads = [], todaysAppointments = [] }) => {
   return (
     <div className="grid gap-4 lg:grid-cols-2">
-      <Card>
+      <Card className="glass-card">
         <CardHeader>
           <CardTitle>Recent Leads</CardTitle>
         </CardHeader>
@@ -76,7 +76,7 @@ const ActivityFeed: React.FC<Props> = ({ recentLeads = [], todaysAppointments = 
         </CardContent>
       </Card>
 
-      <Card>
+      <Card className="glass-card">
         <CardHeader>
           <CardTitle>Today’s Appointments</CardTitle>
         </CardHeader>
