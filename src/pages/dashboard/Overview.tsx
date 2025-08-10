@@ -16,6 +16,7 @@ import MonthlySalesChart from "@/components/dashboard/charts/MonthlySalesChart";
 import LeadsStatusDonut from "@/components/dashboard/charts/LeadsStatusDonut";
 import QuickActions from "@/components/dashboard/QuickActions";
 import ActivityFeed from "@/components/dashboard/ActivityFeed";
+import PageHeader from "@/components/common/PageHeader";
 
 
 const startOfMonth = () => {
@@ -223,15 +224,11 @@ const Overview: React.FC = () => {
         description="Clean, data-driven overview of your dealership performance: inventory, leads, sales, and appointments."
       />
       <main className="space-y-6">
-        <header className="flex items-center justify-between">
-          <div>
-            <h1 className="text-2xl font-semibold tracking-tight">Dashboard Overview</h1>
-            <p className="text-sm text-muted-foreground">Your dealership at a glance</p>
-          </div>
-          <NavLink to="/app/leads">
-            <Button variant="default">Manage Leads</Button>
-          </NavLink>
-        </header>
+        <PageHeader
+          title="Dashboard Overview"
+          description="Your dealership at a glance"
+          actions={<NavLink to="/app/leads"><Button variant="hero">Manage Leads</Button></NavLink>}
+        />
 
         <section aria-label="Key metrics" className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           <StatCard

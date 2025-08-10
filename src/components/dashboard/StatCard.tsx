@@ -16,7 +16,7 @@ type StatCardProps = {
 
 const StatCard: React.FC<StatCardProps> = ({ title, value, icon: Icon, helperText, isLoading, delta, trend }) => {
   return (
-    <Card>
+    <Card className="hover-scale transition-shadow duration-300">
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
         <CardTitle className="text-sm font-medium text-muted-foreground">{title}</CardTitle>
         <div className="h-8 w-8 rounded-full bg-muted flex items-center justify-center">

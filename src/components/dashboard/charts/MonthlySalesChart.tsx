@@ -11,7 +11,7 @@ type Props = {
 
 const MonthlySalesChart: React.FC<Props> = ({ data }) => {
   return (
-    <Card>
+    <Card className="hover-scale">
       <CardHeader>
         <CardTitle>Monthly Sales (6 months)</CardTitle>
       </CardHeader>

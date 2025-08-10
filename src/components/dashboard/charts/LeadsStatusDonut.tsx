@@ -20,7 +20,7 @@ const colorMap: Record<string, string> = {
 const LeadsStatusDonut: React.FC<Props> = ({ data }) => {
   const total = data.reduce((s, d) => s + d.value, 0);
   return (
-    <Card>
+    <Card className="hover-scale">
       <CardHeader>
         <CardTitle>Leads by Status</CardTitle>
       </CardHeader>

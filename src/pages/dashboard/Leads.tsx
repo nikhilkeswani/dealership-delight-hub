@@ -4,10 +4,11 @@ import { supabase } from "@/integrations/supabase/client";
 import { SEO } from "@/components/SEO";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { formatDate } from "@/lib/format";
+import PageHeader from "@/components/common/PageHeader";
+import StatusBadge from "@/components/common/StatusBadge";
 
 const Leads: React.FC = () => {
   const { data, isLoading, error } = useQuery({
@@ -31,14 +32,17 @@ const Leads: React.FC = () => {
         noIndex
       />
       <section className="animate-fade-in">
-        <h1 className="text-2xl font-semibold mb-4">Leads</h1>
+        <PageHeader
+          title="Leads"
+          description="Track and manage sales leads for your dealership."
+          actions={<Button size="sm" variant="hero">Add Lead</Button>}
+        />
         <Card>
-          <CardHeader className="flex items-center justify-between">
+          <CardHeader>
             <div>
               <CardTitle>Recent Leads</CardTitle>
               <CardDescription>New inquiries and their status</CardDescription>
             </div>
-            <Button size="sm">Add Lead</Button>
           </CardHeader>
           <CardContent>
             {isLoading && (
@@ -70,7 +74,7 @@ const Leads: React.FC = () => {
                           <TableCell>{l.email}</TableCell>
                           <TableCell>{l.phone ?? "-"}</TableCell>
                           <TableCell>
-                            <Badge variant="secondary" className="capitalize">{l.status ?? "-"}</Badge>
+                            <StatusBadge status={l.status ?? "-"} className="capitalize" />
                           </TableCell>
                           <TableCell className="capitalize">{l.source}</TableCell>
                           <TableCell>{formatDate(l.created_at)}</TableCell>
