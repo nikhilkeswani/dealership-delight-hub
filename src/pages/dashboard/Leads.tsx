@@ -10,7 +10,10 @@ import { formatDate } from "@/lib/format";
 import PageHeader from "@/components/common/PageHeader";
 import StatusBadge from "@/components/common/StatusBadge";
 import { Input } from "@/components/ui/input";
-import { Eye, Mail, Phone } from "lucide-react";
+import { Eye, Mail, Phone, Activity, Flame, TrendingUp, CalendarCheck } from "lucide-react";
+import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from "@/components/ui/select";
+import StatCard from "@/components/dashboard/StatCard";
+import { isSameDay } from "date-fns";
 
 const Leads: React.FC = () => {
   const { data, isLoading, error } = useQuery({
@@ -39,6 +42,17 @@ const Leads: React.FC = () => {
       return matchesQuery && matchesStatus;
     });
   }, [data, query, status]);
+const kpis = React.useMemo(() => {
+  const all = (data ?? []) as any[];
+  const total = all.length;
+  const normalized = (s: any) => String(s ?? "").toLowerCase();
+  const active = all.filter((l) => ["new", "contacted", "qualified"].includes(normalized(l.status))).length;
+  const hot = all.filter((l) => ["qualified", "contacted"].includes(normalized(l.status))).length;
+  const converted = all.filter((l) => normalized(l.status) === "converted").length;
+  const convRate = total ? Math.round((converted / total) * 100) : 0;
+  const todayFollowUps = all.filter((l) => l.follow_up_date && isSameDay(new Date(l.follow_up_date), new Date())).length;
+  return { active, hot, convRate, todayFollowUps };
+}, [data]);
 
   return (
     <>
@@ -53,7 +67,13 @@ const Leads: React.FC = () => {
           title="Leads"
           description="Track and manage sales leads for your dealership."
           actions={<Button size="sm" variant="hero">Add Lead</Button>}
-        />
+/>
+        <div className="mt-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+          <StatCard title="Active Leads" value={kpis.active} icon={Activity} />
+          <StatCard title="Hot Leads" value={kpis.hot} icon={Flame} />
+          <StatCard title="Conversion Rate" value={`${kpis.convRate}%`} icon={TrendingUp} />
+          <StatCard title="Follow-ups Today" value={kpis.todayFollowUps} icon={CalendarCheck} />
+        </div>
         <Card className="glass-card">
           <CardHeader className="gap-3">
             <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3">
@@ -62,25 +82,27 @@ const Leads: React.FC = () => {
                 <CardDescription>New inquiries and their status</CardDescription>
               </div>
               <div className="flex flex-col sm:flex-row gap-3 w-full lg:w-auto">
-                <div className="relative flex-1 min-w-[220px]">
+                <div className="relative flex-1 min-w-[260px]">
                   <Input
                     placeholder="Search name, email, phone..."
                     value={query}
                     onChange={(e) => setQuery(e.currentTarget.value)}
+                    aria-label="Search leads"
                   />
                 </div>
-                <div className="flex flex-wrap gap-2">
-                  {["all", "new", "contacted", "qualified", "converted", "lost"].map((s) => (
-                    <Button
-                      key={s}
-                      size="sm"
-                      variant={status === s ? "secondary" : "outline"}
-                      className="capitalize"
-                      onClick={() => setStatus(s)}
-                    >
-                      {s}
-                    </Button>
-                  ))}
+                <div className="w-full sm:w-56">
+                  <Select value={status} onValueChange={setStatus}>
+                    <SelectTrigger aria-label="Filter by status" className="bg-background">
+                      <SelectValue placeholder="Filter by status" />
+                    </SelectTrigger>
+                    <SelectContent className="z-50 bg-popover">
+                      {["all", "new", "contacted", "qualified", "converted", "lost"].map((s) => (
+                        <SelectItem key={s} value={s} className="capitalize">
+                          {s}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
               </div>
             </div>
