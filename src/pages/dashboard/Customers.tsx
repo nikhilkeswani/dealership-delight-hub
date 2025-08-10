@@ -157,11 +157,11 @@ const Customers: React.FC = () => {
         />
 
         <section aria-label="KPIs" className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          <Card>
+          <Card className="glass-card">
             <CardHeader className="pb-2"><CardTitle className="text-sm text-muted-foreground">Total Customers</CardTitle></CardHeader>
             <CardContent className="text-2xl font-bold">{totalCustomers}</CardContent>
           </Card>
-          <Card>
+          <Card className="glass-card">
             <CardHeader className="pb-2"><CardTitle className="text-sm text-muted-foreground">New This Month</CardTitle></CardHeader>
             <CardContent className="text-2xl font-bold">{newThisMonth}</CardContent>
           </Card>

@@ -9,6 +9,8 @@ import { Button } from "@/components/ui/button";
 import { formatDate } from "@/lib/format";
 import PageHeader from "@/components/common/PageHeader";
 import StatusBadge from "@/components/common/StatusBadge";
+import { Input } from "@/components/ui/input";
+import { Eye, Mail, Phone } from "lucide-react";
 
 const Leads: React.FC = () => {
   const { data, isLoading, error } = useQuery({
@@ -22,6 +24,21 @@ const Leads: React.FC = () => {
       return data ?? [];
     },
   });
+
+  const [query, setQuery] = React.useState("");
+  const [status, setStatus] = React.useState<string>("all");
+  const filtered = React.useMemo(() => {
+    const q = query.trim().toLowerCase();
+    return (data ?? []).filter((l: any) => {
+      const matchesQuery = q
+        ? [l.first_name, l.last_name, l.email, l.phone, l.source]
+            .filter(Boolean)
+            .some((v) => String(v).toLowerCase().includes(q))
+        : true;
+      const matchesStatus = status === "all" ? true : String(l.status ?? "").toLowerCase() === status;
+      return matchesQuery && matchesStatus;
+    });
+  }, [data, query, status]);
 
   return (
     <>
@@ -37,11 +54,35 @@ const Leads: React.FC = () => {
           description="Track and manage sales leads for your dealership."
           actions={<Button size="sm" variant="hero">Add Lead</Button>}
         />
-        <Card>
-          <CardHeader>
-            <div>
-              <CardTitle>Recent Leads</CardTitle>
-              <CardDescription>New inquiries and their status</CardDescription>
+        <Card className="glass-card">
+          <CardHeader className="gap-3">
+            <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3">
+              <div>
+                <CardTitle>Recent Leads</CardTitle>
+                <CardDescription>New inquiries and their status</CardDescription>
+              </div>
+              <div className="flex flex-col sm:flex-row gap-3 w-full lg:w-auto">
+                <div className="relative flex-1 min-w-[220px]">
+                  <Input
+                    placeholder="Search name, email, phone..."
+                    value={query}
+                    onChange={(e) => setQuery(e.currentTarget.value)}
+                  />
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {["all", "new", "contacted", "qualified", "converted", "lost"].map((s) => (
+                    <Button
+                      key={s}
+                      size="sm"
+                      variant={status === s ? "secondary" : "outline"}
+                      className="capitalize"
+                      onClick={() => setStatus(s)}
+                    >
+                      {s}
+                    </Button>
+                  ))}
+                </div>
+              </div>
             </div>
           </CardHeader>
           <CardContent>
@@ -55,10 +96,10 @@ const Leads: React.FC = () => {
             {error && <div className="text-destructive">{(error as any).message}</div>}
             {!isLoading && !error && (
               <div>
-                {data && data.length > 0 ? (
+                {filtered && filtered.length > 0 ? (
                   <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                    {data.map((l: any) => (
-                      <Card key={l.id} className="relative overflow-hidden bg-card/60 backdrop-blur border hover-scale">
+                    {filtered.map((l: any) => (
+                      <Card key={l.id} className="relative overflow-hidden glass-card hover-scale">
                         <CardHeader className="pb-2">
                           <div className="flex items-start justify-between gap-2">
                             <CardTitle className="text-base">{l.first_name} {l.last_name}</CardTitle>
@@ -66,14 +107,34 @@ const Leads: React.FC = () => {
                           </div>
                           <CardDescription className="mt-1">{l.email || "-"}</CardDescription>
                         </CardHeader>
-                        <CardContent className="text-sm text-muted-foreground flex items-center justify-between">
-                          <div>
-                            <div>Phone: {l.phone ?? "-"}</div>
-                            <div className="capitalize">Source: {l.source ?? "-"}</div>
+                        <CardContent className="text-sm text-muted-foreground">
+                          <div className="flex items-center justify-between">
+                            <div>
+                              <div>Phone: {l.phone ?? "-"}</div>
+                              <div className="capitalize">Source: {l.source ?? "-"}</div>
+                            </div>
+                            <div className="text-right">
+                              <div className="text-xs">Created</div>
+                              <div className="font-medium">{formatDate(l.created_at)}</div>
+                            </div>
                           </div>
-                          <div className="text-right">
-                            <div className="text-xs">Created</div>
-                            <div className="font-medium">{formatDate(l.created_at)}</div>
+                          <div className="mt-3 flex flex-wrap gap-2">
+                            <Button size="sm" variant="outline" asChild>
+                              <a href={`tel:${l.phone ?? ""}`} aria-label="Call lead">
+                                <span className="icon-chip mr-2"><Phone className="h-4 w-4" /></span>
+                                <span>Call</span>
+                              </a>
+                            </Button>
+                            <Button size="sm" variant="outline" asChild>
+                              <a href={`mailto:${l.email ?? ""}`} aria-label="Email lead">
+                                <span className="icon-chip mr-2"><Mail className="h-4 w-4" /></span>
+                                <span>Email</span>
+                              </a>
+                            </Button>
+                            <Button size="sm" variant="ghost" aria-label="View lead">
+                              <span className="icon-chip mr-2"><Eye className="h-4 w-4" /></span>
+                              <span>View</span>
+                            </Button>
                           </div>
                         </CardContent>
                       </Card>

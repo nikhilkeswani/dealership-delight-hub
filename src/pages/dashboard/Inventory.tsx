@@ -6,7 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Badge } from "@/components/ui/badge";
+import StatusBadge from "@/components/common/StatusBadge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { formatCurrency, formatNumber } from "@/lib/format";
@@ -55,7 +55,7 @@ const Inventory: React.FC = () => {
           description="Manage your vehicles with a refined interface."
           actions={<Button size="sm" variant="hero">Add Vehicle</Button>}
         />
-        <Card>
+        <Card className="glass-card">
           <CardHeader className="flex items-center justify-between">
             <div>
               <CardTitle>Vehicles</CardTitle>
@@ -101,19 +101,11 @@ const Inventory: React.FC = () => {
                 {filtered && filtered.length > 0 ? (
                   <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                     {filtered.map((v: any) => (
-                      <Card
-                        key={v.id}
-                        className="relative overflow-hidden bg-card/60 backdrop-blur border hover-scale"
-                      >
+                      <Card key={v.id} className="relative overflow-hidden glass-card hover-scale">
                         <CardHeader className="pb-2">
                           <div className="flex items-start justify-between gap-2">
                             <CardTitle className="text-base">{v.year} {v.make} {v.model}</CardTitle>
-                            <Badge
-                              variant={String(v.status).toLowerCase() === "sold" ? "destructive" : String(v.status).toLowerCase() === "pending" ? "outline" : "secondary"}
-                              className="capitalize"
-                            >
-                              {v.status ?? "-"}
-                            </Badge>
+                            <StatusBadge status={v.status ?? "-"} className="capitalize" />
                           </div>
                           <CardDescription className="text-3xl font-semibold mt-1">
                             {v.price != null ? formatCurrency(Number(v.price)) : "-"}
