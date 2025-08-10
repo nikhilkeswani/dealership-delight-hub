@@ -17,8 +17,10 @@ import {
   SidebarInset,
   useSidebar,
 } from "@/components/ui/sidebar";
-import { useQueryClient } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
+import { Breadcrumb, BreadcrumbList, BreadcrumbItem, BreadcrumbLink, BreadcrumbSeparator, BreadcrumbPage } from "@/components/ui/breadcrumb";
+import CommandMenu from "@/components/dashboard/CommandMenu";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuItem } from "@/components/ui/dropdown-menu";
 
 const navItems = [
   { title: "Dashboard", url: "/app/overview", icon: LayoutDashboard },
@@ -95,6 +97,18 @@ function AppSidebar() {
 }
 
 const DashboardLayout: React.FC = () => {
+  const [cmdOpen, setCmdOpen] = React.useState(false);
+  const location = useLocation();
+  const segments = location.pathname.split("/").filter(Boolean);
+  const page = segments[1] ?? "overview";
+  const titles: Record<string, string> = {
+    overview: "Overview",
+    inventory: "Inventory",
+    leads: "Leads",
+    customers: "Customers",
+  };
+  const pageLabel = titles[page] ?? "Overview";
+
   return (
     <SidebarProvider>
       <AppSidebar />
@@ -102,14 +116,41 @@ const DashboardLayout: React.FC = () => {
         <header className="sticky top-0 z-50 border-b bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/60">
           <div className="flex h-14 items-center gap-2 px-4">
             <SidebarTrigger className="mr-2" />
-            <div className="text-lg font-semibold">Dealer CRM</div>
-            <div className="ml-auto">
-              <Button variant="outline" onClick={robustSignOut}>
-                Sign out
+            <Breadcrumb>
+              <BreadcrumbList>
+                <BreadcrumbItem>
+                  <BreadcrumbLink asChild>
+                    <NavLink to="/app/overview">Dashboard</NavLink>
+                  </BreadcrumbLink>
+                </BreadcrumbItem>
+                <BreadcrumbSeparator />
+                <BreadcrumbItem>
+                  <BreadcrumbPage>{pageLabel}</BreadcrumbPage>
+                </BreadcrumbItem>
+              </BreadcrumbList>
+            </Breadcrumb>
+            <div className="ml-auto flex items-center gap-2">
+              <Button variant="outline" onClick={() => setCmdOpen(true)} aria-label="Open command menu">
+                Search ⌘K
               </Button>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <button aria-label="Open user menu">
+                    <Avatar>
+                      <AvatarFallback>DC</AvatarFallback>
+                    </Avatar>
+                  </button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuLabel>My Account</DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={robustSignOut}>Sign out</DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
           </div>
         </header>
+        <CommandMenu open={cmdOpen} onOpenChange={setCmdOpen} />
         <div className="p-4 md:p-6">
           <Outlet />
         </div>
