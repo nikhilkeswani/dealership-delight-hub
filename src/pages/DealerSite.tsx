@@ -27,7 +27,9 @@ import {
   SelectItem,
 } from "@/components/ui/select";
 import { useToast } from "@/components/ui/use-toast";
-import { Phone, Mail, Clock } from "lucide-react";
+import { Phone, Mail, Clock, Star, Award, ShieldCheck, Tag, Search } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { useState } from "react";
 const sampleVehicles: VehicleData[] = [
   {
     id: "1",
@@ -111,6 +113,28 @@ const DealerSite = () => {
     }, 600);
   };
 
+  // Client-side search/filter (demo only)
+  const [query, setQuery] = useState("");
+  const [type, setType] = useState<string | null>(null);
+  const filteredVehicles = sampleVehicles.filter((v) => {
+    const q = query.trim().toLowerCase();
+    const matchesQuery = !q
+      ? true
+      : [v.title, v.description, ...(v.features || [])]
+          .filter(Boolean)
+          .some((t) => String(t).toLowerCase().includes(q));
+    const matchesType = !type
+      ? true
+      : type === "SUVs"
+      ? v.title.toLowerCase().includes("suv")
+      : type === "Sedans"
+      ? v.title.toLowerCase().includes("sedan")
+      : type === "Electric"
+      ? (v.features || []).some((f) => String(f).toLowerCase().includes("electric"))
+      : true;
+    return matchesQuery && matchesType;
+  });
+
   const vehiclesStructured = sampleVehicles.map((v) => ({
     "@type": "Vehicle",
     name: v.title,
@@ -168,18 +192,126 @@ const DealerSite = () => {
       </header>
 
       <main>
-        <section className="container py-10 md:py-14">
-          <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
-            <div className="max-w-2xl space-y-3">
-              <h2 className="text-3xl md:text-4xl font-semibold">Find your next vehicle</h2>
-              <p className="text-muted-foreground text-lg">Curated inventory with transparent pricing. Reserve online in minutes.</p>
+        <section className="relative overflow-hidden border-b">
+          <div className="absolute inset-0 bg-gradient-to-br from-primary/20 via-primary/10 to-accent/20" />
+          <div className="absolute inset-0 opacity-40 bg-[radial-gradient(hsl(var(--primary)/0.15)_1px,transparent_1px)] bg-[length:20px_20px]" />
+          <div className="container relative py-12 md:py-20 space-y-8 animate-fade-in">
+            <div className="flex flex-wrap gap-2">
+              <Badge variant="secondary" className="flex items-center gap-1"><Star className="h-3.5 w-3.5" /> 4.9 Rating</Badge>
+              <Badge variant="secondary" className="flex items-center gap-1"><Award className="h-3.5 w-3.5" /> Award Winning</Badge>
+              <Badge variant="secondary" className="flex items-center gap-1"><ShieldCheck className="h-3.5 w-3.5" /> Certified Dealer</Badge>
+              <Badge variant="secondary" className="flex items-center gap-1"><Tag className="h-3.5 w-3.5" /> Best Prices</Badge>
             </div>
+
+            <div className="max-w-3xl">
+              <h2 className="text-4xl md:text-5xl font-semibold tracking-tight">Find Your Perfect Vehicle</h2>
+              <p className="mt-3 text-muted-foreground text-lg">Premium quality cars with unbeatable service and expertise. Experience the difference with our award‑winning customer care.</p>
+            </div>
+
+            <div className="rounded-xl border bg-card/70 backdrop-blur p-4 md:p-6 w-full max-w-3xl">
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  document.getElementById("inventory")?.scrollIntoView({ behavior: "smooth" });
+                }}
+                className="space-y-4"
+              >
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    value={query}
+                    onChange={(e) => setQuery(e.target.value)}
+                    placeholder="Search by make, model, year, or keyword..."
+                    className="pl-9"
+                    aria-label="Search inventory"
+                  />
+                </div>
+                <div className="flex flex-wrap gap-2 text-sm items-center">
+                  <span className="text-muted-foreground">Popular searches:</span>
+                  {(["SUVs", "Sedans", "Electric"] as const).map((label) => (
+                    <Button
+                      key={label}
+                      type="button"
+                      size="sm"
+                      variant={type === label ? "default" : "outline"}
+                      onClick={() => setType(type === label ? null : label)}
+                    >
+                      {label}
+                    </Button>
+                  ))}
+                </div>
+                <div>
+                  <Button type="submit" variant="hero" size="lg">Search Now</Button>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    className="ml-2"
+                    onClick={() => {
+                      setQuery("");
+                      setType(null);
+                      document.getElementById("inventory")?.scrollIntoView({ behavior: "smooth" });
+                    }}
+                  >
+                    Browse Inventory
+                  </Button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </section>
+
+        {/* Why Choose */}
+        <section className="container py-10 md:py-14">
+          <div className="text-center max-w-2xl mx-auto mb-8">
+            <h3 className="text-2xl md:text-3xl font-semibold">Why Choose {dealerName}?</h3>
+            <p className="text-muted-foreground">Your trusted automotive partner</p>
+          </div>
+          <div className="grid gap-4 md:gap-6 grid-cols-1 md:grid-cols-3">
+            <div className="rounded-xl border bg-card p-6 hover-scale animate-fade-in">
+              <ShieldCheck className="h-6 w-6 text-primary" />
+              <h4 className="mt-3 font-medium">Certified Quality</h4>
+              <p className="text-sm text-muted-foreground">Every vehicle undergoes rigorous inspection.</p>
+            </div>
+            <div className="rounded-xl border bg-card p-6 hover-scale animate-fade-in">
+              <Award className="h-6 w-6 text-primary" />
+              <h4 className="mt-3 font-medium">Award Winning</h4>
+              <p className="text-sm text-muted-foreground">Recognized for excellence in customer service.</p>
+            </div>
+            <div className="rounded-xl border bg-card p-6 hover-scale animate-fade-in">
+              <Star className="h-6 w-6 text-primary" />
+              <h4 className="mt-3 font-medium">5‑Star Reviews</h4>
+              <p className="text-sm text-muted-foreground">Thousands of satisfied customers.</p>
+            </div>
+          </div>
+        </section>
+
+        {/* Inventory */}
+        <section id="inventory" className="container py-10 md:py-14">
+          <div className="max-w-2xl space-y-3">
+            <h3 className="text-2xl md:text-3xl font-semibold">Available Vehicles</h3>
+            <p className="text-muted-foreground">Discover our selection in the {dealerName} collection.</p>
           </div>
 
           <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {sampleVehicles.map((v) => (
-              <VehicleCard key={v.id} vehicle={v} />
-            ))}
+            {filteredVehicles.length === 0 ? (
+              <div className="col-span-full text-center text-muted-foreground">
+                No vehicles match your search.
+              </div>
+            ) : (
+              filteredVehicles.map((v) => (
+                <div key={v.id} className="space-y-3 hover-scale animate-fade-in">
+                  <VehicleCard vehicle={v} />
+                  <div className="flex gap-2">
+                    <Button variant="hero" size="sm" onClick={() => document.getElementById("contact")?.scrollIntoView({ behavior: "smooth" })}>
+                      Test Drive
+                    </Button>
+                    <Button variant="outline" size="sm" onClick={() => document.getElementById("contact")?.scrollIntoView({ behavior: "smooth" })}>
+                      Inquire
+                    </Button>
+                  </div>
+                </div>
+              ))
+            )}
           </div>
         </section>
 
