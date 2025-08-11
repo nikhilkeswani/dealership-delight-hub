@@ -207,7 +207,7 @@ const DealerSite = () => {
       </header>
 
       <main>
-        <section className="relative overflow-hidden border-b">
+        <section className="relative overflow-hidden" >
           <div className="absolute inset-0 bg-gradient-to-br from-primary/20 via-primary/10 to-accent/20" />
           <div className="absolute inset-0 opacity-40 bg-[radial-gradient(hsl(var(--primary)/0.15)_1px,transparent_1px)] bg-[length:20px_20px]" />
           <div className="container relative py-12 md:py-20 space-y-8 animate-fade-in">
@@ -275,38 +275,11 @@ const DealerSite = () => {
           </div>
         </section>
 
-        {/* Why Choose */}
-        <section className="container py-10 md:py-14">
-          <div className="text-center max-w-2xl mx-auto mb-8">
-            <h3 className="text-2xl md:text-3xl font-semibold">Why Choose {dealerName}?</h3>
-            <p className="text-muted-foreground">Your trusted automotive partner</p>
-          </div>
-          <div className="grid gap-4 md:gap-6 grid-cols-1 md:grid-cols-3">
-            <div className="rounded-xl border bg-card p-6 hover-scale animate-fade-in">
-              <ShieldCheck className="h-6 w-6 text-primary" />
-              <h4 className="mt-3 font-medium">Certified Quality</h4>
-              <p className="text-sm text-muted-foreground">Every vehicle undergoes rigorous inspection.</p>
-            </div>
-            <div className="rounded-xl border bg-card p-6 hover-scale animate-fade-in">
-              <Award className="h-6 w-6 text-primary" />
-              <h4 className="mt-3 font-medium">Award Winning</h4>
-              <p className="text-sm text-muted-foreground">Recognized for excellence in customer service.</p>
-            </div>
-            <div className="rounded-xl border bg-card p-6 hover-scale animate-fade-in">
-              <Star className="h-6 w-6 text-primary" />
-              <h4 className="mt-3 font-medium">5‑Star Reviews</h4>
-              <p className="text-sm text-muted-foreground">Thousands of satisfied customers.</p>
-            </div>
-          </div>
-        </section>
 
         {/* Inventory */}
-        <section id="inventory" className="bg-muted/20 border-y">
-          <div className="container py-12 md:py-16">
-            <div className="max-w-2xl space-y-3">
-              <h3 className="text-2xl md:text-3xl font-semibold">Available Vehicles</h3>
-              <p className="text-muted-foreground">Discover our selection in the {dealerName} collection.</p>
-            </div>
+        <section id="inventory" className="">
+          <div className="container pt-6 pb-14 md:pt-8 md:pb-20">
+            <h3 className="sr-only">Available Vehicles</h3>
 
             <div className="mt-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
               <p className="text-sm text-muted-foreground">Showing {sortedVehicles.length} result{sortedVehicles.length !== 1 ? "s" : ""}</p>
@@ -356,38 +329,6 @@ const DealerSite = () => {
               <p className="text-muted-foreground">Our team is here to help you every step of the way. Visit us today!</p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-10">
-              <div className="rounded-xl border bg-card p-6 text-center hover-scale animate-fade-in">
-                <Phone className="h-5 w-5 text-primary mx-auto" />
-                <h5 className="mt-3 font-medium">Call Us</h5>
-                <p className="text-sm text-muted-foreground">{phone}</p>
-                <div className="mt-4">
-                  <Button asChild size="sm" variant="outline">
-                    <a href={`tel:${phone.replace(/[^0-9+]/g, "")}`}>Call Now</a>
-                  </Button>
-                </div>
-              </div>
-              <div className="rounded-xl border bg-card p-6 text-center hover-scale animate-fade-in">
-                <Mail className="h-5 w-5 text-primary mx-auto" />
-                <h5 className="mt-3 font-medium">Email Us</h5>
-                <p className="text-sm text-muted-foreground">{email}</p>
-                <div className="mt-4">
-                  <Button asChild size="sm" variant="outline">
-                    <a href={`mailto:${email}`}>Send Email</a>
-                  </Button>
-                </div>
-              </div>
-              <div className="rounded-xl border bg-card p-6 text-center hover-scale animate-fade-in">
-                <Clock className="h-5 w-5 text-primary mx-auto" />
-                <h5 className="mt-3 font-medium">Visit Us</h5>
-                <p className="text-sm text-muted-foreground">{address}</p>
-                <div className="mt-4">
-                  <Button asChild size="sm" variant="hero">
-                    <a href={mapsLink} target="_blank" rel="noopener noreferrer">Get Directions</a>
-                  </Button>
-                </div>
-              </div>
-            </div>
 
             <h4 className="text-xl font-semibold mb-4">Visit our showroom</h4>
             <div className="grid md:grid-cols-2 gap-6">
@@ -519,8 +460,33 @@ const DealerSite = () => {
                     </div>
                   </form>
                 </Form>
-                <p className="text-xs text-muted-foreground">Demo only: this form shows the real experience but doesn’t store data.</p>
+                
               </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Why Choose - moved to bottom */}
+        <section className="container py-12 md:py-16">
+          <div className="text-center max-w-2xl mx-auto mb-8">
+            <h3 className="text-2xl md:text-3xl font-semibold">Why Choose {dealerName}?</h3>
+            <p className="text-muted-foreground">Your trusted automotive partner</p>
+          </div>
+          <div className="grid gap-4 md:gap-6 grid-cols-1 md:grid-cols-3">
+            <div className="rounded-xl border bg-card p-6 hover-scale animate-fade-in">
+              <ShieldCheck className="h-6 w-6 text-primary" />
+              <h4 className="mt-3 font-medium">Certified Quality</h4>
+              <p className="text-sm text-muted-foreground">Every vehicle undergoes rigorous inspection.</p>
+            </div>
+            <div className="rounded-xl border bg-card p-6 hover-scale animate-fade-in">
+              <Award className="h-6 w-6 text-primary" />
+              <h4 className="mt-3 font-medium">Award Winning</h4>
+              <p className="text-sm text-muted-foreground">Recognized for excellence in customer service.</p>
+            </div>
+            <div className="rounded-xl border bg-card p-6 hover-scale animate-fade-in">
+              <Star className="h-6 w-6 text-primary" />
+              <h4 className="mt-3 font-medium">5‑Star Reviews</h4>
+              <p className="text-sm text-muted-foreground">Thousands of satisfied customers.</p>
             </div>
           </div>
         </section>
