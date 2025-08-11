@@ -26,7 +26,7 @@ import {
   SelectContent,
   SelectItem,
 } from "@/components/ui/select";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import { Phone, Mail, Clock, Star, Award, ShieldCheck, Tag, Search } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { useState } from "react";
@@ -135,6 +135,20 @@ const DealerSite = () => {
     return matchesQuery && matchesType;
   });
 
+  // Sorting (demo only)
+  const [sort, setSort] = useState<"relevance" | "price-asc" | "price-desc">(
+    "relevance"
+  );
+  const parsePrice = (p?: string) => {
+    const n = Number(String(p ?? "").replace(/[^0-9.]/g, ""));
+    return isNaN(n) ? 0 : n;
+  };
+  const sortedVehicles = [...filteredVehicles].sort((a, b) => {
+    if (sort === "price-asc") return parsePrice(a.price) - parsePrice(b.price);
+    if (sort === "price-desc") return parsePrice(b.price) - parsePrice(a.price);
+    return 0;
+  });
+
   const vehiclesStructured = sampleVehicles.map((v) => ({
     "@type": "Vehicle",
     name: v.title,
@@ -162,6 +176,7 @@ const DealerSite = () => {
     makesOffer: vehiclesStructured,
   };
   const mapEmbed = `https://www.google.com/maps?q=${encodeURIComponent(address)}&output=embed`;
+  const mapsLink = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`;
 
   return (
     <div className="min-h-screen bg-background">
@@ -286,38 +301,95 @@ const DealerSite = () => {
         </section>
 
         {/* Inventory */}
-        <section id="inventory" className="container py-10 md:py-14">
-          <div className="max-w-2xl space-y-3">
-            <h3 className="text-2xl md:text-3xl font-semibold">Available Vehicles</h3>
-            <p className="text-muted-foreground">Discover our selection in the {dealerName} collection.</p>
-          </div>
+        <section id="inventory" className="bg-muted/20 border-y">
+          <div className="container py-12 md:py-16">
+            <div className="max-w-2xl space-y-3">
+              <h3 className="text-2xl md:text-3xl font-semibold">Available Vehicles</h3>
+              <p className="text-muted-foreground">Discover our selection in the {dealerName} collection.</p>
+            </div>
 
-          <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredVehicles.length === 0 ? (
-              <div className="col-span-full text-center text-muted-foreground">
-                No vehicles match your search.
+            <div className="mt-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+              <p className="text-sm text-muted-foreground">Showing {sortedVehicles.length} result{sortedVehicles.length !== 1 ? "s" : ""}</p>
+              <div className="flex items-center gap-2">
+                <span className="text-sm text-muted-foreground">Sort by</span>
+                <Select value={sort} onValueChange={(v) => setSort(v as any)}>
+                  <SelectTrigger className="w-44">
+                    <SelectValue placeholder="Sort by" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="relevance">Relevance</SelectItem>
+                    <SelectItem value="price-asc">Price: Low to High</SelectItem>
+                    <SelectItem value="price-desc">Price: High to Low</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
-            ) : (
-              filteredVehicles.map((v) => (
-                <div key={v.id} className="space-y-3 hover-scale animate-fade-in">
-                  <VehicleCard vehicle={v} />
-                  <div className="flex gap-2">
-                    <Button variant="hero" size="sm" onClick={() => document.getElementById("contact")?.scrollIntoView({ behavior: "smooth" })}>
-                      Test Drive
-                    </Button>
-                    <Button variant="outline" size="sm" onClick={() => document.getElementById("contact")?.scrollIntoView({ behavior: "smooth" })}>
-                      Inquire
-                    </Button>
-                  </div>
+            </div>
+
+            <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {sortedVehicles.length === 0 ? (
+                <div className="col-span-full text-center text-muted-foreground">
+                  No vehicles match your search.
                 </div>
-              ))
-            )}
+              ) : (
+                sortedVehicles.map((v) => (
+                  <div key={v.id} className="space-y-3 hover-scale animate-fade-in">
+                    <VehicleCard vehicle={v} />
+                    <div className="flex gap-2">
+                      <Button variant="hero" size="sm" onClick={() => document.getElementById("contact")?.scrollIntoView({ behavior: "smooth" })}>
+                        Test Drive
+                      </Button>
+                      <Button variant="outline" size="sm" onClick={() => document.getElementById("contact")?.scrollIntoView({ behavior: "smooth" })}>
+                        Inquire
+                      </Button>
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
           </div>
         </section>
 
-        <section className="border-t bg-muted/30">
-          <div className="container py-10 md:py-14">
-            <h3 className="text-2xl font-semibold mb-4">Visit our showroom</h3>
+        <section className="border-t bg-background">
+          <div className="container py-12 md:py-16">
+            <div className="text-center max-w-2xl mx-auto mb-8">
+              <h3 className="text-2xl md:text-3xl font-semibold">Ready to Find Your Next Car?</h3>
+              <p className="text-muted-foreground">Our team is here to help you every step of the way. Visit us today!</p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-10">
+              <div className="rounded-xl border bg-card p-6 text-center hover-scale animate-fade-in">
+                <Phone className="h-5 w-5 text-primary mx-auto" />
+                <h5 className="mt-3 font-medium">Call Us</h5>
+                <p className="text-sm text-muted-foreground">{phone}</p>
+                <div className="mt-4">
+                  <Button asChild size="sm" variant="outline">
+                    <a href={`tel:${phone.replace(/[^0-9+]/g, "")}`}>Call Now</a>
+                  </Button>
+                </div>
+              </div>
+              <div className="rounded-xl border bg-card p-6 text-center hover-scale animate-fade-in">
+                <Mail className="h-5 w-5 text-primary mx-auto" />
+                <h5 className="mt-3 font-medium">Email Us</h5>
+                <p className="text-sm text-muted-foreground">{email}</p>
+                <div className="mt-4">
+                  <Button asChild size="sm" variant="outline">
+                    <a href={`mailto:${email}`}>Send Email</a>
+                  </Button>
+                </div>
+              </div>
+              <div className="rounded-xl border bg-card p-6 text-center hover-scale animate-fade-in">
+                <Clock className="h-5 w-5 text-primary mx-auto" />
+                <h5 className="mt-3 font-medium">Visit Us</h5>
+                <p className="text-sm text-muted-foreground">{address}</p>
+                <div className="mt-4">
+                  <Button asChild size="sm" variant="hero">
+                    <a href={mapsLink} target="_blank" rel="noopener noreferrer">Get Directions</a>
+                  </Button>
+                </div>
+              </div>
+            </div>
+
+            <h4 className="text-xl font-semibold mb-4">Visit our showroom</h4>
             <div className="grid md:grid-cols-2 gap-6">
               <div>
                 <div className="rounded-lg overflow-hidden aspect-video bg-muted">
