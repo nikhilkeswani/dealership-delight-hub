@@ -189,17 +189,17 @@ const DealerSite = () => {
       </Helmet>
 
       <header className="border-b">
-        <div className="container py-6 flex items-center justify-between">
+        <div className="container py-4 md:py-6 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
           <div className="space-y-1.5">
             <p className="text-xs tracking-wide text-muted-foreground">Powered by DealerDelight</p>
             <h1 className="text-2xl font-semibold">{dealerName}</h1>
             <p className="text-sm text-muted-foreground">Your trusted local dealer — transparent pricing and fast test drives.</p>
           </div>
-          <div className="flex gap-3">
-            <Button variant="outline" size="sm" onClick={() => document.getElementById("contact")?.scrollIntoView({ behavior: "smooth" })}>
+          <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 w-full md:w-auto">
+            <Button variant="outline" size="xl" className="w-full sm:w-auto" onClick={() => document.getElementById("contact")?.scrollIntoView({ behavior: "smooth" })}>
               Contact Dealer
             </Button>
-            <Button variant="hero" size="xl" onClick={() => document.getElementById("contact")?.scrollIntoView({ behavior: "smooth" })}>
+            <Button variant="hero" size="xl" className="w-full sm:w-auto" onClick={() => document.getElementById("contact")?.scrollIntoView({ behavior: "smooth" })}>
               Book Test Drive
             </Button>
           </div>
@@ -210,7 +210,7 @@ const DealerSite = () => {
         <section className="relative overflow-hidden" >
           <div className="absolute inset-0 bg-gradient-to-br from-primary/20 via-primary/10 to-accent/20" />
           <div className="absolute inset-0 opacity-40 bg-[radial-gradient(hsl(var(--primary)/0.15)_1px,transparent_1px)] bg-[length:20px_20px]" />
-          <div className="container relative py-12 md:py-20 space-y-8 animate-fade-in">
+          <div className="container relative py-8 md:py-20 space-y-8 animate-fade-in">
             <div className="flex flex-wrap gap-2">
               <Badge variant="secondary" className="flex items-center gap-1"><Star className="h-3.5 w-3.5" /> 4.9 Rating</Badge>
               <Badge variant="secondary" className="flex items-center gap-1"><Award className="h-3.5 w-3.5" /> Award Winning</Badge>
@@ -219,7 +219,7 @@ const DealerSite = () => {
             </div>
 
             <div className="max-w-3xl">
-              <h2 className="text-4xl md:text-5xl font-semibold tracking-tight">Find Your Perfect Vehicle</h2>
+              <h2 className="text-3xl sm:text-4xl md:text-5xl font-semibold tracking-tight">Find Your Perfect Vehicle</h2>
               <p className="mt-3 text-muted-foreground text-lg">Premium quality cars with unbeatable service and expertise. Experience the difference with our award‑winning customer care.</p>
             </div>
 
@@ -255,12 +255,12 @@ const DealerSite = () => {
                     </Button>
                   ))}
                 </div>
-                <div>
-                  <Button type="submit" variant="hero" size="lg">Search Now</Button>
+                <div className="flex flex-col sm:flex-row gap-2">
+                  <Button type="submit" variant="hero" size="lg" className="w-full sm:w-auto">Search Now</Button>
                   <Button
                     type="button"
                     variant="ghost"
-                    className="ml-2"
+                    className="w-full sm:w-auto"
                     onClick={() => {
                       setQuery("");
                       setType(null);
@@ -286,7 +286,7 @@ const DealerSite = () => {
               <div className="flex items-center gap-2">
                 <span className="text-sm text-muted-foreground">Sort by</span>
                 <Select value={sort} onValueChange={(v) => setSort(v as any)}>
-                  <SelectTrigger className="w-44">
+                  <SelectTrigger className="w-full sm:w-44">
                     <SelectValue placeholder="Sort by" />
                   </SelectTrigger>
                   <SelectContent>
@@ -307,11 +307,11 @@ const DealerSite = () => {
                 sortedVehicles.map((v) => (
                   <div key={v.id} className="space-y-3 hover-scale animate-fade-in">
                     <VehicleCard vehicle={v} />
-                    <div className="flex gap-2">
-                      <Button variant="hero" size="sm" onClick={() => document.getElementById("contact")?.scrollIntoView({ behavior: "smooth" })}>
+                    <div className="flex flex-col sm:flex-row gap-2">
+                      <Button variant="hero" size="sm" className="w-full sm:w-auto" onClick={() => document.getElementById("contact")?.scrollIntoView({ behavior: "smooth" })}>
                         Test Drive
                       </Button>
-                      <Button variant="outline" size="sm" onClick={() => document.getElementById("contact")?.scrollIntoView({ behavior: "smooth" })}>
+                      <Button variant="outline" size="sm" className="w-full sm:w-auto" onClick={() => document.getElementById("contact")?.scrollIntoView({ behavior: "smooth" })}>
                         Inquire
                       </Button>
                     </div>
