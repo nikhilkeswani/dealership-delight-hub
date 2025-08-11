@@ -322,6 +322,31 @@ const DealerSite = () => {
           </div>
         </section>
 
+        {/* Why Choose - moved above CTA */}
+        <section className="container py-12 md:py-16">
+          <div className="text-center max-w-2xl mx-auto mb-8">
+            <h3 className="text-2xl md:text-3xl font-semibold">Why Choose {dealerName}?</h3>
+            <p className="text-muted-foreground">Your trusted automotive partner</p>
+          </div>
+          <div className="grid gap-4 md:gap-6 grid-cols-1 md:grid-cols-3">
+            <div className="rounded-xl border bg-card p-6 hover-scale animate-fade-in">
+              <ShieldCheck className="h-6 w-6 text-primary" />
+              <h4 className="mt-3 font-medium">Certified Quality</h4>
+              <p className="text-sm text-muted-foreground">Every vehicle undergoes rigorous inspection.</p>
+            </div>
+            <div className="rounded-xl border bg-card p-6 hover-scale animate-fade-in">
+              <Award className="h-6 w-6 text-primary" />
+              <h4 className="mt-3 font-medium">Award Winning</h4>
+              <p className="text-sm text-muted-foreground">Recognized for excellence in customer service.</p>
+            </div>
+            <div className="rounded-xl border bg-card p-6 hover-scale animate-fade-in">
+              <Star className="h-6 w-6 text-primary" />
+              <h4 className="mt-3 font-medium">5‑Star Reviews</h4>
+              <p className="text-sm text-muted-foreground">Thousands of satisfied customers.</p>
+            </div>
+          </div>
+        </section>
+
         <section className="border-t bg-background">
           <div className="container py-12 md:py-16">
             <div className="text-center max-w-2xl mx-auto mb-8">
@@ -466,30 +491,6 @@ const DealerSite = () => {
           </div>
         </section>
 
-        {/* Why Choose - moved to bottom */}
-        <section className="container py-12 md:py-16">
-          <div className="text-center max-w-2xl mx-auto mb-8">
-            <h3 className="text-2xl md:text-3xl font-semibold">Why Choose {dealerName}?</h3>
-            <p className="text-muted-foreground">Your trusted automotive partner</p>
-          </div>
-          <div className="grid gap-4 md:gap-6 grid-cols-1 md:grid-cols-3">
-            <div className="rounded-xl border bg-card p-6 hover-scale animate-fade-in">
-              <ShieldCheck className="h-6 w-6 text-primary" />
-              <h4 className="mt-3 font-medium">Certified Quality</h4>
-              <p className="text-sm text-muted-foreground">Every vehicle undergoes rigorous inspection.</p>
-            </div>
-            <div className="rounded-xl border bg-card p-6 hover-scale animate-fade-in">
-              <Award className="h-6 w-6 text-primary" />
-              <h4 className="mt-3 font-medium">Award Winning</h4>
-              <p className="text-sm text-muted-foreground">Recognized for excellence in customer service.</p>
-            </div>
-            <div className="rounded-xl border bg-card p-6 hover-scale animate-fade-in">
-              <Star className="h-6 w-6 text-primary" />
-              <h4 className="mt-3 font-medium">5‑Star Reviews</h4>
-              <p className="text-sm text-muted-foreground">Thousands of satisfied customers.</p>
-            </div>
-          </div>
-        </section>
       </main>
 
       <footer className="border-t">
