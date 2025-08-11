@@ -27,9 +27,14 @@ import {
   SelectItem,
 } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-import { Phone, Mail, Clock, Star, Award, ShieldCheck, Tag, Search } from "lucide-react";
+import { Phone, Mail, Clock, Star, Award, ShieldCheck, Tag, Search, Settings } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { useState } from "react";
+import CustomizeSheet from "@/components/dealer/CustomizeSheet";
+import { useDealerSiteConfig, type DealerSiteConfig } from "@/hooks/useDealerSiteConfig";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { useDealer } from "@/hooks/useDealer";
+import { supabase } from "@/integrations/supabase/client";
 const sampleVehicles: VehicleData[] = [
   {
     id: "1",
@@ -74,6 +79,34 @@ const DealerSite = () => {
   const email = `sales@${(slug || "demo-motors")
     .replace(/[^a-z0-9-]/gi, "")
     .toLowerCase()}.com`;
+
+  // Live customization config (demo)
+  const defaults: DealerSiteConfig = {
+    brand: { name: dealerName, tagline: "Your trusted local dealer — transparent pricing and fast test drives.", logoUrl: undefined },
+    hero: { headline: "Find Your Perfect Vehicle", subtitle: "Premium quality cars with unbeatable service and expertise. Experience the difference with our award‑winning customer care." },
+    contact: { phone, email, address },
+    colors: { primary: "#2563eb", accent: "#22c55e" },
+  };
+  const { config, setConfig, saveLocal, reset } = useDealerSiteConfig(slug, defaults);
+
+  const { data: dealer } = useDealer();
+  const isDemo = (slug || "").toLowerCase() === "demo-motors" || (typeof window !== "undefined" && new URLSearchParams(window.location.search).get("demo") === "1");
+  const [customizeOpen, setCustomizeOpen] = useState(false);
+  const brandInitials = (config.brand.name || "").split(" ").slice(0,2).map(w=>w[0]).join("").toUpperCase() || "DL";
+
+  const saveToWebsite = async () => {
+    if (!dealer?.id) return;
+    const { error } = await supabase.from("dealer_websites").upsert({
+      dealer_id: dealer.id,
+      theme_config: { colors: config.colors, brand: config.brand, hero: config.hero },
+      contact_config: { ...config.contact },
+    });
+    if (error) {
+      toast({ title: "Save failed", description: error.message });
+    } else {
+      toast({ title: "Saved to website", description: "Your customization has been saved." });
+    }
+  };
 
   // Form schema and setup (demo only)
   const formSchema = z.object({
@@ -165,18 +198,18 @@ const DealerSite = () => {
   const structuredData = {
     "@context": "https://schema.org",
     "@type": "AutoDealer",
-    name: dealerName,
+    name: config.brand.name,
     url: currentUrl,
-    telephone: phone,
-    email: email,
+    telephone: config.contact.phone,
+    email: config.contact.email,
     address: {
       "@type": "PostalAddress",
-      streetAddress: address,
+      streetAddress: config.contact.address,
     },
     makesOffer: vehiclesStructured,
   };
-  const mapEmbed = `https://www.google.com/maps?q=${encodeURIComponent(address)}&output=embed`;
-  const mapsLink = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`;
+  const mapEmbed = `https://www.google.com/maps?q=${encodeURIComponent(config.contact.address)}&output=embed`;
+  const mapsLink = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(config.contact.address)}`;
 
   return (
     <div className="min-h-screen bg-background">
@@ -190,10 +223,16 @@ const DealerSite = () => {
 
       <header className="border-b">
         <div className="container py-4 md:py-6 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-          <div className="space-y-1.5">
-            <p className="text-xs tracking-wide text-muted-foreground">Powered by DealerDelight</p>
-            <h1 className="text-2xl font-semibold">{dealerName}</h1>
-            <p className="text-sm text-muted-foreground">Your trusted local dealer — transparent pricing and fast test drives.</p>
+          <div className="flex items-center gap-3">
+            <Avatar className="h-10 w-10">
+              <AvatarImage src={config.brand.logoUrl || undefined} alt={`${config.brand.name} logo`} />
+              <AvatarFallback>{brandInitials}</AvatarFallback>
+            </Avatar>
+            <div className="space-y-1.5">
+              <p className="text-xs tracking-wide text-muted-foreground">Powered by DealerDelight</p>
+              <h1 className="text-2xl font-semibold">{config.brand.name}</h1>
+              <p className="text-sm text-muted-foreground">{config.brand.tagline}</p>
+            </div>
           </div>
           <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 w-full md:w-auto">
             <Button variant="outline" size="xl" className="w-full sm:w-auto" onClick={() => document.getElementById("contact")?.scrollIntoView({ behavior: "smooth" })}>
@@ -219,8 +258,8 @@ const DealerSite = () => {
             </div>
 
             <div className="max-w-3xl">
-              <h2 className="text-3xl sm:text-4xl md:text-5xl font-semibold tracking-tight">Find Your Perfect Vehicle</h2>
-              <p className="mt-3 text-muted-foreground text-lg">Premium quality cars with unbeatable service and expertise. Experience the difference with our award‑winning customer care.</p>
+              <h2 className="text-3xl sm:text-4xl md:text-5xl font-semibold tracking-tight">{config.hero.headline}</h2>
+              <p className="mt-3 text-muted-foreground text-lg">{config.hero.subtitle}</p>
             </div>
 
             <div className="rounded-xl border bg-card/70 backdrop-blur p-4 md:p-6 w-full max-w-3xl">
@@ -368,18 +407,18 @@ const DealerSite = () => {
                     aria-label="Google Map"
                   />
                 </div>
-                <p className="mt-3 text-sm text-muted-foreground">{address}</p>
+                <p className="mt-3 text-sm text-muted-foreground">{config.contact.address}</p>
               </div>
               <div id="contact" className="space-y-4">
                 <h4 className="text-lg font-medium">Book a test drive</h4>
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-sm">
                   <div className="flex items-center gap-2">
                     <Phone className="h-4 w-4 text-primary" />
-                    <a href={`tel:${phone.replace(/[^0-9+]/g, "")}`} className="hover:underline">{phone}</a>
+                    <a href={`tel:${config.contact.phone.replace(/[^0-9+]/g, "")}`} className="hover:underline">{config.contact.phone}</a>
                   </div>
                   <div className="flex items-center gap-2">
                     <Mail className="h-4 w-4 text-primary" />
-                    <a href={`mailto:${email}`} className="hover:underline">{email}</a>
+                    <a href={`mailto:${config.contact.email}`} className="hover:underline">{config.contact.email}</a>
                   </div>
                   <div className="flex items-center gap-2">
                     <Clock className="h-4 w-4 text-primary" />
@@ -492,6 +531,28 @@ const DealerSite = () => {
         </section>
 
       </main>
+
+      {isDemo && (
+        <>
+          <button
+            aria-label="Customize"
+            onClick={() => setCustomizeOpen(true)}
+            className="fixed bottom-6 right-6 z-50 h-12 w-12 rounded-full shadow-lg bg-primary text-primary-foreground hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-ring"
+          >
+            <Settings className="h-6 w-6 m-auto" />
+          </button>
+          <CustomizeSheet
+            open={customizeOpen}
+            onOpenChange={setCustomizeOpen}
+            config={config}
+            onChange={setConfig}
+            onReset={reset}
+            onSaveLocal={saveLocal}
+            onSaveCloud={saveToWebsite}
+            canSaveCloud={!!dealer?.id}
+          />
+        </>
+      )}
 
       <footer className="border-t">
         <div className="container py-6 text-sm text-muted-foreground">
