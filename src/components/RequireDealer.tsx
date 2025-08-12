@@ -6,8 +6,10 @@ const RequireDealer: React.FC<{ children: React.ReactNode }> = ({ children }) =>
   const { data: dealer, isLoading } = useDealer();
   const location = useLocation();
 
-  // Allow access to onboarding route without a dealer profile
-  const isOnboarding = location.pathname.includes("/app/onboarding");
+  // Allow access to onboarding and overview routes without a dealer profile
+  const pathname = location.pathname;
+  const isOnboarding = pathname.includes("/app/onboarding");
+  const isHub = pathname.includes("/app/overview");
 
   if (isLoading) {
     return (
@@ -22,7 +24,7 @@ const RequireDealer: React.FC<{ children: React.ReactNode }> = ({ children }) =>
     return <Navigate to="/app" replace />;
   }
 
-  if (!dealer && !isOnboarding) {
+  if (!dealer && !(isOnboarding || isHub)) {
     return <Navigate to="/app/onboarding" replace />;
   }
 

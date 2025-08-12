@@ -2,7 +2,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate, Outlet } from "react-router-dom";
 import { HelmetProvider } from "react-helmet-async";
 import React, { lazy, Suspense } from "react";
 import ProtectedRoute from "./components/ProtectedRoute";
@@ -39,9 +39,23 @@ const App = () => (
               <Route path="/signup" element={<Navigate to="/auth" replace />} />
               <Route path="/dealer/:slug" element={<DealerSite />} />
 
-              {/* Protected Dealer App */}
+              {/* Hub routes without dashboard layout */}
+              <Route path="/app" element={<Navigate to="/app/overview" replace />} />
               <Route
-                path="/app/*"
+                element={
+                  <ProtectedRoute>
+                    <RequireDealer>
+                      <Outlet />
+                    </RequireDealer>
+                  </ProtectedRoute>
+                }
+              >
+                <Route path="/app/overview" element={<Overview />} />
+                <Route path="/app/onboarding" element={<Onboarding />} />
+              </Route>
+
+              {/* Dashboard routes with layout */}
+              <Route
                 element={
                   <ProtectedRoute>
                     <RequireDealer>
@@ -50,16 +64,13 @@ const App = () => (
                   </ProtectedRoute>
                 }
               >
-                <Route index element={<Navigate to="overview" replace />} />
-                <Route path="overview" element={<Overview />} />
-                <Route path="dashboard" element={<DashboardHome />} />
-                <Route path="inventory" element={<Inventory />} />
-                <Route path="leads" element={<Leads />} />
-                <Route path="customers" element={<Customers />} />
-                <Route path="onboarding" element={<Onboarding />} />
-                <Route path="settings/profile" element={<SettingsProfile />} />
-                <Route path="settings/dealers" element={<SettingsDealers />} />
-                <Route path="settings/billing" element={<SettingsBilling />} />
+                <Route path="/app/dashboard" element={<DashboardHome />} />
+                <Route path="/app/inventory" element={<Inventory />} />
+                <Route path="/app/leads" element={<Leads />} />
+                <Route path="/app/customers" element={<Customers />} />
+                <Route path="/app/settings/profile" element={<SettingsProfile />} />
+                <Route path="/app/settings/dealers" element={<SettingsDealers />} />
+                <Route path="/app/settings/billing" element={<SettingsBilling />} />
               </Route>
 
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}

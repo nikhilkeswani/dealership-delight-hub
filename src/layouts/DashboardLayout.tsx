@@ -124,10 +124,14 @@ const DashboardLayout: React.FC = () => {
                     <NavLink to="/app/dashboard">Dashboard</NavLink>
                   </BreadcrumbLink>
                 </BreadcrumbItem>
-                <BreadcrumbSeparator />
-                <BreadcrumbItem>
-                  <BreadcrumbPage>{pageLabel}</BreadcrumbPage>
-                </BreadcrumbItem>
+                {pageLabel !== "Dashboard" && (
+                  <>
+                    <BreadcrumbSeparator />
+                    <BreadcrumbItem>
+                      <BreadcrumbPage>{pageLabel}</BreadcrumbPage>
+                    </BreadcrumbItem>
+                  </>
+                )}
               </BreadcrumbList>
             </Breadcrumb>
             <div className="ml-auto">
