@@ -1,7 +1,7 @@
 import React from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { SEO } from "@/components/SEO";
+import SEO from "@/components/SEO";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
@@ -227,8 +227,29 @@ const Overview: React.FC = () => {
         <PageHeader
           title="Dashboard Overview"
           description="Your dealership at a glance"
-          actions={<NavLink to="/app/leads"><Button variant="hero">Manage Leads</Button></NavLink>}
+          actions={<NavLink to="/app/onboarding"><Button variant="hero">Configure Website</Button></NavLink>}
         />
+
+        <section aria-label="Choose your next step" className="grid gap-4 md:grid-cols-2">
+          <Card>
+            <CardHeader>
+              <CardTitle>Configure your Website</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-muted-foreground mb-4">Customize your public site theme, branding, and contact details.</p>
+              <NavLink to="/app/onboarding"><Button variant="hero">Open Configurator</Button></NavLink>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader>
+              <CardTitle>CRM Dashboard</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-muted-foreground mb-4">Track leads, customers, and sales performance.</p>
+              <NavLink to="/app/overview"><Button variant="secondary">Go to Dashboard</Button></NavLink>
+            </CardContent>
+          </Card>
+        </section>
 
         <section aria-label="Key metrics" className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           <StatCard

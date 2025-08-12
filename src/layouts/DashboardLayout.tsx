@@ -1,7 +1,7 @@
 import React from "react";
 import { Outlet, NavLink, useLocation } from "react-router-dom";
 import { Car, Users, Inbox, LayoutDashboard } from "lucide-react";
-import { Button } from "@/components/ui/button";
+// Removed search button import
 import { robustSignOut } from "@/lib/auth";
 import {
   SidebarProvider,
@@ -18,7 +18,6 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 import { Breadcrumb, BreadcrumbList, BreadcrumbItem, BreadcrumbLink, BreadcrumbSeparator, BreadcrumbPage } from "@/components/ui/breadcrumb";
-import CommandMenu from "@/components/dashboard/CommandMenu";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuItem } from "@/components/ui/dropdown-menu";
 import { useQueryClient } from "@tanstack/react-query";
@@ -99,7 +98,6 @@ function AppSidebar() {
 }
 
 const DashboardLayout: React.FC = () => {
-  const [cmdOpen, setCmdOpen] = React.useState(false);
   const location = useLocation();
   const segments = location.pathname.split("/").filter(Boolean);
   const page = segments[1] ?? "overview";
@@ -131,13 +129,10 @@ const DashboardLayout: React.FC = () => {
                 </BreadcrumbItem>
               </BreadcrumbList>
             </Breadcrumb>
-            <div className="ml-auto flex items-center gap-2">
-              <Button variant="outline" onClick={() => setCmdOpen(true)} aria-label="Open command menu">
-                Search ⌘K
-              </Button>
+            <div className="ml-auto">
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <button aria-label="Open user menu">
+                  <button aria-label="Open user menu" className="rounded-full focus:outline-none focus:ring-2 focus:ring-ring/50">
                     <Avatar>
                       <AvatarFallback>DC</AvatarFallback>
                     </Avatar>
@@ -146,13 +141,23 @@ const DashboardLayout: React.FC = () => {
                 <DropdownMenuContent align="end">
                   <DropdownMenuLabel>My Account</DropdownMenuLabel>
                   <DropdownMenuSeparator />
+                  <DropdownMenuItem asChild>
+                    <NavLink to="/app/settings/profile">Profile & Account</NavLink>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <NavLink to="/app/settings/dealers">Dealers & Teams</NavLink>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <NavLink to="/app/settings/billing">Billing</NavLink>
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={robustSignOut}>Sign out</DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
             </div>
           </div>
         </header>
-        <CommandMenu open={cmdOpen} onOpenChange={setCmdOpen} />
+        
         <div className="p-4 md:p-6">
           <Outlet />
         </div>

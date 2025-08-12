@@ -18,6 +18,9 @@ const Inventory = lazy(() => import("./pages/dashboard/Inventory"));
 const Leads = lazy(() => import("./pages/dashboard/Leads"));
 const Customers = lazy(() => import("./pages/dashboard/Customers"));
 const Onboarding = lazy(() => import("./pages/Onboarding"));
+const SettingsProfile = lazy(() => import("./pages/settings/Profile"));
+const SettingsDealers = lazy(() => import("./pages/settings/Dealers"));
+const SettingsBilling = lazy(() => import("./pages/settings/Billing"));
 
 const queryClient = new QueryClient();
 
@@ -52,6 +55,9 @@ const App = () => (
                 <Route path="leads" element={<Leads />} />
                 <Route path="customers" element={<Customers />} />
                 <Route path="onboarding" element={<Onboarding />} />
+                <Route path="settings/profile" element={<SettingsProfile />} />
+                <Route path="settings/dealers" element={<SettingsDealers />} />
+                <Route path="settings/billing" element={<SettingsBilling />} />
               </Route>
 
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
