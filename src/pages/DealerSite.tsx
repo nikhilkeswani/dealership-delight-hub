@@ -85,7 +85,8 @@ const DealerSite = () => {
     brand: { name: dealerName, tagline: "Your trusted local dealer — transparent pricing and fast test drives.", logoUrl: undefined },
     hero: { headline: "Find Your Perfect Vehicle", subtitle: "Premium quality cars with unbeatable service and expertise. Experience the difference with our award‑winning customer care." },
     contact: { phone, email, address },
-    colors: { primary: "#2563eb", accent: "#22c55e" },
+    // Default theme: purplish brand, neutral accent for subtle hovers
+    colors: { primary: "#7c3aed", accent: "#f1f5f9" },
   };
   const { config, setConfig, saveLocal, reset } = useDealerSiteConfig(slug, defaults);
 

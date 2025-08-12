@@ -55,7 +55,7 @@ const VehicleCard = ({ vehicle }: { vehicle: VehicleData }) => {
           </p>
           <ul className="flex flex-wrap gap-2 mt-2" aria-label="Key features">
             {vehicle.features.slice(0, 4).map((f) => (
-              <li key={f} className="text-xs px-2 py-1 rounded-md bg-accent text-accent-foreground">
+              <li key={f} className="text-xs px-2 py-1 rounded-md bg-muted text-foreground">
                 {f}
               </li>
             ))}
