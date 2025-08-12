@@ -24,7 +24,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
 const navItems = [
-  { title: "Dashboard", url: "/app/overview", icon: LayoutDashboard },
+  { title: "Dashboard", url: "/app/dashboard", icon: LayoutDashboard },
   { title: "Inventory", url: "/app/inventory", icon: Car },
   { title: "Leads", url: "/app/leads", icon: Inbox },
   { title: "Customers", url: "/app/customers", icon: Users },
@@ -102,6 +102,7 @@ const DashboardLayout: React.FC = () => {
   const segments = location.pathname.split("/").filter(Boolean);
   const page = segments[1] ?? "overview";
   const titles: Record<string, string> = {
+    dashboard: "Dashboard",
     overview: "Overview",
     inventory: "Inventory",
     leads: "Leads",
@@ -120,7 +121,7 @@ const DashboardLayout: React.FC = () => {
               <BreadcrumbList>
                 <BreadcrumbItem>
                   <BreadcrumbLink asChild>
-                    <NavLink to="/app/overview">Dashboard</NavLink>
+                    <NavLink to="/app/dashboard">Dashboard</NavLink>
                   </BreadcrumbLink>
                 </BreadcrumbItem>
                 <BreadcrumbSeparator />

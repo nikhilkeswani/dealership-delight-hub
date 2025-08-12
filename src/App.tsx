@@ -14,6 +14,7 @@ const DealerSite = lazy(() => import("./pages/DealerSite"));
 const Auth = lazy(() => import("./pages/Auth"));
 const DashboardLayout = lazy(() => import("./layouts/DashboardLayout"));
 const Overview = lazy(() => import("./pages/dashboard/Overview"));
+const DashboardHome = lazy(() => import("./pages/dashboard/DashboardHome"));
 const Inventory = lazy(() => import("./pages/dashboard/Inventory"));
 const Leads = lazy(() => import("./pages/dashboard/Leads"));
 const Customers = lazy(() => import("./pages/dashboard/Customers"));
@@ -51,6 +52,7 @@ const App = () => (
               >
                 <Route index element={<Navigate to="overview" replace />} />
                 <Route path="overview" element={<Overview />} />
+                <Route path="dashboard" element={<DashboardHome />} />
                 <Route path="inventory" element={<Inventory />} />
                 <Route path="leads" element={<Leads />} />
                 <Route path="customers" element={<Customers />} />
