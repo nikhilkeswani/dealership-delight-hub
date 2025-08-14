@@ -1,6 +1,10 @@
 import React, { useMemo, useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { useDealer } from "@/hooks/useDealer";
+import VehicleFormDialog from "@/components/vehicles/VehicleFormDialog";
+import type { VehicleFormValues } from "@/components/vehicles/VehicleFormDialog";
+import { toast } from "sonner";
 import { SEO } from "@/components/SEO";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -15,6 +19,10 @@ import StatCard from "@/components/dashboard/StatCard";
 import { Car, CircleDot, Clock, CalendarCheck, Eye, Pencil, Trash2, Filter } from "lucide-react";
 
 const Inventory: React.FC = () => {
+  const [vehicleDialogOpen, setVehicleDialogOpen] = useState(false);
+  const { data: dealer } = useDealer();
+  const queryClient = useQueryClient();
+
   const { data, isLoading, error } = useQuery({
     queryKey: ["vehicles"],
     queryFn: async () => {
@@ -24,6 +32,31 @@ const Inventory: React.FC = () => {
         .order("updated_at", { ascending: false });
       if (error) throw error;
       return data ?? [];
+    },
+  });
+
+  const createVehicleMutation = useMutation({
+    mutationFn: async (values: VehicleFormValues) => {
+      if (!dealer?.id) throw new Error("No dealer found");
+      
+      const { data, error } = await supabase
+        .from("vehicles")
+        .insert({
+          ...values,
+          dealer_id: dealer.id,
+        })
+        .select()
+        .single();
+      
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["vehicles"] });
+      toast.success("Vehicle added successfully");
+    },
+    onError: (error) => {
+      toast.error("Failed to add vehicle: " + error.message);
     },
   });
 
@@ -71,7 +104,7 @@ const Inventory: React.FC = () => {
         <PageHeader
           title="Inventory"
           description="Manage your vehicles with a refined interface."
-          actions={<Button size="sm" variant="hero">Add Vehicle</Button>}
+          actions={<Button size="sm" variant="hero" onClick={() => setVehicleDialogOpen(true)}>Add Vehicle</Button>}
         />
         <div className="mt-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
           <StatCard title="Total Vehicles" value={kpis.total} icon={Car} />
@@ -183,6 +216,12 @@ const Inventory: React.FC = () => {
           </CardContent>
         </Card>
       </section>
+      
+      <VehicleFormDialog
+        open={vehicleDialogOpen}
+        onOpenChange={setVehicleDialogOpen}
+        onSubmit={createVehicleMutation.mutate}
+      />
     </>
   );
 };

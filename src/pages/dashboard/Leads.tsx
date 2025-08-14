@@ -1,6 +1,10 @@
 import React from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { useDealer } from "@/hooks/useDealer";
+import LeadFormDialog from "@/components/leads/LeadFormDialog";
+import type { LeadFormValues } from "@/components/leads/LeadFormDialog";
+import { toast } from "sonner";
 import { SEO } from "@/components/SEO";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -16,6 +20,10 @@ import StatCard from "@/components/dashboard/StatCard";
 import { isSameDay } from "date-fns";
 
 const Leads: React.FC = () => {
+  const [leadDialogOpen, setLeadDialogOpen] = React.useState(false);
+  const { data: dealer } = useDealer();
+  const queryClient = useQueryClient();
+
   const { data, isLoading, error } = useQuery({
     queryKey: ["leads"],
     queryFn: async () => {
@@ -25,6 +33,31 @@ const Leads: React.FC = () => {
         .order("created_at", { ascending: false });
       if (error) throw error;
       return data ?? [];
+    },
+  });
+
+  const createLeadMutation = useMutation({
+    mutationFn: async (values: LeadFormValues) => {
+      if (!dealer?.id) throw new Error("No dealer found");
+      
+      const { data, error } = await supabase
+        .from("leads")
+        .insert({
+          ...values,
+          dealer_id: dealer.id,
+        })
+        .select()
+        .single();
+      
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["leads"] });
+      toast.success("Lead added successfully");
+    },
+    onError: (error) => {
+      toast.error("Failed to add lead: " + error.message);
     },
   });
 
@@ -66,7 +99,7 @@ const kpis = React.useMemo(() => {
         <PageHeader
           title="Leads"
           description="Track and manage sales leads for your dealership."
-          actions={<Button size="sm" variant="hero">Add Lead</Button>}
+          actions={<Button size="sm" variant="hero" onClick={() => setLeadDialogOpen(true)}>Add Lead</Button>}
 />
         <div className="mt-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
           <StatCard title="Active Leads" value={kpis.active} icon={Activity} />
@@ -170,6 +203,12 @@ const kpis = React.useMemo(() => {
           </CardContent>
         </Card>
       </section>
+      
+      <LeadFormDialog
+        open={leadDialogOpen}
+        onOpenChange={setLeadDialogOpen}
+        onSubmit={createLeadMutation.mutate}
+      />
     </>
   );
 };
