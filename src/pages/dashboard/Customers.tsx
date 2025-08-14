@@ -1,33 +1,23 @@
 import React from "react";
-import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
 import { SEO } from "@/components/SEO";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { formatCurrency, formatDate } from "@/lib/format";
 import { useToast } from "@/hooks/use-toast";
+import { useCustomers, useDeleteCustomer, type Customer } from "@/hooks/useCustomers";
 import CustomerFormDialog from "@/components/customers/CustomerFormDialog";
-import CustomerDrawer, { type Customer } from "@/components/customers/CustomerDrawer";
+import CustomerDrawer from "@/components/customers/CustomerDrawer";
 import { Download, Plus } from "lucide-react";
 import PageHeader from "@/components/common/PageHeader";
 
 const Customers: React.FC = () => {
   const { toast } = useToast();
-  const { data, isLoading, error } = useQuery({
-    queryKey: ["customers"],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("customers")
-        .select("id, first_name, last_name, email, phone, city, state, created_at, total_spent, purchase_history")
-        .order("created_at", { ascending: false });
-      if (error) throw error;
-      return (data ?? []) as Customer[];
-    },
-  });
+  const { data, isLoading, error } = useCustomers();
+  const deleteCustomer = useDeleteCustomer();
 
   // UI state
   const [search, setSearch] = React.useState("");
@@ -128,8 +118,17 @@ const Customers: React.FC = () => {
     setSelected(c);
     setDrawerOpen(true);
   };
-  const onDelete = (c: Customer) => {
-    toast({ title: "Demo only", description: `Would delete ${c.first_name} ${c.last_name} in production.` });
+  const handleDelete = async (c: Customer) => {
+    try {
+      await deleteCustomer.mutateAsync(c.id);
+      toast({ title: "Customer deleted", description: `${c.first_name} ${c.last_name} has been removed.` });
+    } catch (error) {
+      toast({ 
+        title: "Error", 
+        description: "Failed to delete customer",
+        variant: "destructive"
+      });
+    }
   };
 
   return (
@@ -242,7 +241,28 @@ const Customers: React.FC = () => {
                           </div>
                           <div className="flex flex-col gap-2" onClick={(e) => e.stopPropagation()}>
                             <Button size="sm" variant="outline" onClick={() => onEdit(c)}>Edit</Button>
-                            <Button size="sm" variant="ghost" onClick={() => onDelete(c)}>Delete</Button>
+                            <AlertDialog>
+                              <AlertDialogTrigger asChild>
+                                <Button size="sm" variant="ghost">Delete</Button>
+                              </AlertDialogTrigger>
+                              <AlertDialogContent>
+                                <AlertDialogHeader>
+                                  <AlertDialogTitle>Delete Customer</AlertDialogTitle>
+                                  <AlertDialogDescription>
+                                    Are you sure you want to delete {c.first_name} {c.last_name}? This action cannot be undone.
+                                  </AlertDialogDescription>
+                                </AlertDialogHeader>
+                                <AlertDialogFooter>
+                                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                  <AlertDialogAction 
+                                    onClick={() => handleDelete(c)}
+                                    className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                                  >
+                                    Delete
+                                  </AlertDialogAction>
+                                </AlertDialogFooter>
+                              </AlertDialogContent>
+                            </AlertDialog>
                           </div>
                         </CardContent>
                       </Card>
@@ -275,9 +295,6 @@ const Customers: React.FC = () => {
         open={formOpen}
         onOpenChange={setFormOpen}
         initialValues={editValues}
-        onSubmit={(values) => {
-          toast({ title: "Saved (demo)", description: `${values.first_name} ${values.last_name} saved.` });
-        }}
       />
 
       <CustomerDrawer open={drawerOpen} onOpenChange={setDrawerOpen} customer={selected ?? undefined} />

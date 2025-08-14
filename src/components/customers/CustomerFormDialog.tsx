@@ -1,23 +1,15 @@
 import React from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-
-export type CustomerFormValues = {
-  first_name: string;
-  last_name: string;
-  email: string;
-  phone?: string;
-  city?: string;
-  state?: string;
-};
+import { useCreateCustomer, useUpdateCustomer, type CustomerFormValues } from "@/hooks/useCustomers";
+import { useToast } from "@/hooks/use-toast";
 
 type Props = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  initialValues?: Partial<CustomerFormValues>;
-  onSubmit?: (values: CustomerFormValues) => void;
+  initialValues?: Partial<CustomerFormValues & { id?: string }>;
 };
 
 const emptyValues: CustomerFormValues = {
@@ -29,7 +21,10 @@ const emptyValues: CustomerFormValues = {
   state: "",
 };
 
-const CustomerFormDialog: React.FC<Props> = ({ open, onOpenChange, initialValues, onSubmit }) => {
+const CustomerFormDialog: React.FC<Props> = ({ open, onOpenChange, initialValues }) => {
+  const { toast } = useToast();
+  const createCustomer = useCreateCustomer();
+  const updateCustomer = useUpdateCustomer();
   const [values, setValues] = React.useState<CustomerFormValues>({ ...emptyValues, ...(initialValues ?? {}) });
 
   React.useEffect(() => {
@@ -39,10 +34,24 @@ const CustomerFormDialog: React.FC<Props> = ({ open, onOpenChange, initialValues
   const update = (key: keyof CustomerFormValues) => (e: React.ChangeEvent<HTMLInputElement>) =>
     setValues((v) => ({ ...v, [key]: e.currentTarget.value }));
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    onSubmit?.(values);
-    onOpenChange(false);
+    try {
+      if (initialValues?.id) {
+        await updateCustomer.mutateAsync({ id: initialValues.id, values });
+        toast({ title: "Customer updated", description: `${values.first_name} ${values.last_name} has been updated.` });
+      } else {
+        await createCustomer.mutateAsync(values);
+        toast({ title: "Customer created", description: `${values.first_name} ${values.last_name} has been added.` });
+      }
+      onOpenChange(false);
+    } catch (error) {
+      toast({ 
+        title: "Error", 
+        description: error instanceof Error ? error.message : "Failed to save customer",
+        variant: "destructive"
+      });
+    }
   };
 
   return (
@@ -81,7 +90,9 @@ const CustomerFormDialog: React.FC<Props> = ({ open, onOpenChange, initialValues
           </div>
           <DialogFooter>
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>
-            <Button type="submit">Save</Button>
+            <Button type="submit" disabled={createCustomer.isPending || updateCustomer.isPending}>
+              {createCustomer.isPending || updateCustomer.isPending ? "Saving..." : "Save"}
+            </Button>
           </DialogFooter>
         </form>
       </DialogContent>

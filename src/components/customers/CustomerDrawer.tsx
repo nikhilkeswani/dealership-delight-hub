@@ -2,19 +2,7 @@ import React from "react";
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerDescription } from "@/components/ui/drawer";
 import { Separator } from "@/components/ui/separator";
 import { formatCurrency, formatDate } from "@/lib/format";
-
-export type Customer = {
-  id: string;
-  first_name: string;
-  last_name: string;
-  email: string | null;
-  phone?: string | null;
-  city?: string | null;
-  state?: string | null;
-  created_at?: string | null;
-  total_spent?: number | null;
-  purchase_history?: Array<{ date?: string; amount?: number; vehicle?: string }>;
-};
+import type { Customer } from "@/hooks/useCustomers";
 
 type Props = {
   open: boolean;
@@ -24,6 +12,20 @@ type Props = {
 
 const CustomerDrawer: React.FC<Props> = ({ open, onOpenChange, customer }) => {
   const name = customer ? `${customer.first_name} ${customer.last_name}` : "";
+
+  // Parse purchase history if it's a JSON string
+  const purchaseHistory = React.useMemo(() => {
+    if (!customer?.purchase_history) return [];
+    if (Array.isArray(customer.purchase_history)) return customer.purchase_history;
+    if (typeof customer.purchase_history === 'string') {
+      try {
+        return JSON.parse(customer.purchase_history);
+      } catch {
+        return [];
+      }
+    }
+    return [];
+  }, [customer?.purchase_history]);
 
   return (
     <Drawer open={open} onOpenChange={onOpenChange}>
@@ -50,9 +52,9 @@ const CustomerDrawer: React.FC<Props> = ({ open, onOpenChange, customer }) => {
           <Separator />
           <section>
             <h3 className="text-sm font-medium text-muted-foreground mb-2">Purchase history</h3>
-            {customer?.purchase_history && customer.purchase_history.length > 0 ? (
+            {purchaseHistory.length > 0 ? (
               <ul className="space-y-2 text-sm">
-                {customer.purchase_history.map((p, idx) => (
+                {purchaseHistory.map((p: any, idx: number) => (
                   <li key={idx} className="flex items-center justify-between">
                     <span>{p.vehicle || "Vehicle"}</span>
                     <span className="text-muted-foreground">{p.date ? formatDate(p.date) : "-"}</span>
