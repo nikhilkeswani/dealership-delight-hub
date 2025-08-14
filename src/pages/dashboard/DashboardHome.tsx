@@ -204,7 +204,7 @@ const DashboardHome: React.FC = () => {
           description="Your dealership at a glance"
           actions={
             <NavLink to="/app/overview" aria-label="Back to Overview">
-              <Button variant="outline">
+              <Button variant="hero" size="sm">
                 <ArrowLeft className="mr-2 h-4 w-4" />
                 Back to Overview
               </Button>
