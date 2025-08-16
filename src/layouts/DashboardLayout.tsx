@@ -147,9 +147,6 @@ const DashboardLayout: React.FC = () => {
                   <DropdownMenuLabel>My Account</DropdownMenuLabel>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem asChild>
-                    <NavLink to="/app/settings/profile">Profile & Account</NavLink>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem asChild>
                     <NavLink to="/app/settings/dealers">Dealers & Teams</NavLink>
                   </DropdownMenuItem>
                   <DropdownMenuItem asChild>
