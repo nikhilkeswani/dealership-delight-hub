@@ -35,6 +35,11 @@ import { useDealerSiteConfig, type DealerSiteConfig } from "@/hooks/useDealerSit
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useDealer } from "@/hooks/useDealer";
 import { supabase } from "@/integrations/supabase/client";
+import { usePublicDealer } from "@/hooks/usePublicDealer";
+import { usePublicVehicles } from "@/hooks/usePublicVehicles";
+import { usePublicDealerWebsite } from "@/hooks/usePublicDealerWebsite";
+import { useCreateLead } from "@/hooks/useCreateLead";
+import { formatCurrency } from "@/lib/format";
 const sampleVehicles: VehicleData[] = [
   {
     id: "1",
@@ -67,31 +72,51 @@ const sampleVehicles: VehicleData[] = [
 
 const DealerSite = () => {
   const { slug } = useParams();
-  const dealerName = (slug || "demo-motors")
+  
+  // Fetch real dealer data
+  const { data: publicDealer, isLoading: dealerLoading } = usePublicDealer(slug);
+  const { data: publicVehicles, isLoading: vehiclesLoading } = usePublicVehicles(publicDealer?.id);
+  const { data: websiteConfig, isLoading: websiteLoading } = usePublicDealerWebsite(publicDealer?.id);
+  const createLead = useCreateLead();
+
+  // Demo fallback data
+  const dealerName = publicDealer?.business_name || (slug || "demo-motors")
     .replace(/-/g, " ")
     .replace(/\b\w/g, (l) => l.toUpperCase());
-  const address = "1600 Amphitheatre Parkway, Mountain View, CA";
-  const currentUrl =
-    typeof window !== "undefined" ? window.location.href : undefined;
+  const address = publicDealer?.address || "1600 Amphitheatre Parkway, Mountain View, CA";
+  const currentUrl = typeof window !== "undefined" ? window.location.href : undefined;
 
-  // Demo contact info
-  const phone = "(650) 555-0199";
-  const email = `sales@${(slug || "demo-motors")
+  // Real or demo contact info
+  const phone = publicDealer?.phone || "(650) 555-0199";
+  const email = publicDealer?.contact_email || `sales@${(slug || "demo-motors")
     .replace(/[^a-z0-9-]/gi, "")
     .toLowerCase()}.com`;
 
-  // Live customization config (demo)
+  // Use website config if available, otherwise defaults
+  const themeConfig = websiteConfig?.theme_config as any;
+  const contactConfig = websiteConfig?.contact_config as any;
+  
   const defaults: DealerSiteConfig = {
-    brand: { name: dealerName, tagline: "Your trusted local dealer — transparent pricing and fast test drives.", logoUrl: undefined },
-    hero: { headline: "Find Your Perfect Vehicle", subtitle: "Premium quality cars with unbeatable service and expertise. Experience the difference with our award‑winning customer care." },
-    contact: { phone, email, address },
-    // Default theme: purplish brand, neutral accent for subtle hovers
-    colors: { primary: "#7c3aed", accent: "#f1f5f9" },
+    brand: { 
+      name: dealerName, 
+      tagline: themeConfig?.brand?.tagline || "Your trusted local dealer — transparent pricing and fast test drives.", 
+      logoUrl: publicDealer?.logo_url || themeConfig?.brand?.logoUrl 
+    },
+    hero: { 
+      headline: themeConfig?.hero?.headline || "Find Your Perfect Vehicle", 
+      subtitle: themeConfig?.hero?.subtitle || "Premium quality cars with unbeatable service and expertise. Experience the difference with our award‑winning customer care." 
+    },
+    contact: { 
+      phone: contactConfig?.phone || phone, 
+      email: contactConfig?.email || email, 
+      address: contactConfig?.address || address 
+    },
+    colors: themeConfig?.colors || { primary: "#7c3aed", accent: "#f1f5f9" },
   };
   const { config, setConfig, saveLocal, reset } = useDealerSiteConfig(slug, defaults);
 
   const { data: dealer } = useDealer();
-  const isDemo = (slug || "").toLowerCase() === "demo-motors" || (typeof window !== "undefined" && new URLSearchParams(window.location.search).get("demo") === "1");
+  const isDemo = !publicDealer || (slug || "").toLowerCase() === "demo-motors" || (typeof window !== "undefined" && new URLSearchParams(window.location.search).get("demo") === "1");
   const [customizeOpen, setCustomizeOpen] = useState(false);
   const brandInitials = (config.brand.name || "").split(" ").slice(0,2).map(w=>w[0]).join("").toUpperCase() || "DL";
 
@@ -109,7 +134,7 @@ const DealerSite = () => {
     }
   };
 
-  // Form schema and setup (demo only)
+  // Form schema and setup
   const formSchema = z.object({
     name: z.string().min(2, "Please enter your full name"),
     email: z.string().email("Enter a valid email"),
@@ -134,68 +159,123 @@ const DealerSite = () => {
     },
   });
   const { toast } = useToast();
-  const vehicleOptions = sampleVehicles.map((v) => ({ id: v.id, title: v.title }));
+  
+  // Use real vehicles or fallback to sample data
+  const displayVehicles = publicVehicles?.length ? publicVehicles : sampleVehicles;
+  const vehicleOptions = displayVehicles.map((v) => ({ 
+    id: v.id, 
+    title: 'title' in v ? v.title : `${v.year} ${v.make} ${v.model}` 
+  }));
 
-  const onSubmit = (values: z.infer<typeof formSchema>) => {
-    setTimeout(() => {
+  const onSubmit = async (values: z.infer<typeof formSchema>) => {
+    if (isDemo) {
+      // Demo mode
+      setTimeout(() => {
+        toast({
+          title: "Request received",
+          description: "Thanks for your interest! This is a live demo—no data is stored. A real site would contact you shortly.",
+        });
+        form.reset();
+      }, 600);
+      return;
+    }
+
+    if (!publicDealer?.id) {
       toast({
-        title: "Request received",
-        description:
-          "Thanks for your interest! This is a live demo—no data is stored. A real site would contact you shortly.",
+        title: "Error",
+        description: "Unable to submit request. Please try again later.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      const [firstName, ...lastNameParts] = values.name.split(' ');
+      await createLead.mutateAsync({
+        first_name: firstName,
+        last_name: lastNameParts.join(' ') || firstName,
+        email: values.email,
+        phone: values.phone || undefined,
+        message: values.message,
+        dealer_id: publicDealer.id,
+        source: 'website',
+      });
+
+      toast({
+        title: "Request submitted successfully!",
+        description: "Thank you for your interest. We'll contact you shortly.",
       });
       form.reset();
-    }, 600);
+    } catch (error) {
+      console.error('Error submitting lead:', error);
+      toast({
+        title: "Error",
+        description: "Unable to submit request. Please try again later.",
+        variant: "destructive",
+      });
+    }
   };
 
-  // Client-side search/filter (demo only)
+  // Client-side search/filter
   const [query, setQuery] = useState("");
   const [type, setType] = useState<string | null>(null);
-  const filteredVehicles = sampleVehicles.filter((v) => {
+  const filteredVehicles = displayVehicles.filter((v) => {
     const q = query.trim().toLowerCase();
+    const vehicleTitle = 'title' in v ? v.title : `${(v as any).year} ${(v as any).make} ${(v as any).model}`;
+    const vehicleDescription = 'description' in v ? v.description : (v as any).description;
+    const vehicleFeatures = 'features' in v ? v.features : ((v as any).features ? Object.keys((v as any).features) : []);
+    
     const matchesQuery = !q
       ? true
-      : [v.title, v.description, ...(v.features || [])]
+      : [vehicleTitle, vehicleDescription, ...(Array.isArray(vehicleFeatures) ? vehicleFeatures : [])]
           .filter(Boolean)
           .some((t) => String(t).toLowerCase().includes(q));
     const matchesType = !type
       ? true
       : type === "SUVs"
-      ? v.title.toLowerCase().includes("suv")
+      ? vehicleTitle.toLowerCase().includes("suv")
       : type === "Sedans"
-      ? v.title.toLowerCase().includes("sedan")
+      ? vehicleTitle.toLowerCase().includes("sedan")
       : type === "Electric"
-      ? (v.features || []).some((f) => String(f).toLowerCase().includes("electric"))
+      ? (Array.isArray(vehicleFeatures) ? vehicleFeatures : []).some((f) => String(f).toLowerCase().includes("electric"))
       : true;
     return matchesQuery && matchesType;
   });
 
-  // Sorting (demo only)
-  const [sort, setSort] = useState<"relevance" | "price-asc" | "price-desc">(
-    "relevance"
-  );
-  const parsePrice = (p?: string) => {
-    const n = Number(String(p ?? "").replace(/[^0-9.]/g, ""));
+  // Sorting
+  const [sort, setSort] = useState<"relevance" | "price-asc" | "price-desc">("relevance");
+  const parsePrice = (vehicle: any) => {
+    const price = 'price' in vehicle ? vehicle.price : vehicle.price;
+    if (typeof price === 'number') return price;
+    const n = Number(String(price ?? "").replace(/[^0-9.]/g, ""));
     return isNaN(n) ? 0 : n;
   };
   const sortedVehicles = [...filteredVehicles].sort((a, b) => {
-    if (sort === "price-asc") return parsePrice(a.price) - parsePrice(b.price);
-    if (sort === "price-desc") return parsePrice(b.price) - parsePrice(a.price);
+    if (sort === "price-asc") return parsePrice(a) - parsePrice(b);
+    if (sort === "price-desc") return parsePrice(b) - parsePrice(a);
     return 0;
   });
 
-  const vehiclesStructured = sampleVehicles.map((v) => ({
-    "@type": "Vehicle",
-    name: v.title,
-    description: v.description,
-    image: v.images?.[0],
-    offers: {
-      "@type": "Offer",
-      priceCurrency: "USD",
-      price: String((v.price || "").replace(/[^0-9.]/g, "")) || undefined,
-      availability: "https://schema.org/InStock",
-      url: currentUrl,
-    },
-  }));
+  const vehiclesStructured = displayVehicles.map((v) => {
+    const vehicleTitle = 'title' in v ? v.title : `${(v as any).year} ${(v as any).make} ${(v as any).model}`;
+    const vehicleDescription = 'description' in v ? v.description : (v as any).description;
+    const vehicleImages = 'images' in v ? v.images : (v as any).images;
+    const vehiclePrice = 'price' in v ? v.price : (v as any).price;
+    
+    return {
+      "@type": "Vehicle",
+      name: vehicleTitle,
+      description: vehicleDescription,
+      image: vehicleImages?.[0],
+      offers: {
+        "@type": "Offer",
+        priceCurrency: "USD",
+        price: typeof vehiclePrice === 'number' ? vehiclePrice : String((vehiclePrice || "").replace(/[^0-9.]/g, "")) || undefined,
+        availability: "https://schema.org/InStock",
+        url: currentUrl,
+      },
+    };
+  });
   const structuredData = {
     "@context": "https://schema.org",
     "@type": "AutoDealer",
@@ -338,27 +418,52 @@ const DealerSite = () => {
               </div>
             </div>
 
-            <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {sortedVehicles.length === 0 ? (
-                <div className="col-span-full text-center text-muted-foreground">
-                  No vehicles match your search.
-                </div>
-              ) : (
-                sortedVehicles.map((v) => (
-                  <div key={v.id} className="space-y-3 hover-scale animate-fade-in">
-                    <VehicleCard vehicle={v} />
-                    <div className="flex flex-col sm:flex-row gap-2">
-                      <Button variant="hero" size="sm" className="w-full sm:w-auto" onClick={() => document.getElementById("contact")?.scrollIntoView({ behavior: "smooth" })}>
-                        Test Drive
-                      </Button>
-                      <Button variant="outline" size="sm" className="w-full sm:w-auto" onClick={() => document.getElementById("contact")?.scrollIntoView({ behavior: "smooth" })}>
-                        Inquire
-                      </Button>
-                    </div>
+            {vehiclesLoading ? (
+              <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                {[1, 2, 3].map((i) => (
+                  <div key={i} className="rounded-lg border bg-card p-4 animate-pulse">
+                    <div className="h-48 bg-muted rounded mb-4"></div>
+                    <div className="h-4 bg-muted rounded mb-2"></div>
+                    <div className="h-4 bg-muted rounded w-2/3"></div>
                   </div>
-                ))
-              )}
-            </div>
+                ))}
+              </div>
+            ) : (
+              <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                {sortedVehicles.length === 0 ? (
+                  <div className="col-span-full text-center text-muted-foreground">
+                    No vehicles match your search.
+                  </div>
+                ) : (
+                  sortedVehicles.map((v) => {
+                    // Convert database vehicle to VehicleCard format
+                    const vehicleData: VehicleData = 'title' in v ? v : {
+                      id: (v as any).id,
+                      title: `${(v as any).year} ${(v as any).make} ${(v as any).model}`,
+                      price: typeof (v as any).price === 'number' ? formatCurrency((v as any).price) : (v as any).price || 'Contact for price',
+                      condition: (v as any).status === 'available' ? 'Available' : (v as any).status,
+                      description: (v as any).description || `${(v as any).year} ${(v as any).make} ${(v as any).model}`,
+                      features: (v as any).features ? Object.keys((v as any).features) : [],
+                      images: (v as any).images?.length ? (v as any).images : [sedan],
+                    };
+                    
+                    return (
+                      <div key={(v as any).id} className="space-y-3 hover-scale animate-fade-in">
+                        <VehicleCard vehicle={vehicleData} />
+                        <div className="flex flex-col sm:flex-row gap-2">
+                          <Button variant="hero" size="sm" className="w-full sm:w-auto" onClick={() => document.getElementById("contact")?.scrollIntoView({ behavior: "smooth" })}>
+                            Test Drive
+                          </Button>
+                          <Button variant="outline" size="sm" className="w-full sm:w-auto" onClick={() => document.getElementById("contact")?.scrollIntoView({ behavior: "smooth" })}>
+                            Inquire
+                          </Button>
+                        </div>
+                      </div>
+                    );
+                  })
+                )}
+              </div>
+            )}
           </div>
         </section>
 
