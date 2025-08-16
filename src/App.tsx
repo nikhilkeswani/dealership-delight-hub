@@ -13,6 +13,7 @@ const NotFound = lazy(() => import("./pages/NotFound"));
 const DealerSite = lazy(() => import("./pages/DealerSite"));
 const Auth = lazy(() => import("./pages/Auth"));
 const DashboardLayout = lazy(() => import("./layouts/DashboardLayout"));
+const SettingsLayout = lazy(() => import("./layouts/SettingsLayout"));
 const Overview = lazy(() => import("./pages/dashboard/Overview"));
 const DashboardHome = lazy(() => import("./pages/dashboard/DashboardHome"));
 const Inventory = lazy(() => import("./pages/dashboard/Inventory"));
@@ -68,6 +69,18 @@ const App = () => (
                 <Route path="/app/inventory" element={<Inventory />} />
                 <Route path="/app/leads" element={<Leads />} />
                 <Route path="/app/customers" element={<Customers />} />
+              </Route>
+
+              {/* Settings routes with separate layout */}
+              <Route
+                element={
+                  <ProtectedRoute>
+                    <RequireDealer>
+                      <SettingsLayout />
+                    </RequireDealer>
+                  </ProtectedRoute>
+                }
+              >
                 <Route path="/app/settings/profile" element={<SettingsProfile />} />
                 <Route path="/app/settings/dealers" element={<SettingsDealers />} />
                 <Route path="/app/settings/billing" element={<SettingsBilling />} />
