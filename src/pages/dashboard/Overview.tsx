@@ -32,9 +32,6 @@ const Overview: React.FC = () => {
           <Card className="glass-card hover-scale">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-lg font-semibold">Open CRM Dashboard</CardTitle>
-              <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center">
-                <LayoutDashboard className="h-5 w-5 text-muted-foreground" />
-              </div>
             </CardHeader>
             <CardContent>
               <p className="text-muted-foreground mb-4">Access leads, customers, inventory, and reports.</p>
@@ -46,15 +43,15 @@ const Overview: React.FC = () => {
 
           <Card className="glass-card hover-scale">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-lg font-semibold">Manage My Profile</CardTitle>
+              <CardTitle className="text-lg font-semibold">Manage My Account</CardTitle>
               <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center">
                 <User className="h-5 w-5 text-muted-foreground" />
               </div>
             </CardHeader>
             <CardContent>
-              <p className="text-muted-foreground mb-4">Update business details, contact information, and account settings.</p>
-              <NavLink to="/app/settings/profile" aria-label="Manage Profile Settings">
-                <Button variant="outline">Manage Profile</Button>
+              <p className="text-muted-foreground mb-4">Update profile, manage dealers & teams, billing settings, and account preferences.</p>
+              <NavLink to="/app/settings/profile" aria-label="Manage Account Settings">
+                <Button variant="outline">Manage Account</Button>
               </NavLink>
             </CardContent>
           </Card>
