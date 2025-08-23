@@ -4,9 +4,8 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Palette, Type, Image, Globe, Settings } from "lucide-react";
-import { BrandingConfig } from "@/components/configure/BrandingConfig";
+import { CustomizeConfig } from "@/components/configure/CustomizeConfig";
 import { ThemeConfig } from "@/components/configure/ThemeConfig";
-import { ContentConfig } from "@/components/configure/ContentConfig";
 import { SeoConfig } from "@/components/configure/SeoConfig";
 import { DomainConfig } from "@/components/configure/DomainConfig";
 import { WebsitePreview } from "@/components/configure/WebsitePreview";
@@ -14,7 +13,7 @@ import { useDealer } from "@/hooks/useDealer";
 import { toast } from "sonner";
 
 export default function Configure() {
-  const [activeTab, setActiveTab] = useState("branding");
+  const [activeTab, setActiveTab] = useState("customize");
   const { data: dealer } = useDealer();
 
   const handlePublish = async () => {
@@ -79,18 +78,14 @@ export default function Configure() {
                 <CardContent className="space-y-4">
                   {/* Simple Tab Navigation */}
                   <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-                    <TabsList className="grid w-full grid-cols-5 h-auto p-1">
-                      <TabsTrigger value="branding" className="flex flex-col gap-1 py-2 px-1">
+                    <TabsList className="grid w-full grid-cols-4 h-auto p-1">
+                      <TabsTrigger value="customize" className="flex flex-col gap-1 py-2 px-1">
                         <Type className="h-4 w-4" />
-                        <span className="text-xs">Brand</span>
+                        <span className="text-xs">Customize</span>
                       </TabsTrigger>
                       <TabsTrigger value="theme" className="flex flex-col gap-1 py-2 px-1">
                         <Palette className="h-4 w-4" />
                         <span className="text-xs">Theme</span>
-                      </TabsTrigger>
-                      <TabsTrigger value="content" className="flex flex-col gap-1 py-2 px-1">
-                        <Image className="h-4 w-4" />
-                        <span className="text-xs">Content</span>
                       </TabsTrigger>
                       <TabsTrigger value="seo" className="flex flex-col gap-1 py-2 px-1">
                         <Globe className="h-4 w-4" />
@@ -103,16 +98,12 @@ export default function Configure() {
                     </TabsList>
 
                     <div className="mt-4">
-                      <TabsContent value="branding" className="m-0">
-                        <BrandingConfig />
+                      <TabsContent value="customize" className="m-0">
+                        <CustomizeConfig />
                       </TabsContent>
                       
                       <TabsContent value="theme" className="m-0">
                         <ThemeConfig />
-                      </TabsContent>
-                      
-                      <TabsContent value="content" className="m-0">
-                        <ContentConfig />
                       </TabsContent>
                       
                       <TabsContent value="seo" className="m-0">
