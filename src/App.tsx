@@ -11,6 +11,7 @@ import RequireDealer from "./components/RequireDealer";
 const Index = lazy(() => import("./pages/Index"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 const DealerSite = lazy(() => import("./pages/DealerSite"));
+const DealerInventory = lazy(() => import("./pages/DealerInventory"));
 const Auth = lazy(() => import("./pages/Auth"));
 const Configure = lazy(() => import("./pages/Configure"));
 const DashboardLayout = lazy(() => import("./layouts/DashboardLayout"));
@@ -40,6 +41,7 @@ const App = () => (
               <Route path="/auth" element={<Auth />} />
               <Route path="/signup" element={<Navigate to="/auth" replace />} />
               <Route path="/dealer/:slug" element={<DealerSite />} />
+              <Route path="/dealer/:slug/inventory" element={<DealerInventory />} />
 
               {/* Hub routes without dashboard layout */}
               <Route path="/app" element={<Navigate to="/app/overview" replace />} />

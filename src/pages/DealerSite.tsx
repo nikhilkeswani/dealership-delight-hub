@@ -1,4 +1,4 @@
-import { useParams } from "react-router-dom";
+import { useParams, Link } from "react-router-dom";
 import SEO from "@/components/SEO";
 import { Helmet } from "react-helmet-async";
 import VehicleCard, { VehicleData } from "@/components/VehicleCard";
@@ -429,40 +429,53 @@ const DealerSite = () => {
                 ))}
               </div>
             ) : (
-              <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                {sortedVehicles.length === 0 ? (
-                  <div className="col-span-full text-center text-muted-foreground">
-                    No vehicles match your search.
-                  </div>
-                ) : (
-                  sortedVehicles.map((v) => {
-                    // Convert database vehicle to VehicleCard format
-                    const vehicleData: VehicleData = 'title' in v ? v : {
-                      id: (v as any).id,
-                      title: `${(v as any).year} ${(v as any).make} ${(v as any).model}`,
-                      price: typeof (v as any).price === 'number' ? formatCurrency((v as any).price) : (v as any).price || 'Contact for price',
-                      condition: (v as any).status === 'available' ? 'Available' : (v as any).status,
-                      description: (v as any).description || `${(v as any).year} ${(v as any).make} ${(v as any).model}`,
-                      features: (v as any).features ? Object.keys((v as any).features) : [],
-                      images: (v as any).images?.length ? (v as any).images : [sedan],
-                    };
-                    
-                    return (
-                      <div key={(v as any).id} className="space-y-3 hover-scale animate-fade-in">
-                        <VehicleCard vehicle={vehicleData} />
-                        <div className="flex flex-col sm:flex-row gap-2">
-                          <Button variant="hero" size="sm" className="w-full sm:w-auto" onClick={() => document.getElementById("contact")?.scrollIntoView({ behavior: "smooth" })}>
-                            Test Drive
-                          </Button>
-                          <Button variant="outline" size="sm" className="w-full sm:w-auto" onClick={() => document.getElementById("contact")?.scrollIntoView({ behavior: "smooth" })}>
-                            Inquire
-                          </Button>
+              <>
+                <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {sortedVehicles.length === 0 ? (
+                    <div className="col-span-full text-center text-muted-foreground">
+                      No vehicles match your search.
+                    </div>
+                  ) : (
+                    sortedVehicles.slice(0, displayVehicles.length > 4 ? 6 : sortedVehicles.length).map((v) => {
+                      // Convert database vehicle to VehicleCard format
+                      const vehicleData: VehicleData = 'title' in v ? v : {
+                        id: (v as any).id,
+                        title: `${(v as any).year} ${(v as any).make} ${(v as any).model}`,
+                        price: typeof (v as any).price === 'number' ? formatCurrency((v as any).price) : (v as any).price || 'Contact for price',
+                        condition: (v as any).status === 'available' ? 'Available' : (v as any).status,
+                        description: (v as any).description || `${(v as any).year} ${(v as any).make} ${(v as any).model}`,
+                        features: (v as any).features ? Object.keys((v as any).features) : [],
+                        images: (v as any).images?.length ? (v as any).images : [sedan],
+                      };
+                      
+                      return (
+                        <div key={(v as any).id} className="space-y-3 hover-scale animate-fade-in">
+                          <VehicleCard vehicle={vehicleData} />
+                          <div className="flex flex-col sm:flex-row gap-2">
+                            <Button variant="hero" size="sm" className="w-full sm:w-auto" onClick={() => document.getElementById("contact")?.scrollIntoView({ behavior: "smooth" })}>
+                              Test Drive
+                            </Button>
+                            <Button variant="outline" size="sm" className="w-full sm:w-auto" onClick={() => document.getElementById("contact")?.scrollIntoView({ behavior: "smooth" })}>
+                              Inquire
+                            </Button>
+                          </div>
                         </div>
-                      </div>
-                    );
-                  })
+                      );
+                    })
+                  )}
+                </div>
+                
+                {/* Show "View All Inventory" button if more than 4 vehicles */}
+                {displayVehicles.length > 4 && (
+                  <div className="mt-8 text-center">
+                    <Button variant="outline" size="lg" asChild>
+                      <Link to={`/dealer/${slug}/inventory`}>
+                        View All {displayVehicles.length} Vehicles
+                      </Link>
+                    </Button>
+                  </div>
                 )}
-              </div>
+              </>
             )}
           </div>
         </section>

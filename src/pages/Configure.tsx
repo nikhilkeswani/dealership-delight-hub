@@ -27,6 +27,15 @@ export default function Configure() {
     }
   };
 
+  const handlePreview = () => {
+    if (dealer?.business_name) {
+      const slug = dealer.business_name.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+      window.open(`/dealer/${slug}`, '_blank');
+    } else {
+      window.open('/dealer/demo-motors', '_blank');
+    }
+  };
+
   return (
     <>
       <SEO 
@@ -47,9 +56,14 @@ export default function Configure() {
                 </p>
               </div>
               
-              <Button onClick={handlePublish} variant="default">
-                Publish Website
-              </Button>
+              <div className="flex gap-2">
+                <Button onClick={handlePreview} variant="outline">
+                  Preview in New Tab
+                </Button>
+                <Button onClick={handlePublish} variant="default">
+                  Publish Website
+                </Button>
+              </div>
             </div>
           </div>
         </div>
