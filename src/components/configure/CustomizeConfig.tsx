@@ -73,6 +73,13 @@ export function CustomizeConfig() {
       primary: "#8b5cf6",
       accent: "#22c55e",
     },
+    content: {
+      aboutContent: "We're committed to providing exceptional service and helping you find the perfect vehicle. With years of experience in the automotive industry, we pride ourselves on transparent pricing, quality vehicles, and customer satisfaction.",
+      servicesEnabled: true,
+      services: [],
+      whyChooseUsEnabled: true,
+      whyChooseUsPoints: [],
+    },
   };
   
   const { config, setConfig: updateConfig, saveLocal } = useDealerSiteConfig(slug, defaultConfig);
@@ -112,13 +119,34 @@ export function CustomizeConfig() {
         hero: {
           headline: "Find Your Perfect Vehicle",
           subtitle: formData.tagline,
+          backgroundUrl: formData.heroBackgroundUrl || heroBackgroundPreview || "",
+        },
+        content: {
+          aboutContent,
+          servicesEnabled,
+          services: servicesEnabled ? services : [],
+          whyChooseUsEnabled,
+          whyChooseUsPoints: whyChooseUsEnabled ? whyChooseUsPoints : [],
         }
       });
       saveLocal();
     }, 500);
 
     return () => clearTimeout(timeoutId);
-  }, [form.watch("businessName"), form.watch("tagline"), form.watch("logoUrl")]);
+  }, [
+    form.watch("businessName"), 
+    form.watch("tagline"), 
+    form.watch("logoUrl"),
+    form.watch("heroBackgroundUrl"),
+    heroBackgroundPreview,
+    aboutContent,
+    servicesEnabled,
+    services,
+    whyChooseUsEnabled,
+    whyChooseUsPoints,
+    updateConfig,
+    saveLocal
+  ]);
 
   const handleLogoUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];

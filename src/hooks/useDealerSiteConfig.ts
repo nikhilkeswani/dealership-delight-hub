@@ -9,6 +9,7 @@ export type DealerSiteConfig = {
   hero: {
     headline: string;
     subtitle: string;
+    backgroundUrl?: string;
   };
   contact: {
     phone: string;
@@ -18,6 +19,13 @@ export type DealerSiteConfig = {
   colors: {
     primary: string; // hex e.g. #2563eb
     accent: string; // hex e.g. #22c55e
+  };
+  content: {
+    aboutContent?: string;
+    servicesEnabled?: boolean;
+    services?: Array<{ title: string; description: string; }>;
+    whyChooseUsEnabled?: boolean;
+    whyChooseUsPoints?: string[];
   };
 };
 
@@ -75,7 +83,15 @@ export function useDealerSiteConfig(slug: string | undefined, defaults: DealerSi
       const raw = localStorage.getItem(storageKey);
       if (raw) {
         const parsed = JSON.parse(raw);
-        return { ...defaults, ...parsed, brand: { ...defaults.brand, ...parsed.brand }, hero: { ...defaults.hero, ...parsed.hero }, contact: { ...defaults.contact, ...parsed.contact }, colors: { ...defaults.colors, ...parsed.colors } } as DealerSiteConfig;
+        return { 
+          ...defaults, 
+          ...parsed, 
+          brand: { ...defaults.brand, ...parsed.brand }, 
+          hero: { ...defaults.hero, ...parsed.hero }, 
+          contact: { ...defaults.contact, ...parsed.contact }, 
+          colors: { ...defaults.colors, ...parsed.colors },
+          content: { ...defaults.content, ...parsed.content }
+        } as DealerSiteConfig;
       }
     } catch {}
     return defaults;
@@ -98,6 +114,7 @@ export function useDealerSiteConfig(slug: string | undefined, defaults: DealerSi
       hero: { ...prev.hero, ...(partial.hero || {}) },
       contact: { ...prev.contact, ...(partial.contact || {}) },
       colors: { ...prev.colors, ...(partial.colors || {}) },
+      content: { ...prev.content, ...(partial.content || {}) },
     }));
   };
 

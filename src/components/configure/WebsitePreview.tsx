@@ -33,6 +33,13 @@ export function WebsitePreview({ device }: WebsitePreviewProps) {
       primary: "#8b5cf6",
       accent: "#22c55e",
     },
+    content: {
+      aboutContent: "",
+      servicesEnabled: false,
+      services: [],
+      whyChooseUsEnabled: false,
+      whyChooseUsPoints: [],
+    },
   };
   
   const { config } = useDealerSiteConfig(slug, defaultConfig);

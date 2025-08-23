@@ -104,7 +104,8 @@ const DealerSite = () => {
     },
     hero: { 
       headline: themeConfig?.hero?.headline || "Find Your Perfect Vehicle", 
-      subtitle: themeConfig?.hero?.subtitle || "Premium quality cars with unbeatable service and expertise. Experience the difference with our award‑winning customer care." 
+      subtitle: themeConfig?.hero?.subtitle || "Premium quality cars with unbeatable service and expertise. Experience the difference with our award‑winning customer care.",
+      backgroundUrl: themeConfig?.hero?.backgroundUrl || ""
     },
     contact: { 
       phone: contactConfig?.phone || phone, 
@@ -112,6 +113,24 @@ const DealerSite = () => {
       address: contactConfig?.address || address 
     },
     colors: themeConfig?.colors || { primary: "#7c3aed", accent: "#f1f5f9" },
+    content: {
+      aboutContent: "We're committed to providing exceptional service and helping you find the perfect vehicle. With years of experience in the automotive industry, we pride ourselves on transparent pricing, quality vehicles, and customer satisfaction.",
+      servicesEnabled: true,
+      services: [
+        { title: "Vehicle Sales", description: "Browse our extensive inventory of new and pre-owned vehicles" },
+        { title: "Financing", description: "Competitive rates and flexible financing options available" },
+        { title: "Trade-Ins", description: "Get the best value for your current vehicle" },
+        { title: "Service & Maintenance", description: "Professional maintenance and repair services" },
+      ],
+      whyChooseUsEnabled: true,
+      whyChooseUsPoints: [
+        "Over 20 years of experience in the automotive industry",
+        "Transparent pricing with no hidden fees", 
+        "Award-winning customer service team",
+        "Comprehensive warranty on all vehicles",
+        "Fast and easy financing process"
+      ]
+    },
   };
   const { config, setConfig, saveLocal, reset } = useDealerSiteConfig(slug, defaults);
 
@@ -124,7 +143,7 @@ const DealerSite = () => {
     if (!dealer?.id) return;
     const { error } = await supabase.from("dealer_websites").upsert({
       dealer_id: dealer.id,
-      theme_config: { colors: config.colors, brand: config.brand, hero: config.hero },
+      theme_config: { colors: config.colors, brand: config.brand, hero: config.hero, content: config.content },
       contact_config: { ...config.contact },
     });
     if (error) {
@@ -328,6 +347,12 @@ const DealerSite = () => {
 
       <main>
         <section className="relative overflow-hidden" >
+          {config.hero.backgroundUrl && (
+            <div
+              className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+              style={{ backgroundImage: `url(${config.hero.backgroundUrl})` }}
+            />
+          )}
           <div className="absolute inset-0 bg-gradient-to-br from-primary/20 via-primary/10 to-accent/20" />
           <div className="absolute inset-0 opacity-40 bg-[radial-gradient(hsl(var(--primary)/0.15)_1px,transparent_1px)] bg-[length:20px_20px]" />
           <div className="container relative py-8 md:py-20 space-y-8 animate-fade-in">
@@ -480,30 +505,51 @@ const DealerSite = () => {
           </div>
         </section>
 
+        {/* Services Section */}
+        {config.content.servicesEnabled && config.content.services && config.content.services.length > 0 && (
+          <section className="container py-12 md:py-16">
+            <div className="text-center max-w-2xl mx-auto mb-8">
+              <h3 className="text-2xl md:text-3xl font-semibold">Our Services</h3>
+              <p className="text-muted-foreground">Everything you need for your automotive journey</p>
+            </div>
+            <div className="grid gap-4 md:gap-6 grid-cols-1 md:grid-cols-2 lg:grid-cols-4">
+              {config.content.services.map((service, index) => (
+                <div key={index} className="rounded-xl border bg-card p-6 hover-scale animate-fade-in">
+                  <h4 className="font-medium mb-2">{service.title}</h4>
+                  <p className="text-sm text-muted-foreground">{service.description}</p>
+                </div>
+              ))}
+            </div>
+          </section>
+        )}
+
+        {/* About Section */}
+        {config.content.aboutContent && (
+          <section className="container py-12 md:py-16 border-t bg-background/50">
+            <div className="text-center max-w-3xl mx-auto">
+              <h3 className="text-2xl md:text-3xl font-semibold mb-4">About {config.brand.name}</h3>
+              <p className="text-muted-foreground text-lg leading-relaxed">{config.content.aboutContent}</p>
+            </div>
+          </section>
+        )}
+
         {/* Why Choose - moved above CTA */}
-        <section className="container py-12 md:py-16">
-          <div className="text-center max-w-2xl mx-auto mb-8">
-            <h3 className="text-2xl md:text-3xl font-semibold">Why Choose {dealerName}?</h3>
-            <p className="text-muted-foreground">Your trusted automotive partner</p>
-          </div>
-          <div className="grid gap-4 md:gap-6 grid-cols-1 md:grid-cols-3">
-            <div className="rounded-xl border bg-card p-6 hover-scale animate-fade-in">
-              <ShieldCheck className="h-6 w-6 text-primary" />
-              <h4 className="mt-3 font-medium">Certified Quality</h4>
-              <p className="text-sm text-muted-foreground">Every vehicle undergoes rigorous inspection.</p>
+        {config.content.whyChooseUsEnabled && config.content.whyChooseUsPoints && config.content.whyChooseUsPoints.length > 0 && (
+          <section className="container py-12 md:py-16">
+            <div className="text-center max-w-2xl mx-auto mb-8">
+              <h3 className="text-2xl md:text-3xl font-semibold">Why Choose {config.brand.name}?</h3>
+              <p className="text-muted-foreground">Your trusted automotive partner</p>
             </div>
-            <div className="rounded-xl border bg-card p-6 hover-scale animate-fade-in">
-              <Award className="h-6 w-6 text-primary" />
-              <h4 className="mt-3 font-medium">Award Winning</h4>
-              <p className="text-sm text-muted-foreground">Recognized for excellence in customer service.</p>
+            <div className="grid gap-4 md:gap-6 grid-cols-1 md:grid-cols-3">
+              {config.content.whyChooseUsPoints.map((point, index) => (
+                <div key={index} className="rounded-xl border bg-card p-6 hover-scale animate-fade-in">
+                  <ShieldCheck className="h-6 w-6 text-primary mb-3" />
+                  <p className="text-sm text-muted-foreground">{point}</p>
+                </div>
+              ))}
             </div>
-            <div className="rounded-xl border bg-card p-6 hover-scale animate-fade-in">
-              <Star className="h-6 w-6 text-primary" />
-              <h4 className="mt-3 font-medium">5‑Star Reviews</h4>
-              <p className="text-sm text-muted-foreground">Thousands of satisfied customers.</p>
-            </div>
-          </div>
-        </section>
+          </section>
+        )}
 
         <section className="border-t bg-background">
           <div className="container py-12 md:py-16">

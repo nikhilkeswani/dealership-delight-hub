@@ -47,6 +47,13 @@ export function BrandingConfig() {
       primary: "#8b5cf6",
       accent: "#22c55e",
     },
+    content: {
+      aboutContent: "",
+      servicesEnabled: false,
+      services: [],
+      whyChooseUsEnabled: false,
+      whyChooseUsPoints: [],
+    },
   };
   
   const { config, setConfig: updateConfig, saveLocal } = useDealerSiteConfig(slug, defaultConfig);
