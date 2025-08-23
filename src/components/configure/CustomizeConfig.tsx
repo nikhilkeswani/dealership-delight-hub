@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -78,23 +78,47 @@ export function CustomizeConfig() {
   const { config, setConfig: updateConfig, saveLocal } = useDealerSiteConfig(slug, defaultConfig);
   const [logoPreview, setLogoPreview] = useState<string | null>(config.brand.logoUrl || null);
   const [heroBackgroundPreview, setHeroBackgroundPreview] = useState<string | null>(null);
+  const [aboutContent, setAboutContent] = useState("We're committed to providing exceptional service and helping you find the perfect vehicle. With years of experience in the automotive industry, we pride ourselves on transparent pricing, quality vehicles, and customer satisfaction. Our knowledgeable team is here to guide you through every step of your car buying journey.");
   const [services, setServices] = useState(defaultServices);
   const [whyChooseUsPoints, setWhyChooseUsPoints] = useState(defaultWhyChooseUs);
+  const [servicesEnabled, setServicesEnabled] = useState(true);
+  const [whyChooseUsEnabled, setWhyChooseUsEnabled] = useState(true);
 
   const form = useForm<FormData>({
     resolver: zodResolver(schema),
     defaultValues: {
       businessName: config.brand.name,
       tagline: config.brand.tagline,
-      aboutContent: "We're committed to providing exceptional service and helping you find the perfect vehicle. With years of experience in the automotive industry, we pride ourselves on transparent pricing, quality vehicles, and customer satisfaction. Our knowledgeable team is here to guide you through every step of your car buying journey.",
+      aboutContent: aboutContent,
       logoUrl: config.brand.logoUrl,
       heroBackgroundUrl: "",
-      servicesEnabled: true,
-      services: defaultServices,
-      whyChooseUsEnabled: true,
-      whyChooseUsPoints: defaultWhyChooseUs,
+      servicesEnabled: servicesEnabled,
+      services: services,
+      whyChooseUsEnabled: whyChooseUsEnabled,
+      whyChooseUsPoints: whyChooseUsPoints,
     },
   });
+
+  // Auto-save functionality with debouncing
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      const formData = form.getValues();
+      updateConfig({
+        brand: {
+          name: formData.businessName,
+          tagline: formData.tagline,
+          logoUrl: formData.logoUrl || "",
+        },
+        hero: {
+          headline: "Find Your Perfect Vehicle",
+          subtitle: formData.tagline,
+        }
+      });
+      saveLocal();
+    }, 500);
+
+    return () => clearTimeout(timeoutId);
+  }, [form.watch("businessName"), form.watch("tagline"), form.watch("logoUrl")]);
 
   const handleLogoUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -167,24 +191,36 @@ export function CustomizeConfig() {
     setWhyChooseUsPoints(updatedPoints);
   };
 
+  // Real-time update handlers
+  const handleBusinessNameChange = (value: string) => {
+    form.setValue("businessName", value);
+    updateConfig({
+      brand: { ...config.brand, name: value }
+    });
+    saveLocal();
+  };
+
+  const handleTaglineChange = (value: string) => {
+    form.setValue("tagline", value);
+    updateConfig({
+      brand: { ...config.brand, tagline: value },
+      hero: { ...config.hero, subtitle: value }
+    });
+    saveLocal();
+  };
+
+  const handleAboutContentChange = (value: string) => {
+    setAboutContent(value);
+    form.setValue("aboutContent", value);
+  };
+
   const onSubmit = async (data: FormData) => {
     try {
-      updateConfig({
-        brand: {
-          name: data.businessName,
-          tagline: data.tagline,
-          logoUrl: data.logoUrl || "",
-        },
-        hero: {
-          headline: "Find Your Perfect Vehicle",
-          subtitle: data.tagline,
-        }
-      });
-      saveLocal();
-      console.log("Saving customize config:", {
+      console.log("Manual save - all data:", {
         ...data,
-        services: form.watch("servicesEnabled") ? services : [],
-        whyChooseUsPoints: form.watch("whyChooseUsEnabled") ? whyChooseUsPoints : [],
+        aboutContent,
+        services: servicesEnabled ? services : [],
+        whyChooseUsPoints: whyChooseUsEnabled ? whyChooseUsPoints : [],
       });
       toast.success("Website settings saved!");
     } catch (error) {
@@ -299,7 +335,8 @@ export function CustomizeConfig() {
               <Input
                 id="businessName"
                 placeholder="e.g., Premier Auto Sales"
-                {...form.register("businessName")}
+                value={form.watch("businessName")}
+                onChange={(e) => handleBusinessNameChange(e.target.value)}
               />
               {form.formState.errors.businessName && (
                 <p className="text-sm text-destructive">
@@ -314,7 +351,8 @@ export function CustomizeConfig() {
               <Input
                 id="tagline"
                 placeholder="e.g., Your trusted local dealer"
-                {...form.register("tagline")}
+                value={form.watch("tagline")}
+                onChange={(e) => handleTaglineChange(e.target.value)}
               />
               <p className="text-xs text-muted-foreground">
                 A short, memorable phrase that appears as your hero subtitle
@@ -389,7 +427,8 @@ export function CustomizeConfig() {
                 id="aboutContent"
                 rows={4}
                 placeholder="Tell customers about your dealership, values, history, and what makes you special..."
-                {...form.register("aboutContent")}
+                value={aboutContent}
+                onChange={(e) => handleAboutContentChange(e.target.value)}
               />
               <p className="text-xs text-muted-foreground">
                 This appears in your About section and helps customers understand your business
@@ -413,8 +452,11 @@ export function CustomizeConfig() {
               <div className="flex items-center space-x-2">
                 <Switch
                   id="services-enabled"
-                  checked={form.watch("servicesEnabled")}
-                  onCheckedChange={(checked) => form.setValue("servicesEnabled", checked)}
+                  checked={servicesEnabled}
+                  onCheckedChange={(checked) => {
+                    setServicesEnabled(checked);
+                    form.setValue("servicesEnabled", checked);
+                  }}
                 />
                 <Label htmlFor="services-enabled" className="text-sm">
                   Show services section
@@ -422,7 +464,7 @@ export function CustomizeConfig() {
               </div>
             </div>
 
-            {form.watch("servicesEnabled") && (
+            {servicesEnabled && (
               <div className="space-y-4">
                 {services.map((service, index) => (
                   <div key={index} className="space-y-2 p-4 border rounded-lg">
@@ -477,8 +519,11 @@ export function CustomizeConfig() {
               <div className="flex items-center space-x-2">
                 <Switch
                   id="why-choose-us-enabled"
-                  checked={form.watch("whyChooseUsEnabled")}
-                  onCheckedChange={(checked) => form.setValue("whyChooseUsEnabled", checked)}
+                  checked={whyChooseUsEnabled}
+                  onCheckedChange={(checked) => {
+                    setWhyChooseUsEnabled(checked);
+                    form.setValue("whyChooseUsEnabled", checked);
+                  }}
                 />
                 <Label htmlFor="why-choose-us-enabled" className="text-sm">
                   Show why choose us section
@@ -486,7 +531,7 @@ export function CustomizeConfig() {
               </div>
             </div>
 
-            {form.watch("whyChooseUsEnabled") && (
+            {whyChooseUsEnabled && (
               <div className="space-y-3">
                 {whyChooseUsPoints.map((point, index) => (
                   <div key={index} className="flex items-center gap-2">
