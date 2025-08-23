@@ -69,7 +69,7 @@ export default function Configure() {
         </div>
 
         <div className="container py-6">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 max-w-4xl mx-auto">
             {/* Configuration Panel */}
             <div>
               <Card>
@@ -128,15 +128,23 @@ export default function Configure() {
               </Card>
             </div>
 
-            {/* Preview Panel */}
+            {/* Preview Removed - Now only opens in new tab */}
             <div>
               <Card className="h-[600px]">
                 <CardHeader className="pb-3">
                   <CardTitle className="text-lg">Preview</CardTitle>
                 </CardHeader>
-                <CardContent className="h-full p-4">
-                  <div className="w-full h-full border rounded-md overflow-hidden">
-                    <WebsitePreview device="desktop" />
+                <CardContent className="h-full p-4 flex items-center justify-center">
+                  <div className="text-center space-y-4">
+                    <div className="text-muted-foreground">
+                      <Globe className="h-12 w-12 mx-auto mb-2" />
+                      <p className="text-lg font-medium">Preview Your Website</p>
+                      <p className="text-sm">Click "Preview in New Tab" to see your changes live</p>
+                    </div>
+                    <Button onClick={handlePreview} variant="outline" className="w-full">
+                      <Globe className="h-4 w-4 mr-2" />
+                      Preview in New Tab
+                    </Button>
                   </div>
                 </CardContent>
               </Card>

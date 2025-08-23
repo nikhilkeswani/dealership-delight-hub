@@ -11,6 +11,7 @@ import { Upload, X, Image as ImageIcon } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useDealer } from "@/hooks/useDealer";
 import { useImageUpload } from "@/hooks/useImageUpload";
+import { useDealerSiteConfig } from "@/hooks/useDealerSiteConfig";
 import { toast } from "sonner";
 
 const schema = z.object({
@@ -25,15 +26,39 @@ type FormData = z.infer<typeof schema>;
 export function BrandingConfig() {
   const { data: dealer } = useDealer();
   const { uploadImage, deleteImage, isUploading } = useImageUpload();
-  const [logoPreview, setLogoPreview] = useState<string | null>(dealer?.logo_url || null);
+  const slug = dealer?.business_name?.toLowerCase().replace(/[^a-z0-9]+/g, '-') || 'demo';
+  
+  const defaultConfig = {
+    brand: {
+      name: dealer?.business_name || "Premier Auto Sales",
+      tagline: "Your trusted local dealer — transparent pricing and fast test drives.",
+      logoUrl: dealer?.logo_url || "",
+    },
+    hero: {
+      headline: "Find Your Perfect Vehicle",
+      subtitle: "Premium quality cars with unbeatable service and expertise.",
+    },
+    contact: {
+      phone: dealer?.phone || "(555) 123-4567",
+      email: dealer?.contact_email || "sales@example.com", 
+      address: dealer?.address || "123 Main St, City, State 12345",
+    },
+    colors: {
+      primary: "#8b5cf6",
+      accent: "#22c55e",
+    },
+  };
+  
+  const { config, setConfig: updateConfig, saveLocal } = useDealerSiteConfig(slug, defaultConfig);
+  const [logoPreview, setLogoPreview] = useState<string | null>(config.brand.logoUrl || null);
 
   const form = useForm<FormData>({
     resolver: zodResolver(schema),
     defaultValues: {
-      businessName: dealer?.business_name || "",
-      tagline: "Your trusted local dealer — transparent pricing and fast test drives.",
+      businessName: config.brand.name,
+      tagline: config.brand.tagline,
       description: "We're committed to providing exceptional service and helping you find the perfect vehicle. With years of experience and a dedication to customer satisfaction, we make car buying simple and enjoyable.",
-      logoUrl: dealer?.logo_url || "",
+      logoUrl: config.brand.logoUrl,
     },
   });
 
@@ -60,7 +85,14 @@ export function BrandingConfig() {
 
   const onSubmit = async (data: FormData) => {
     try {
-      // In a real app, you would save this to the database
+      updateConfig({
+        brand: {
+          name: data.businessName,
+          tagline: data.tagline,
+          logoUrl: data.logoUrl || "",
+        }
+      });
+      saveLocal();
       console.log("Saving branding config:", data);
       toast.success("Branding settings saved!");
     } catch (error) {

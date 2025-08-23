@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Star, Award, ShieldCheck, Tag, Phone, Mail, MapPin } from "lucide-react";
 import { useDealer } from "@/hooks/useDealer";
+import { useDealerSiteConfig } from "@/hooks/useDealerSiteConfig";
 
 interface WebsitePreviewProps {
   device: "desktop" | "mobile";
@@ -11,8 +12,32 @@ interface WebsitePreviewProps {
 
 export function WebsitePreview({ device }: WebsitePreviewProps) {
   const { data: dealer } = useDealer();
+  const slug = dealer?.business_name?.toLowerCase().replace(/[^a-z0-9]+/g, '-') || 'demo';
   
-  const businessName = dealer?.business_name || "Premier Auto Sales";
+  const defaultConfig = {
+    brand: {
+      name: dealer?.business_name || "Premier Auto Sales",
+      tagline: "Your trusted local dealer — transparent pricing and fast test drives.",
+      logoUrl: dealer?.logo_url || "",
+    },
+    hero: {
+      headline: "Find Your Perfect Vehicle",
+      subtitle: "Premium quality cars with unbeatable service and expertise.",
+    },
+    contact: {
+      phone: dealer?.phone || "(555) 123-4567",
+      email: dealer?.contact_email || "sales@example.com", 
+      address: dealer?.address || "123 Main St, City, State 12345",
+    },
+    colors: {
+      primary: "#8b5cf6",
+      accent: "#22c55e",
+    },
+  };
+  
+  const { config } = useDealerSiteConfig(slug, defaultConfig);
+  
+  const businessName = config.brand.name;
   const businessInitials = businessName
     .split(" ")
     .slice(0, 2)
@@ -43,13 +68,13 @@ export function WebsitePreview({ device }: WebsitePreviewProps) {
         <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
           <div className="flex items-center gap-3">
             <Avatar className="h-8 w-8">
-              <AvatarImage src={dealer?.logo_url || undefined} alt={`${businessName} logo`} />
+              <AvatarImage src={config.brand.logoUrl || undefined} alt={`${businessName} logo`} />
               <AvatarFallback className="text-xs">{businessInitials}</AvatarFallback>
             </Avatar>
             <div>
               <p className="text-xs text-muted-foreground">Powered by DealerDelight</p>
               <h1 className="font-semibold">{businessName}</h1>
-              <p className="text-xs text-muted-foreground">Your trusted local dealer</p>
+              <p className="text-xs text-muted-foreground">{config.brand.tagline}</p>
             </div>
           </div>
           <div className="flex gap-2">
@@ -79,10 +104,10 @@ export function WebsitePreview({ device }: WebsitePreviewProps) {
 
           <div className="space-y-3">
             <h2 className={`${textSizes.headline} font-semibold tracking-tight`}>
-              Find Your Perfect Vehicle
+              {config.hero.headline}
             </h2>
             <p className={`${textSizes.subtitle} text-muted-foreground`}>
-              Premium quality cars with unbeatable service and expertise. Experience the difference with our award‑winning customer care.
+              {config.hero.subtitle}
             </p>
           </div>
 
@@ -171,7 +196,7 @@ export function WebsitePreview({ device }: WebsitePreviewProps) {
               <Phone className="h-4 w-4" />
             </div>
             <div>
-              <p className="font-medium text-sm">{dealer?.phone || "(555) 123-4567"}</p>
+              <p className="font-medium text-sm">{config.contact.phone}</p>
               <p className="text-xs text-muted-foreground">Call us anytime</p>
             </div>
           </div>
@@ -181,7 +206,7 @@ export function WebsitePreview({ device }: WebsitePreviewProps) {
               <Mail className="h-4 w-4" />
             </div>
             <div>
-              <p className="font-medium text-sm">{dealer?.contact_email || "sales@example.com"}</p>
+              <p className="font-medium text-sm">{config.contact.email}</p>
               <p className="text-xs text-muted-foreground">Email us</p>
             </div>
           </div>
@@ -193,7 +218,7 @@ export function WebsitePreview({ device }: WebsitePreviewProps) {
             <div>
               <p className="font-medium text-sm">Visit Our Showroom</p>
               <p className="text-xs text-muted-foreground">
-                {dealer?.address || "123 Main St, City, State 12345"}
+                {config.contact.address}
               </p>
             </div>
           </div>
