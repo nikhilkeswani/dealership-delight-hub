@@ -12,6 +12,7 @@ const Index = lazy(() => import("./pages/Index"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 const DealerSite = lazy(() => import("./pages/DealerSite"));
 const Auth = lazy(() => import("./pages/Auth"));
+const Configure = lazy(() => import("./pages/Configure"));
 const DashboardLayout = lazy(() => import("./layouts/DashboardLayout"));
 const SettingsLayout = lazy(() => import("./layouts/SettingsLayout"));
 const Overview = lazy(() => import("./pages/dashboard/Overview"));
@@ -53,6 +54,7 @@ const App = () => (
               >
                 <Route path="/app/overview" element={<Overview />} />
                 <Route path="/app/onboarding" element={<Onboarding />} />
+                <Route path="/app/configure" element={<Configure />} />
               </Route>
 
               {/* Dashboard routes with layout */}
