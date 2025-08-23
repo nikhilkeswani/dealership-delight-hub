@@ -22,9 +22,9 @@ const Overview: React.FC = () => {
               </div>
             </CardHeader>
             <CardContent>
-              <p className="text-muted-foreground mb-4">Set theme, branding, and contact details for your public site.</p>
-              <NavLink to="/app/onboarding" aria-label="Open Website Configurator">
-                <Button variant="hero">Open Configurator</Button>
+              <p className="text-muted-foreground mb-4">Set up your dealer website, customize branding, and go live.</p>
+              <NavLink to="/app/configure" aria-label="Configure Website">
+                <Button>Configure Website</Button>
               </NavLink>
             </CardContent>
           </Card>

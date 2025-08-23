@@ -10,6 +10,7 @@ import { CardContent, CardDescription, CardHeader, CardTitle } from "@/component
 import { Upload, X, Image as ImageIcon } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useDealer } from "@/hooks/useDealer";
+import { useImageUpload } from "@/hooks/useImageUpload";
 import { toast } from "sonner";
 
 const schema = z.object({
@@ -23,8 +24,8 @@ type FormData = z.infer<typeof schema>;
 
 export function BrandingConfig() {
   const { data: dealer } = useDealer();
+  const { uploadImage, deleteImage, isUploading } = useImageUpload();
   const [logoPreview, setLogoPreview] = useState<string | null>(dealer?.logo_url || null);
-  const [isUploading, setIsUploading] = useState(false);
 
   const form = useForm<FormData>({
     resolver: zodResolver(schema),
@@ -40,37 +41,19 @@ export function BrandingConfig() {
     const file = event.target.files?.[0];
     if (!file) return;
 
-    // Validate file type and size
-    if (!file.type.startsWith('image/')) {
-      toast.error("Please select an image file");
-      return;
-    }
-
-    if (file.size > 2 * 1024 * 1024) { // 2MB limit
-      toast.error("Image size should be less than 2MB");
-      return;
-    }
-
-    setIsUploading(true);
-    try {
-      // In a real app, you would upload to Supabase Storage here
-      // For now, we'll simulate the upload and use a local preview
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        const result = e.target?.result as string;
-        setLogoPreview(result);
-        form.setValue("logoUrl", result);
-        toast.success("Logo uploaded successfully");
-      };
-      reader.readAsDataURL(file);
-    } catch (error) {
-      toast.error("Failed to upload logo");
-    } finally {
-      setIsUploading(false);
+    const uploadedUrl = await uploadImage(file, 'logos');
+    if (uploadedUrl) {
+      setLogoPreview(uploadedUrl);
+      form.setValue("logoUrl", uploadedUrl);
+      toast.success("Logo uploaded successfully");
     }
   };
 
-  const handleRemoveLogo = () => {
+  const handleRemoveLogo = async () => {
+    const currentUrl = form.watch("logoUrl");
+    if (currentUrl) {
+      await deleteImage(currentUrl);
+    }
     setLogoPreview(null);
     form.setValue("logoUrl", "");
   };
