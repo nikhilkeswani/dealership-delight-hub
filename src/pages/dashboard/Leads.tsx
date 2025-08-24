@@ -1,65 +1,48 @@
 import React from "react";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
-import { useDealer } from "@/hooks/useDealer";
+import { useLeads, useCreateLead, useUpdateLead, useDeleteLead } from "@/hooks/useLeads";
 import LeadFormDialog from "@/components/leads/LeadFormDialog";
 import type { LeadFormValues } from "@/components/leads/LeadFormDialog";
-import { toast } from "sonner";
+import ConfirmDialog from "@/components/common/ConfirmDialog";
 import { SEO } from "@/components/SEO";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { formatDate } from "@/lib/format";
 import PageHeader from "@/components/common/PageHeader";
 import StatusBadge from "@/components/common/StatusBadge";
 import { Input } from "@/components/ui/input";
-import { Eye, Mail, Phone, Activity, Flame, TrendingUp, CalendarCheck } from "lucide-react";
+import { Eye, Mail, Phone, Activity, Flame, TrendingUp, CalendarCheck, Pencil, Trash2 } from "lucide-react";
 import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from "@/components/ui/select";
 import StatCard from "@/components/dashboard/StatCard";
 import { isSameDay } from "date-fns";
 
 const Leads: React.FC = () => {
   const [leadDialogOpen, setLeadDialogOpen] = React.useState(false);
-  const { data: dealer } = useDealer();
-  const queryClient = useQueryClient();
+  const [editingLead, setEditingLead] = React.useState<any>(null);
+  const [deletingLeadId, setDeletingLeadId] = React.useState<string | null>(null);
+  
+  const { data, isLoading, error } = useLeads();
+  const createLeadMutation = useCreateLead();
+  const updateLeadMutation = useUpdateLead();
+  const deleteLeadMutation = useDeleteLead();
 
-  const { data, isLoading, error } = useQuery({
-    queryKey: ["leads"],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("leads")
-        .select("id, first_name, last_name, email, phone, status, source, created_at")
-        .order("created_at", { ascending: false });
-      if (error) throw error;
-      return data ?? [];
-    },
-  });
+  const handleCreateLead = (values: LeadFormValues) => {
+    createLeadMutation.mutate(values);
+  };
 
-  const createLeadMutation = useMutation({
-    mutationFn: async (values: LeadFormValues) => {
-      if (!dealer?.id) throw new Error("No dealer found");
-      
-      const { data, error } = await supabase
-        .from("leads")
-        .insert({
-          ...values,
-          dealer_id: dealer.id,
-        })
-        .select()
-        .single();
-      
-      if (error) throw error;
-      return data;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["leads"] });
-      toast.success("Lead added successfully");
-    },
-    onError: (error) => {
-      toast.error("Failed to add lead: " + error.message);
-    },
-  });
+  const handleUpdateLead = (values: LeadFormValues) => {
+    if (editingLead) {
+      updateLeadMutation.mutate({ id: editingLead.id, values });
+      setEditingLead(null);
+    }
+  };
+
+  const handleDeleteLead = () => {
+    if (deletingLeadId) {
+      deleteLeadMutation.mutate(deletingLeadId);
+      setDeletingLeadId(null);
+    }
+  };
 
   const [query, setQuery] = React.useState("");
   const [status, setStatus] = React.useState<string>("all");
@@ -186,9 +169,23 @@ const kpis = React.useMemo(() => {
                                 <span>Email</span>
                               </a>
                             </Button>
-                            <Button size="sm" variant="ghost" aria-label="View lead">
-                              <span className="icon-chip mr-2"><Eye className="h-4 w-4" /></span>
-                              <span>View</span>
+                            <Button 
+                              size="sm" 
+                              variant="ghost" 
+                              aria-label="Edit lead"
+                              onClick={() => setEditingLead(l)}
+                            >
+                              <span className="icon-chip mr-2"><Pencil className="h-4 w-4" /></span>
+                              <span>Edit</span>
+                            </Button>
+                            <Button 
+                              size="sm" 
+                              variant="ghost" 
+                              aria-label="Delete lead"
+                              onClick={() => setDeletingLeadId(l.id)}
+                            >
+                              <span className="icon-chip mr-2"><Trash2 className="h-4 w-4" /></span>
+                              <span>Delete</span>
                             </Button>
                           </div>
                         </CardContent>
@@ -207,7 +204,24 @@ const kpis = React.useMemo(() => {
       <LeadFormDialog
         open={leadDialogOpen}
         onOpenChange={setLeadDialogOpen}
-        onSubmit={createLeadMutation.mutate}
+        onSubmit={handleCreateLead}
+      />
+      
+      <LeadFormDialog
+        open={!!editingLead}
+        onOpenChange={(open) => !open && setEditingLead(null)}
+        initialValues={editingLead}
+        onSubmit={handleUpdateLead}
+      />
+      
+      <ConfirmDialog
+        open={!!deletingLeadId}
+        onOpenChange={(open) => !open && setDeletingLeadId(null)}
+        title="Delete Lead"
+        description="Are you sure you want to delete this lead? This action cannot be undone."
+        confirmText="Delete"
+        variant="destructive"
+        onConfirm={handleDeleteLead}
       />
     </>
   );

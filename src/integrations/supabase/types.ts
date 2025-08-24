@@ -75,13 +75,6 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "customers_dealer_id_fkey"
-            columns: ["dealer_id"]
-            isOneToOne: false
-            referencedRelation: "public_dealers"
-            referencedColumns: ["id"]
-          },
-          {
             foreignKeyName: "customers_lead_id_fkey"
             columns: ["lead_id"]
             isOneToOne: false
@@ -92,35 +85,47 @@ export type Database = {
       }
       dealer_websites: {
         Row: {
+          business_name: string | null
+          city: string | null
           contact_config: Json | null
           created_at: string
           dealer_id: string
           domain_name: string | null
           id: string
           is_published: boolean
+          logo_url: string | null
           seo_config: Json | null
+          state: string | null
           theme_config: Json | null
           updated_at: string
         }
         Insert: {
+          business_name?: string | null
+          city?: string | null
           contact_config?: Json | null
           created_at?: string
           dealer_id: string
           domain_name?: string | null
           id?: string
           is_published?: boolean
+          logo_url?: string | null
           seo_config?: Json | null
+          state?: string | null
           theme_config?: Json | null
           updated_at?: string
         }
         Update: {
+          business_name?: string | null
+          city?: string | null
           contact_config?: Json | null
           created_at?: string
           dealer_id?: string
           domain_name?: string | null
           id?: string
           is_published?: boolean
+          logo_url?: string | null
           seo_config?: Json | null
+          state?: string | null
           theme_config?: Json | null
           updated_at?: string
         }
@@ -130,13 +135,6 @@ export type Database = {
             columns: ["dealer_id"]
             isOneToOne: true
             referencedRelation: "dealers"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "dealer_websites_dealer_id_fkey"
-            columns: ["dealer_id"]
-            isOneToOne: true
-            referencedRelation: "public_dealers"
             referencedColumns: ["id"]
           },
         ]
@@ -256,13 +254,6 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "leads_dealer_id_fkey"
-            columns: ["dealer_id"]
-            isOneToOne: false
-            referencedRelation: "public_dealers"
-            referencedColumns: ["id"]
-          },
-          {
             foreignKeyName: "leads_vehicle_id_fkey"
             columns: ["vehicle_id"]
             isOneToOne: false
@@ -321,13 +312,6 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "sales_dealer_id_fkey"
-            columns: ["dealer_id"]
-            isOneToOne: false
-            referencedRelation: "public_dealers"
-            referencedColumns: ["id"]
-          },
-          {
             foreignKeyName: "sales_vehicle_id_fkey"
             columns: ["vehicle_id"]
             isOneToOne: false
@@ -376,13 +360,6 @@ export type Database = {
             columns: ["dealer_id"]
             isOneToOne: true
             referencedRelation: "dealers"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "subscriptions_dealer_id_fkey"
-            columns: ["dealer_id"]
-            isOneToOne: true
-            referencedRelation: "public_dealers"
             referencedColumns: ["id"]
           },
         ]
@@ -444,47 +421,11 @@ export type Database = {
             referencedRelation: "dealers"
             referencedColumns: ["id"]
           },
-          {
-            foreignKeyName: "vehicles_dealer_id_fkey"
-            columns: ["dealer_id"]
-            isOneToOne: false
-            referencedRelation: "public_dealers"
-            referencedColumns: ["id"]
-          },
         ]
       }
     }
     Views: {
-      public_dealers: {
-        Row: {
-          business_name: string | null
-          city: string | null
-          created_at: string | null
-          id: string | null
-          logo_url: string | null
-          state: string | null
-          website_url: string | null
-        }
-        Insert: {
-          business_name?: string | null
-          city?: string | null
-          created_at?: string | null
-          id?: string | null
-          logo_url?: string | null
-          state?: string | null
-          website_url?: string | null
-        }
-        Update: {
-          business_name?: string | null
-          city?: string | null
-          created_at?: string | null
-          id?: string | null
-          logo_url?: string | null
-          state?: string | null
-          website_url?: string | null
-        }
-        Relationships: []
-      }
+      [_ in never]: never
     }
     Functions: {
       [_ in never]: never

@@ -1,10 +1,8 @@
 import React, { useMemo, useState } from "react";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
-import { useDealer } from "@/hooks/useDealer";
+import { useVehicles, useCreateVehicle, useUpdateVehicle, useDeleteVehicle } from "@/hooks/useVehicles";
 import VehicleFormDialog from "@/components/vehicles/VehicleFormDialog";
 import type { VehicleFormValues } from "@/components/vehicles/VehicleFormDialog";
-import { toast } from "sonner";
+import ConfirmDialog from "@/components/common/ConfirmDialog";
 import { SEO } from "@/components/SEO";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -20,45 +18,31 @@ import { Car, CircleDot, Clock, CalendarCheck, Eye, Pencil, Trash2, Filter } fro
 
 const Inventory: React.FC = () => {
   const [vehicleDialogOpen, setVehicleDialogOpen] = useState(false);
-  const { data: dealer } = useDealer();
-  const queryClient = useQueryClient();
+  const [editingVehicle, setEditingVehicle] = useState<any>(null);
+  const [deletingVehicleId, setDeletingVehicleId] = useState<string | null>(null);
+  
+  const { data, isLoading, error } = useVehicles();
+  const createVehicleMutation = useCreateVehicle();
+  const updateVehicleMutation = useUpdateVehicle();
+  const deleteVehicleMutation = useDeleteVehicle();
 
-  const { data, isLoading, error } = useQuery({
-    queryKey: ["vehicles"],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("vehicles")
-        .select("id, make, model, year, price, mileage, status, updated_at")
-        .order("updated_at", { ascending: false });
-      if (error) throw error;
-      return data ?? [];
-    },
-  });
+  const handleCreateVehicle = (values: VehicleFormValues) => {
+    createVehicleMutation.mutate(values);
+  };
 
-  const createVehicleMutation = useMutation({
-    mutationFn: async (values: VehicleFormValues) => {
-      if (!dealer?.id) throw new Error("No dealer found");
-      
-      const { data, error } = await supabase
-        .from("vehicles")
-        .insert({
-          ...values,
-          dealer_id: dealer.id,
-        })
-        .select()
-        .single();
-      
-      if (error) throw error;
-      return data;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["vehicles"] });
-      toast.success("Vehicle added successfully");
-    },
-    onError: (error) => {
-      toast.error("Failed to add vehicle: " + error.message);
-    },
-  });
+  const handleUpdateVehicle = (values: VehicleFormValues) => {
+    if (editingVehicle) {
+      updateVehicleMutation.mutate({ id: editingVehicle.id, values });
+      setEditingVehicle(null);
+    }
+  };
+
+  const handleDeleteVehicle = () => {
+    if (deletingVehicleId) {
+      deleteVehicleMutation.mutate(deletingVehicleId);
+      setDeletingVehicleId(null);
+    }
+  };
 
   const [query, setQuery] = useState("");
   const [status, setStatus] = useState<string>("all");
@@ -192,13 +176,20 @@ const Inventory: React.FC = () => {
                             </TableCell>
                             <TableCell className="text-right">
                               <div className="flex justify-end gap-2">
-                                <Button size="icon" variant="outline" aria-label="View">
-                                  <Eye className="h-4 w-4" />
-                                </Button>
-                                <Button size="icon" variant="outline" aria-label="Edit">
+                                <Button 
+                                  size="icon" 
+                                  variant="outline" 
+                                  aria-label="Edit"
+                                  onClick={() => setEditingVehicle(v)}
+                                >
                                   <Pencil className="h-4 w-4" />
                                 </Button>
-                                <Button size="icon" variant="outline" aria-label="Delete">
+                                <Button 
+                                  size="icon" 
+                                  variant="outline" 
+                                  aria-label="Delete"
+                                  onClick={() => setDeletingVehicleId(v.id)}
+                                >
                                   <Trash2 className="h-4 w-4" />
                                 </Button>
                               </div>
@@ -220,7 +211,24 @@ const Inventory: React.FC = () => {
       <VehicleFormDialog
         open={vehicleDialogOpen}
         onOpenChange={setVehicleDialogOpen}
-        onSubmit={createVehicleMutation.mutate}
+        onSubmit={handleCreateVehicle}
+      />
+      
+      <VehicleFormDialog
+        open={!!editingVehicle}
+        onOpenChange={(open) => !open && setEditingVehicle(null)}
+        initialValues={editingVehicle}
+        onSubmit={handleUpdateVehicle}
+      />
+      
+      <ConfirmDialog
+        open={!!deletingVehicleId}
+        onOpenChange={(open) => !open && setDeletingVehicleId(null)}
+        title="Delete Vehicle"
+        description="Are you sure you want to delete this vehicle? This action cannot be undone."
+        confirmText="Delete"
+        variant="destructive"
+        onConfirm={handleDeleteVehicle}
       />
     </>
   );
