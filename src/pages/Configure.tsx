@@ -68,78 +68,53 @@ export default function Configure() {
         </div>
 
         <div className="container py-6">
-          <div className="grid grid-cols-1 max-w-4xl mx-auto">
-            {/* Configuration Panel */}
-            <div>
-              <Card>
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-lg">Customize</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  {/* Simple Tab Navigation */}
-                  <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-                    <TabsList className="grid w-full grid-cols-4 h-auto p-1">
-                      <TabsTrigger value="customize" className="flex flex-col gap-1 py-2 px-1">
-                        <Type className="h-4 w-4" />
-                        <span className="text-xs">Customize</span>
-                      </TabsTrigger>
-                      <TabsTrigger value="theme" className="flex flex-col gap-1 py-2 px-1">
-                        <Palette className="h-4 w-4" />
-                        <span className="text-xs">Theme</span>
-                      </TabsTrigger>
-                      <TabsTrigger value="seo" className="flex flex-col gap-1 py-2 px-1">
-                        <Globe className="h-4 w-4" />
-                        <span className="text-xs">SEO</span>
-                      </TabsTrigger>
-                      <TabsTrigger value="domain" className="flex flex-col gap-1 py-2 px-1">
-                        <Settings className="h-4 w-4" />
-                        <span className="text-xs">Domain</span>
-                      </TabsTrigger>
-                    </TabsList>
+          <div className="max-w-4xl mx-auto">
+            <Card>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-lg">Customize</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {/* Simple Tab Navigation */}
+                <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+                  <TabsList className="grid w-full grid-cols-4 h-auto p-1">
+                    <TabsTrigger value="customize" className="flex flex-col gap-1 py-2 px-1">
+                      <Type className="h-4 w-4" />
+                      <span className="text-xs">Customize</span>
+                    </TabsTrigger>
+                    <TabsTrigger value="theme" className="flex flex-col gap-1 py-2 px-1">
+                      <Palette className="h-4 w-4" />
+                      <span className="text-xs">Theme</span>
+                    </TabsTrigger>
+                    <TabsTrigger value="seo" className="flex flex-col gap-1 py-2 px-1">
+                      <Globe className="h-4 w-4" />
+                      <span className="text-xs">SEO</span>
+                    </TabsTrigger>
+                    <TabsTrigger value="domain" className="flex flex-col gap-1 py-2 px-1">
+                      <Settings className="h-4 w-4" />
+                      <span className="text-xs">Domain</span>
+                    </TabsTrigger>
+                  </TabsList>
 
-                    <div className="mt-4">
-                      <TabsContent value="customize" className="m-0">
-                        <CustomizeConfig />
-                      </TabsContent>
-                      
-                      <TabsContent value="theme" className="m-0">
-                        <ThemeConfig />
-                      </TabsContent>
-                      
-                      <TabsContent value="seo" className="m-0">
-                        <SeoConfig />
-                      </TabsContent>
-                      
-                      <TabsContent value="domain" className="m-0">
-                        <DomainConfig />
-                      </TabsContent>
-                    </div>
-                  </Tabs>
-                </CardContent>
-              </Card>
-            </div>
-
-            {/* Preview Removed - Now only opens in new tab */}
-            <div>
-              <Card className="h-[600px]">
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-lg">Preview</CardTitle>
-                </CardHeader>
-                <CardContent className="h-full p-4 flex items-center justify-center">
-                  <div className="text-center space-y-4">
-                    <div className="text-muted-foreground">
-                      <Globe className="h-12 w-12 mx-auto mb-2" />
-                      <p className="text-lg font-medium">Preview Your Website</p>
-                      <p className="text-sm">Click "Preview in New Tab" to see your changes live</p>
-                    </div>
-                    <Button onClick={handlePreview} variant="outline" className="w-full">
-                      <Globe className="h-4 w-4 mr-2" />
-                      Preview in New Tab
-                    </Button>
+                  <div className="mt-4">
+                    <TabsContent value="customize" className="m-0">
+                      <CustomizeConfig />
+                    </TabsContent>
+                    
+                    <TabsContent value="theme" className="m-0">
+                      <ThemeConfig />
+                    </TabsContent>
+                    
+                    <TabsContent value="seo" className="m-0">
+                      <SeoConfig />
+                    </TabsContent>
+                    
+                    <TabsContent value="domain" className="m-0">
+                      <DomainConfig />
+                    </TabsContent>
                   </div>
-                </CardContent>
-              </Card>
-            </div>
+                </Tabs>
+              </CardContent>
+            </Card>
           </div>
         </div>
       </div>
