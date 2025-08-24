@@ -7,6 +7,7 @@ import { HelmetProvider } from "react-helmet-async";
 import React, { lazy, Suspense } from "react";
 import ProtectedRoute from "./components/ProtectedRoute";
 import RequireDealer from "./components/RequireDealer";
+import ErrorBoundary from "./components/common/ErrorBoundary";
 
 const Index = lazy(() => import("./pages/Index"));
 const NotFound = lazy(() => import("./pages/NotFound"));
@@ -32,69 +33,71 @@ const App = () => (
   <HelmetProvider>
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
-        <Toaster />
-        <Sonner />
-        <BrowserRouter>
-          <Suspense fallback={<div className="p-8">Loading...</div>}>
-            <Routes>
-              <Route path="/" element={<Index />} />
-              <Route path="/auth" element={<Auth />} />
-              <Route path="/signup" element={<Navigate to="/auth" replace />} />
-              <Route path="/dealer/:slug" element={<DealerSite />} />
-              <Route path="/dealer/:slug/inventory" element={<DealerInventory />} />
+        <ErrorBoundary>
+          <Toaster />
+          <Sonner />
+          <BrowserRouter>
+            <Suspense fallback={<div className="p-8">Loading...</div>}>
+              <Routes>
+                <Route path="/" element={<Index />} />
+                <Route path="/auth" element={<Auth />} />
+                <Route path="/signup" element={<Navigate to="/auth" replace />} />
+                <Route path="/dealer/:slug" element={<DealerSite />} />
+                <Route path="/dealer/:slug/inventory" element={<DealerInventory />} />
 
-              {/* Hub routes without dashboard layout */}
-              <Route path="/app" element={<Navigate to="/app/overview" replace />} />
-              <Route
-                element={
-                  <ProtectedRoute>
-                    <RequireDealer>
-                      <Outlet />
-                    </RequireDealer>
-                  </ProtectedRoute>
-                }
-              >
-                <Route path="/app/overview" element={<Overview />} />
-                <Route path="/app/onboarding" element={<Onboarding />} />
-                <Route path="/app/configure" element={<Configure />} />
-              </Route>
+                {/* Hub routes without dashboard layout */}
+                <Route path="/app" element={<Navigate to="/app/overview" replace />} />
+                <Route
+                  element={
+                    <ProtectedRoute>
+                      <RequireDealer>
+                        <Outlet />
+                      </RequireDealer>
+                    </ProtectedRoute>
+                  }
+                >
+                  <Route path="/app/overview" element={<Overview />} />
+                  <Route path="/app/onboarding" element={<Onboarding />} />
+                  <Route path="/app/configure" element={<Configure />} />
+                </Route>
 
-              {/* Dashboard routes with layout */}
-              <Route
-                element={
-                  <ProtectedRoute>
-                    <RequireDealer>
-                      <DashboardLayout />
-                    </RequireDealer>
-                  </ProtectedRoute>
-                }
-              >
-                <Route path="/app/dashboard" element={<DashboardHome />} />
-                <Route path="/app/inventory" element={<Inventory />} />
-                <Route path="/app/leads" element={<Leads />} />
-                <Route path="/app/customers" element={<Customers />} />
-              </Route>
+                {/* Dashboard routes with layout */}
+                <Route
+                  element={
+                    <ProtectedRoute>
+                      <RequireDealer>
+                        <DashboardLayout />
+                      </RequireDealer>
+                    </ProtectedRoute>
+                  }
+                >
+                  <Route path="/app/dashboard" element={<DashboardHome />} />
+                  <Route path="/app/inventory" element={<Inventory />} />
+                  <Route path="/app/leads" element={<Leads />} />
+                  <Route path="/app/customers" element={<Customers />} />
+                </Route>
 
-              {/* Settings routes with separate layout */}
-              <Route
-                element={
-                  <ProtectedRoute>
-                    <RequireDealer>
-                      <SettingsLayout />
-                    </RequireDealer>
-                  </ProtectedRoute>
-                }
-              >
-                <Route path="/app/settings/profile" element={<SettingsProfile />} />
-                <Route path="/app/settings/dealers" element={<SettingsDealers />} />
-                <Route path="/app/settings/billing" element={<SettingsBilling />} />
-              </Route>
+                {/* Settings routes with separate layout */}
+                <Route
+                  element={
+                    <ProtectedRoute>
+                      <RequireDealer>
+                        <SettingsLayout />
+                      </RequireDealer>
+                    </ProtectedRoute>
+                  }
+                >
+                  <Route path="/app/settings/profile" element={<SettingsProfile />} />
+                  <Route path="/app/settings/dealers" element={<SettingsDealers />} />
+                  <Route path="/app/settings/billing" element={<SettingsBilling />} />
+                </Route>
 
-              {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </Suspense>
-        </BrowserRouter>
+                {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </Suspense>
+          </BrowserRouter>
+        </ErrorBoundary>
       </TooltipProvider>
     </QueryClientProvider>
   </HelmetProvider>

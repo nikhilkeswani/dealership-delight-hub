@@ -14,6 +14,7 @@ export type LeadFormValues = {
   source: "website" | "phone" | "email" | "referral" | "walk_in" | "social_media";
   status: "new" | "contacted" | "qualified" | "converted" | "lost";
   notes?: string;
+  follow_up_date?: string;
 };
 
 type Props = {
@@ -31,6 +32,7 @@ const emptyValues: LeadFormValues = {
   source: "website",
   status: "new",
   notes: "",
+  follow_up_date: "",
 };
 
 const LeadFormDialog: React.FC<Props> = ({ open, onOpenChange, initialValues, onSubmit }) => {
@@ -107,6 +109,15 @@ const LeadFormDialog: React.FC<Props> = ({ open, onOpenChange, initialValues, on
                   <SelectItem value="lost">Lost</SelectItem>
                 </SelectContent>
               </Select>
+            </div>
+            <div className="sm:col-span-2">
+              <Label htmlFor="follow_up_date">Follow-up Date</Label>
+              <Input 
+                id="follow_up_date" 
+                type="datetime-local" 
+                value={values.follow_up_date} 
+                onChange={update("follow_up_date")} 
+              />
             </div>
             <div className="sm:col-span-2">
               <Label htmlFor="notes">Notes</Label>
