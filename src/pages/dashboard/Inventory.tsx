@@ -147,21 +147,35 @@ const Inventory: React.FC = () => {
                   <div className="overflow-x-auto">
                     <Table>
                       <TableHeader>
-                        <TableRow>
-                          <TableHead>Vehicle</TableHead>
-                          <TableHead className="text-right">Price</TableHead>
-                          <TableHead>Status</TableHead>
-                          <TableHead className="hidden sm:table-cell">Mileage</TableHead>
-                          <TableHead className="hidden md:table-cell">Updated</TableHead>
-                          <TableHead className="text-right">Actions</TableHead>
-                        </TableRow>
+                         <TableRow>
+                           <TableHead className="w-16"></TableHead>
+                           <TableHead>Vehicle</TableHead>
+                           <TableHead className="text-right">Price</TableHead>
+                           <TableHead>Status</TableHead>
+                           <TableHead className="hidden sm:table-cell">Mileage</TableHead>
+                           <TableHead className="hidden md:table-cell">Updated</TableHead>
+                           <TableHead className="text-right">Actions</TableHead>
+                         </TableRow>
                       </TableHeader>
                       <TableBody>
-                        {filtered.map((v: any) => (
-                          <TableRow key={v.id} className="hover:bg-muted/40">
-                            <TableCell>
-                              <div className="font-medium">{v.year} {v.make} {v.model}</div>
-                            </TableCell>
+                         {filtered.map((v: any) => (
+                           <TableRow key={v.id} className="hover:bg-muted/40">
+                             <TableCell>
+                               <div className="w-12 h-12 rounded-lg overflow-hidden bg-muted flex items-center justify-center">
+                                 {v.images && v.images.length > 0 ? (
+                                   <img
+                                     src={v.images[0]}
+                                     alt={`${v.year} ${v.make} ${v.model}`}
+                                     className="w-full h-full object-cover"
+                                   />
+                                 ) : (
+                                   <Car className="h-6 w-6 text-muted-foreground" />
+                                 )}
+                               </div>
+                             </TableCell>
+                             <TableCell>
+                               <div className="font-medium">{v.year} {v.make} {v.model}</div>
+                             </TableCell>
                             <TableCell className="text-right">
                               {v.price != null ? formatCurrency(Number(v.price)) : "-"}
                             </TableCell>

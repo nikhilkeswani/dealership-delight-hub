@@ -5,6 +5,7 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { ImageUploader } from "@/components/ui/image-uploader";
 
 export type VehicleFormValues = {
   make: string;
@@ -15,6 +16,7 @@ export type VehicleFormValues = {
   vin?: string;
   status: "available" | "sold" | "pending" | "service";
   description?: string;
+  images?: string[];
 };
 
 type Props = {
@@ -33,6 +35,7 @@ const emptyValues: VehicleFormValues = {
   vin: "",
   status: "available",
   description: "",
+  images: [],
 };
 
 const VehicleFormDialog: React.FC<Props> = ({ open, onOpenChange, initialValues, onSubmit }) => {
@@ -55,6 +58,10 @@ const VehicleFormDialog: React.FC<Props> = ({ open, onOpenChange, initialValues,
   const updateSelect = (key: keyof VehicleFormValues) => (value: string) =>
     setValues((v) => ({ ...v, [key]: value }));
 
+  const updateImages = (images: string[]) => {
+    setValues((v) => ({ ...v, images }));
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     onSubmit?.(values);
@@ -63,7 +70,7 @@ const VehicleFormDialog: React.FC<Props> = ({ open, onOpenChange, initialValues,
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-md">
+      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>{initialValues ? "Edit Vehicle" : "Add Vehicle"}</DialogTitle>
           <DialogDescription>Add vehicle details to your inventory for customers to browse.</DialogDescription>
@@ -132,6 +139,14 @@ const VehicleFormDialog: React.FC<Props> = ({ open, onOpenChange, initialValues,
             <div className="sm:col-span-2">
               <Label htmlFor="description">Description</Label>
               <Textarea id="description" value={values.description} onChange={update("description")} rows={3} />
+            </div>
+            <div className="sm:col-span-2">
+              <Label>Vehicle Images</Label>
+              <ImageUploader 
+                images={values.images || []} 
+                onImagesChange={updateImages}
+                maxImages={8}
+              />
             </div>
           </div>
           <DialogFooter>
