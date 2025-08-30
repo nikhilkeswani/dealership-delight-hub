@@ -3,11 +3,12 @@ import { SEO } from "@/components/SEO";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Palette, Type, Image, Globe, Settings } from "lucide-react";
+import { Palette, Type, Image, Globe, Settings, Phone } from "lucide-react";
 import { CustomizeConfig } from "@/components/configure/CustomizeConfig";
 import { ThemeConfig } from "@/components/configure/ThemeConfig";
 import { SeoConfig } from "@/components/configure/SeoConfig";
 import { DomainConfig } from "@/components/configure/DomainConfig";
+import { ContactConfig } from "@/components/configure/ContactConfig";
 import { WebsitePreview } from "@/components/configure/WebsitePreview";
 import { useDealer } from "@/hooks/useDealer";
 import { toast } from "sonner";
@@ -76,10 +77,14 @@ export default function Configure() {
               <CardContent className="space-y-4">
                 {/* Simple Tab Navigation */}
                 <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-                  <TabsList className="grid w-full grid-cols-4 h-auto p-1">
+                  <TabsList className="grid w-full grid-cols-5 h-auto p-1">
                     <TabsTrigger value="customize" className="flex flex-col gap-1 py-2 px-1">
                       <Type className="h-4 w-4" />
                       <span className="text-xs">Customize</span>
+                    </TabsTrigger>
+                    <TabsTrigger value="contact" className="flex flex-col gap-1 py-2 px-1">
+                      <Phone className="h-4 w-4" />
+                      <span className="text-xs">Contact</span>
                     </TabsTrigger>
                     <TabsTrigger value="theme" className="flex flex-col gap-1 py-2 px-1">
                       <Palette className="h-4 w-4" />
@@ -98,6 +103,10 @@ export default function Configure() {
                   <div className="mt-4">
                     <TabsContent value="customize" className="m-0">
                       <CustomizeConfig />
+                    </TabsContent>
+                    
+                    <TabsContent value="contact" className="m-0">
+                      <ContactConfig />
                     </TabsContent>
                     
                     <TabsContent value="theme" className="m-0">
