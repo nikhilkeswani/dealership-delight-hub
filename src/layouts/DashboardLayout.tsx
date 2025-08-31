@@ -171,7 +171,6 @@ const DashboardLayout: React.FC = () => {
         <div className="p-4 md:p-6 space-y-6">
           <PageHeader 
             title="CRM Dashboard" 
-            description="Your dealership at a glance"
           />
           <Outlet />
         </div>

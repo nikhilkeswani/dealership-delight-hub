@@ -56,9 +56,6 @@ export default function Configure() {
                 <BackToHubButton />
                 <div>
                   <h1 className="text-2xl font-semibold">Website Builder</h1>
-                  <p className="text-muted-foreground text-sm mt-1">
-                    Customize your dealer website
-                  </p>
                 </div>
               </div>
               
