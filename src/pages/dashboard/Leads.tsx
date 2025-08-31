@@ -11,10 +11,10 @@ import { formatDate } from "@/lib/format";
 import PageHeader from "@/components/common/PageHeader";
 import StatusBadge from "@/components/common/StatusBadge";
 import { Input } from "@/components/ui/input";
-import { Eye, Mail, Phone, Activity, Flame, TrendingUp, CalendarCheck, Pencil, Trash2 } from "lucide-react";
+import { Eye, Mail, Phone, Activity, Flame, TrendingUp, CalendarCheck, Pencil, Trash2, ChevronDown } from "lucide-react";
 import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from "@/components/ui/select";
 import StatCard from "@/components/dashboard/StatCard";
-import { isSameDay } from "date-fns";
+import { isSameDay, differenceInDays } from "date-fns";
 
 const Leads: React.FC = () => {
   const [leadDialogOpen, setLeadDialogOpen] = React.useState(false);
@@ -25,6 +25,28 @@ const Leads: React.FC = () => {
   const createLeadMutation = useCreateLead();
   const updateLeadMutation = useUpdateLead();
   const deleteLeadMutation = useDeleteLead();
+
+  // Helper function to check if lead is new (created within last 3 days)
+  const isNewLead = (createdAt: string) => {
+    const daysDiff = differenceInDays(new Date(), new Date(createdAt));
+    return daysDiff <= 3;
+  };
+
+  // Helper function to get lead age in days
+  const getLeadAge = (createdAt: string) => {
+    return differenceInDays(new Date(), new Date(createdAt));
+  };
+
+  // Helper function to handle quick status update
+  const handleQuickStatusUpdate = (leadId: string, newStatus: string) => {
+    const lead = data?.find(l => l.id === leadId);
+    if (lead) {
+      updateLeadMutation.mutate({ 
+        id: leadId, 
+        values: { ...lead, status: newStatus as "new" | "contacted" | "qualified" | "converted" | "lost" } 
+      });
+    }
+  };
 
   const handleCreateLead = (values: LeadFormValues) => {
     createLeadMutation.mutate(values);
@@ -136,61 +158,125 @@ const kpis = React.useMemo(() => {
               <div>
                 {filtered && filtered.length > 0 ? (
                   <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                    {filtered.map((l: any) => (
-                      <Card key={l.id} className="relative overflow-hidden glass-card hover-scale">
-                        <CardHeader className="pb-2">
-                          <div className="flex items-start justify-between gap-2">
-                            <CardTitle className="text-base">{l.first_name} {l.last_name}</CardTitle>
-                            <StatusBadge status={l.status ?? "-"} className="capitalize" />
-                          </div>
-                          <CardDescription className="mt-1">{l.email || "-"}</CardDescription>
-                        </CardHeader>
-                        <CardContent className="text-sm text-muted-foreground">
-                          <div className="flex items-center justify-between">
-                            <div>
-                              <div>Phone: {l.phone ?? "-"}</div>
-                              <div className="capitalize">Source: {l.source ?? "-"}</div>
+                    {filtered.map((l: any) => {
+                      const leadAge = getLeadAge(l.created_at);
+                      const isNew = isNewLead(l.created_at);
+                      
+                      return (
+                        <Card key={l.id} className="relative overflow-hidden glass-card hover-scale">
+                          {/* NEW Banner for leads created within last 3 days */}
+                          {isNew && (
+                            <div className="absolute top-2 left-2 z-10">
+                              <div className="bg-gradient-to-r from-primary to-primary-glow text-primary-foreground text-xs font-bold px-2 py-1 rounded-full shadow-lg animate-pulse">
+                                NEW
+                              </div>
                             </div>
-                            <div className="text-right">
-                              <div className="text-xs">Created</div>
-                              <div className="font-medium">{formatDate(l.created_at)}</div>
+                          )}
+                          
+                          <CardHeader className="pb-2">
+                            <div className="flex items-start justify-between gap-2">
+                              <CardTitle className="text-base">{l.first_name} {l.last_name}</CardTitle>
+                              
+                              {/* Enhanced Status Display */}
+                              <div className="flex flex-col items-end gap-1">
+                                <Select 
+                                  value={l.status || "new"} 
+                                  onValueChange={(newStatus) => handleQuickStatusUpdate(l.id, newStatus)}
+                                >
+                                  <SelectTrigger className="w-auto h-8 text-xs font-medium border-0 bg-secondary/20 hover:bg-secondary/30 transition-colors">
+                                    <StatusBadge status={l.status ?? "new"} className="capitalize border-0 bg-transparent" />
+                                    <ChevronDown className="h-3 w-3 ml-1" />
+                                  </SelectTrigger>
+                                  <SelectContent className="z-50 bg-popover min-w-[120px]">
+                                    {["new", "contacted", "qualified", "converted", "lost"].map((status) => (
+                                      <SelectItem key={status} value={status} className="capitalize text-xs">
+                                        {status}
+                                      </SelectItem>
+                                    ))}
+                                  </SelectContent>
+                                </Select>
+                                
+                                {/* Lead Age Indicator */}
+                                <div className="text-xs text-muted-foreground">
+                                  {leadAge === 0 ? "Today" : leadAge === 1 ? "1 day ago" : `${leadAge} days ago`}
+                                </div>
+                              </div>
                             </div>
-                          </div>
-                          <div className="mt-3 flex flex-wrap gap-2">
-                            <Button size="sm" variant="outline" asChild>
-                              <a href={`tel:${l.phone ?? ""}`} aria-label="Call lead">
-                                <span className="icon-chip mr-2"><Phone className="h-4 w-4" /></span>
-                                <span>Call</span>
-                              </a>
-                            </Button>
-                            <Button size="sm" variant="outline" asChild>
-                              <a href={`mailto:${l.email ?? ""}`} aria-label="Email lead">
-                                <span className="icon-chip mr-2"><Mail className="h-4 w-4" /></span>
-                                <span>Email</span>
-                              </a>
-                            </Button>
-                            <Button 
-                              size="sm" 
-                              variant="ghost" 
-                              aria-label="Edit lead"
-                              onClick={() => setEditingLead(l)}
-                            >
-                              <span className="icon-chip mr-2"><Pencil className="h-4 w-4" /></span>
-                              <span>Edit</span>
-                            </Button>
-                            <Button 
-                              size="sm" 
-                              variant="ghost" 
-                              aria-label="Delete lead"
-                              onClick={() => setDeletingLeadId(l.id)}
-                            >
-                              <span className="icon-chip mr-2"><Trash2 className="h-4 w-4" /></span>
-                              <span>Delete</span>
-                            </Button>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    ))}
+                            <CardDescription className="mt-1">{l.email || "-"}</CardDescription>
+                          </CardHeader>
+                          
+                          <CardContent className="text-sm text-muted-foreground">
+                            <div className="flex items-center justify-between">
+                              <div>
+                                <div>Phone: {l.phone ?? "-"}</div>
+                                <div className="capitalize">Source: {l.source ?? "-"}</div>
+                              </div>
+                              <div className="text-right">
+                                <div className="text-xs">Created</div>
+                                <div className="font-medium">{formatDate(l.created_at)}</div>
+                              </div>
+                            </div>
+                            
+                            {/* Quick Action Buttons */}
+                            <div className="mt-3 flex flex-wrap gap-2">
+                              {l.status === "new" && (
+                                <>
+                                  <Button 
+                                    size="sm" 
+                                    variant="secondary" 
+                                    className="text-xs h-7"
+                                    onClick={() => handleQuickStatusUpdate(l.id, "contacted")}
+                                  >
+                                    Mark Contacted
+                                  </Button>
+                                  <Button 
+                                    size="sm" 
+                                    variant="outline" 
+                                    className="text-xs h-7"
+                                    onClick={() => handleQuickStatusUpdate(l.id, "qualified")}
+                                  >
+                                    Mark Qualified
+                                  </Button>
+                                </>
+                              )}
+                              
+                              <Button size="sm" variant="outline" asChild className="h-7">
+                                <a href={`tel:${l.phone ?? ""}`} aria-label="Call lead">
+                                  <Phone className="h-3 w-3 mr-1" />
+                                  <span className="text-xs">Call</span>
+                                </a>
+                              </Button>
+                              <Button size="sm" variant="outline" asChild className="h-7">
+                                <a href={`mailto:${l.email ?? ""}`} aria-label="Email lead">
+                                  <Mail className="h-3 w-3 mr-1" />
+                                  <span className="text-xs">Email</span>
+                                </a>
+                              </Button>
+                              <Button 
+                                size="sm" 
+                                variant="ghost" 
+                                aria-label="Edit lead"
+                                className="h-7"
+                                onClick={() => setEditingLead(l)}
+                              >
+                                <Pencil className="h-3 w-3 mr-1" />
+                                <span className="text-xs">Edit</span>
+                              </Button>
+                              <Button 
+                                size="sm" 
+                                variant="ghost" 
+                                aria-label="Delete lead"
+                                className="h-7 text-destructive hover:text-destructive"
+                                onClick={() => setDeletingLeadId(l.id)}
+                              >
+                                <Trash2 className="h-3 w-3 mr-1" />
+                                <span className="text-xs">Delete</span>
+                              </Button>
+                            </div>
+                          </CardContent>
+                        </Card>
+                      );
+                    })}
                   </div>
                 ) : (
                   <div className="py-12 text-center text-muted-foreground">No leads found.</div>
