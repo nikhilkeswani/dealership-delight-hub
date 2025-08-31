@@ -67,8 +67,8 @@ function AppSidebar() {
   };
 
   return (
-    <Sidebar collapsible="icon" variant="inset" className="bg-secondary">
-      <SidebarContent>
+    <Sidebar collapsible="icon" variant="inset" className="bg-secondary border-secondary">
+      <SidebarContent className="bg-secondary">
         <SidebarGroup>
           <SidebarGroupContent>
             <div className="px-2 py-2">
