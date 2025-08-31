@@ -19,7 +19,8 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { robustSignOut } from "@/lib/auth";
 import { useDealer } from "@/hooks/useDealer";
-import { ArrowLeft, User, Users, CreditCard } from "lucide-react";
+import { User, Users, CreditCard } from "lucide-react";
+import BackToHubButton from "@/components/common/BackToHubButton";
 
 const SettingsLayout: React.FC = () => {
   const location = useLocation();
@@ -57,12 +58,7 @@ const SettingsLayout: React.FC = () => {
       <header className="sticky top-0 z-40 w-full border-b bg-background">
         <div className="container mx-auto px-4 h-16 flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <NavLink to="/app/overview">
-              <Button variant="ghost" size="sm">
-                <ArrowLeft className="h-4 w-4 mr-2" />
-                Back to Hub
-              </Button>
-            </NavLink>
+            <BackToHubButton />
             
             <Breadcrumb>
               <BreadcrumbList>

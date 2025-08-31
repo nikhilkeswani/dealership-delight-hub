@@ -10,7 +10,8 @@ import { NavLink } from "react-router-dom";
 import QuickActions from "@/components/dashboard/QuickActions";
 import ActivityFeed from "@/components/dashboard/ActivityFeed";
 import PageHeader from "@/components/common/PageHeader";
-import { LayoutDashboard, ShoppingCart, Users, TrendingUp, ArrowLeft } from "lucide-react";
+import { LayoutDashboard, ShoppingCart, Users, TrendingUp } from "lucide-react";
+import BackToHubButton from "@/components/common/BackToHubButton";
 
 const startOfMonth = () => {
   const d = new Date();
@@ -202,14 +203,7 @@ const DashboardHome: React.FC = () => {
         <PageHeader
           title="CRM Dashboard"
           description="Your dealership at a glance"
-          actions={
-            <NavLink to="/app/overview" aria-label="Back to Overview">
-              <Button variant="hero" size="sm">
-                <ArrowLeft className="mr-2 h-4 w-4" />
-                Back to Overview
-              </Button>
-            </NavLink>
-          }
+          actions={<BackToHubButton />}
         />
 
         <section aria-label="Key metrics" className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">

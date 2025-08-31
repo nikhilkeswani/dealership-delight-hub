@@ -4,7 +4,8 @@ import { SEO } from "@/components/SEO";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Palette, Type, Image, Globe, Settings, Phone, ArrowLeft } from "lucide-react";
+import { Palette, Type, Image, Globe, Settings, Phone } from "lucide-react";
+import BackToHubButton from "@/components/common/BackToHubButton";
 import { CustomizeConfig } from "@/components/configure/CustomizeConfig";
 import { ThemeConfig } from "@/components/configure/ThemeConfig";
 import { SeoConfig } from "@/components/configure/SeoConfig";
@@ -52,15 +53,7 @@ export default function Configure() {
           <div className="container py-6">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-4">
-                <Button 
-                  variant="ghost" 
-                  size="sm" 
-                  onClick={() => navigate(-1)}
-                  className="flex items-center gap-2 hover:bg-muted hover:text-foreground"
-                >
-                  <ArrowLeft className="h-4 w-4" />
-                  Back
-                </Button>
+                <BackToHubButton />
                 <div>
                   <h1 className="text-2xl font-semibold">Website Builder</h1>
                   <p className="text-muted-foreground text-sm mt-1">
