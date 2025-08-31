@@ -266,46 +266,34 @@ export type Database = {
         Row: {
           commission: number | null
           created_at: string
-          customer_id: string | null
-          deal_notes: string | null
+          customer_id: string
           dealer_id: string
-          expected_close_date: string | null
           id: string
-          lead_id: string | null
           notes: string | null
-          sale_date: string | null
-          sale_price: number | null
-          stage: string
+          sale_date: string
+          sale_price: number
           vehicle_id: string
         }
         Insert: {
           commission?: number | null
           created_at?: string
-          customer_id?: string | null
-          deal_notes?: string | null
+          customer_id: string
           dealer_id: string
-          expected_close_date?: string | null
           id?: string
-          lead_id?: string | null
           notes?: string | null
-          sale_date?: string | null
-          sale_price?: number | null
-          stage?: string
+          sale_date?: string
+          sale_price: number
           vehicle_id: string
         }
         Update: {
           commission?: number | null
           created_at?: string
-          customer_id?: string | null
-          deal_notes?: string | null
+          customer_id?: string
           dealer_id?: string
-          expected_close_date?: string | null
           id?: string
-          lead_id?: string | null
           notes?: string | null
-          sale_date?: string | null
-          sale_price?: number | null
-          stage?: string
+          sale_date?: string
+          sale_price?: number
           vehicle_id?: string
         }
         Relationships: [
@@ -321,13 +309,6 @@ export type Database = {
             columns: ["dealer_id"]
             isOneToOne: false
             referencedRelation: "dealers"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "sales_lead_id_fkey"
-            columns: ["lead_id"]
-            isOneToOne: false
-            referencedRelation: "leads"
             referencedColumns: ["id"]
           },
           {

@@ -10,9 +10,6 @@ import { NavLink } from "react-router-dom";
 import QuickActions from "@/components/dashboard/QuickActions";
 import ActivityFeed from "@/components/dashboard/ActivityFeed";
 import PageHeader from "@/components/common/PageHeader";
-import MonthlySalesChart, { type MonthlySalesPoint } from "@/components/dashboard/charts/MonthlySalesChart";
-import LeadsStatusDonut, { type LeadsStatusDatum } from "@/components/dashboard/charts/LeadsStatusDonut";
-import SalesPipelineChart, { type SalesPipelinePoint } from "@/components/dashboard/charts/SalesPipelineChart";
 import { LayoutDashboard, ShoppingCart, Users, TrendingUp } from "lucide-react";
 
 const startOfMonth = () => {
@@ -193,72 +190,7 @@ const DashboardHome: React.FC = () => {
     },
   });
 
-  // Sales pipeline data
-  const { data: salesPipeline, isLoading: pipelineLoading } = useQuery({
-    queryKey: ["sales-pipeline", dealerId],
-    queryFn: async () => {
-      if (!dealerId) return [];
-      
-      const { data } = await supabase
-        .from("sales")
-        .select("stage, sale_price")
-        .eq("dealer_id", dealerId)
-        .not("stage", "in", "(closed_won,closed_lost)"); // Only active deals
-      
-      return data || [];
-    },
-    enabled: !!dealerId,
-  });
-
-  const salesPipelineData: SalesPipelinePoint[] = React.useMemo(() => {
-    if (!salesPipeline) return [];
-    
-    const stageGroups = salesPipeline.reduce((acc: Record<string, any[]>, sale) => {
-      const stage = sale.stage || 'lead';
-      if (!acc[stage]) acc[stage] = [];
-      acc[stage].push(sale);
-      return acc;
-    }, {});
-
-    return Object.entries(stageGroups).map(([stage, sales]) => ({
-      stage: stage.replace('_', ' '),
-      count: sales.length,
-      value: sales.reduce((sum, sale) => sum + (sale.sale_price || 0), 0),
-    }));
-  }, [salesPipeline]);
-
-  // Leads status data for donut chart
-  const { data: leadsStatus } = useQuery({
-    queryKey: ["leads-status", dealerId],
-    enabled: !!dealerId,
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("leads")
-        .select("status")
-        .eq("dealer_id", dealerId!);
-      if (error) throw error;
-      return data ?? [];
-    },
-  });
-
-  const leadsStatusData: LeadsStatusDatum[] = React.useMemo(() => {
-    if (!leadsStatus) return [];
-    
-    const statusCounts = leadsStatus.reduce((acc: Record<string, number>, lead) => {
-      const status = lead.status || 'new';
-      acc[status] = (acc[status] || 0) + 1;
-      return acc;
-    }, {});
-
-    return Object.entries(statusCounts).map(([name, value]) => ({
-      name,
-      value,
-    }));
-  }, [leadsStatus]);
-
-  const monthlySalesData: MonthlySalesPoint[] = sales6m || [];
-
-  const anyLoading = dealerLoading || vehiclesLoading || leadsLoading || salesLoading || pipelineLoading;
+  const anyLoading = dealerLoading || vehiclesLoading || leadsLoading || salesLoading;
 
   return (
     <>
@@ -292,17 +224,6 @@ const DashboardHome: React.FC = () => {
             icon={TrendingUp}
             isLoading={anyLoading}
           />
-        </section>
-
-        <section>
-          <div className="grid gap-6 md:grid-cols-2">
-            <MonthlySalesChart data={monthlySalesData} />
-            <LeadsStatusDonut data={leadsStatusData} />
-          </div>
-          
-          <div className="mt-6 grid gap-6 md:grid-cols-1">
-            <SalesPipelineChart data={salesPipelineData} />
-          </div>
         </section>
 
         <section>
