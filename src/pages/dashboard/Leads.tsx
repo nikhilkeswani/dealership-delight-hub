@@ -141,12 +141,12 @@ const kpis = React.useMemo(() => {
                 </div>
                 <div className="w-full sm:w-56">
                   <Select value={status} onValueChange={setStatus}>
-                    <SelectTrigger aria-label="Filter by status" className="bg-background">
+                    <SelectTrigger aria-label="Filter by status" className="bg-background border border-border/50 hover:bg-muted/50 transition-colors shadow-sm">
                       <SelectValue placeholder="Filter by status" />
                     </SelectTrigger>
-                    <SelectContent className="z-50 bg-popover">
+                    <SelectContent className="z-[100] bg-popover border border-border/80 shadow-lg rounded-md">
                       {["all", "new", "contacted", "qualified", "converted", "lost"].map((s) => (
-                        <SelectItem key={s} value={s} className="capitalize">
+                        <SelectItem key={s} value={s} className="capitalize hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground cursor-pointer">
                           {s}
                         </SelectItem>
                       ))}
@@ -215,13 +215,17 @@ const kpis = React.useMemo(() => {
                                   value={l.status || "new"} 
                                   onValueChange={(newStatus) => handleQuickStatusUpdate(l.id, newStatus)}
                                 >
-                                  <SelectTrigger className="w-auto h-8 border-0 bg-secondary/20 hover:bg-secondary/30 transition-colors">
-                                    <StatusBadge status={l.status ?? "new"} className="capitalize" />
-                                    <ChevronDown className="h-3 w-3 ml-1" />
+                                  <SelectTrigger className="w-auto h-9 px-3 bg-background border border-border/50 hover:bg-muted/50 transition-colors rounded-md shadow-sm">
+                                    <StatusBadge status={l.status ?? "new"} className="capitalize mr-1" />
+                                    <ChevronDown className="h-4 w-4 text-muted-foreground" />
                                   </SelectTrigger>
-                                  <SelectContent className="z-50 bg-popover min-w-[120px]">
+                                  <SelectContent className="z-[100] bg-popover border border-border/80 shadow-lg rounded-md min-w-[140px]">
                                     {["new", "contacted", "qualified", "converted", "lost"].map((status) => (
-                                      <SelectItem key={status} value={status} className="capitalize text-sm">
+                                      <SelectItem 
+                                        key={status} 
+                                        value={status} 
+                                        className="capitalize text-sm hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground cursor-pointer"
+                                      >
                                         {status}
                                       </SelectItem>
                                     ))}
