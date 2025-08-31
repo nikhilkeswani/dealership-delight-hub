@@ -199,21 +199,17 @@ const DashboardHome: React.FC = () => {
         title="CRM Dashboard | Dealer CRM"
         description="Data-driven overview of your dealership: inventory, leads, sales, and appointments."
       />
-      <div className="border-b">
-        <div className="container py-6">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <BackToHubButton />
-              <div>
-                <h1 className="text-2xl font-semibold">CRM Dashboard</h1>
-                <p className="text-muted-foreground text-sm mt-1">
-                  Your dealership at a glance
-                </p>
-              </div>
+      <header className="sticky top-0 z-40 w-full border-b bg-background">
+        <div className="container mx-auto px-4 h-16 flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <BackToHubButton />
+            <div>
+              <h1 className="text-xl font-semibold">CRM Dashboard</h1>
+              <p className="text-xs text-muted-foreground">Your dealership at a glance</p>
             </div>
           </div>
         </div>
-      </div>
+      </header>
 
       <main className="container py-6 space-y-6 animate-fade-in">
 
