@@ -34,15 +34,6 @@ const Leads: React.FC = () => {
     return daysDiff <= 3;
   };
 
-  // Helper function to get lead priority class based on age
-  const getLeadPriorityClass = (createdAt: string) => {
-    const daysDiff = differenceInDays(new Date(), new Date(createdAt));
-    if (daysDiff <= 3) return "border-l-4 border-l-green-500 bg-green-50/30 dark:bg-green-950/20"; // Fresh
-    if (daysDiff <= 7) return "border-l-4 border-l-yellow-500 bg-yellow-50/30 dark:bg-yellow-950/20"; // Needs attention  
-    if (daysDiff <= 14) return "border-l-4 border-l-orange-500 bg-orange-50/30 dark:bg-orange-950/20"; // Aging
-    return "border-l-4 border-l-red-500 bg-red-50/30 dark:bg-red-950/20"; // Urgent
-  };
-
   // Helper function to get lead age in days
   const getLeadAge = (createdAt: string) => {
     return differenceInDays(new Date(), new Date(createdAt));
@@ -185,10 +176,9 @@ const kpis = React.useMemo(() => {
                         {filtered.map((l: any) => {
                           const leadAge = getLeadAge(l.created_at);
                           const isRecent = isRecentLead(l.created_at);
-                          const priorityClass = getLeadPriorityClass(l.created_at);
                           
                           return (
-                            <TableRow key={l.id} className={`hover:bg-muted/40 ${priorityClass}`}>
+                            <TableRow key={l.id} className="hover:bg-muted/40">
                               <TableCell>
                                 <div className="flex items-center gap-3">
                                   <div>
