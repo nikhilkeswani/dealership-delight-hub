@@ -11,7 +11,6 @@ import QuickActions from "@/components/dashboard/QuickActions";
 import ActivityFeed from "@/components/dashboard/ActivityFeed";
 import PageHeader from "@/components/common/PageHeader";
 import { LayoutDashboard, ShoppingCart, Users, TrendingUp } from "lucide-react";
-import BackToHubButton from "@/components/common/BackToHubButton";
 
 const startOfMonth = () => {
   const d = new Date();
@@ -199,20 +198,7 @@ const DashboardHome: React.FC = () => {
         title="CRM Dashboard | Dealer CRM"
         description="Data-driven overview of your dealership: inventory, leads, sales, and appointments."
       />
-      <header className="sticky top-0 z-40 w-full border-b bg-background">
-        <div className="container mx-auto px-4 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <BackToHubButton />
-            <div>
-              <h1 className="text-xl font-semibold">CRM Dashboard</h1>
-              <p className="text-xs text-muted-foreground">Your dealership at a glance</p>
-            </div>
-          </div>
-        </div>
-      </header>
-
-      <main className="container py-6 space-y-6 animate-fade-in">
-
+      <main className="space-y-6 animate-fade-in">
         <section aria-label="Key metrics" className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           <StatCard
             title="Total Inventory"

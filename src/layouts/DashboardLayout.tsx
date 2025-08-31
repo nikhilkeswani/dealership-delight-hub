@@ -1,7 +1,7 @@
 import React from "react";
 import { Outlet, NavLink, useLocation } from "react-router-dom";
 import { Car, Users, Inbox, LayoutDashboard } from "lucide-react";
-// Removed search button import
+import BackToHubButton from "@/components/common/BackToHubButton";
 import { robustSignOut } from "@/lib/auth";
 import {
   SidebarProvider,
@@ -68,6 +68,13 @@ function AppSidebar() {
   return (
     <Sidebar collapsible="icon" variant="inset">
       <SidebarContent>
+        <SidebarGroup>
+          <SidebarGroupContent>
+            <div className="px-2 py-2">
+              <BackToHubButton />
+            </div>
+          </SidebarGroupContent>
+        </SidebarGroup>
         <SidebarGroup>
           <SidebarGroupLabel>Dealer CRM</SidebarGroupLabel>
           <SidebarGroupContent>
