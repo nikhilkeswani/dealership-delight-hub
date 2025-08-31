@@ -2,6 +2,7 @@ import React from "react";
 import { Outlet, NavLink, useLocation } from "react-router-dom";
 import { Car, Users, Inbox, LayoutDashboard } from "lucide-react";
 import BackToHubButton from "@/components/common/BackToHubButton";
+import PageHeader from "@/components/common/PageHeader";
 import { robustSignOut } from "@/lib/auth";
 import {
   SidebarProvider,
@@ -167,7 +168,11 @@ const DashboardLayout: React.FC = () => {
           </div>
         </header>
         
-        <div className="p-4 md:p-6">
+        <div className="p-4 md:p-6 space-y-6">
+          <PageHeader 
+            title="CRM Dashboard" 
+            description="Your dealership at a glance"
+          />
           <Outlet />
         </div>
       </SidebarInset>
