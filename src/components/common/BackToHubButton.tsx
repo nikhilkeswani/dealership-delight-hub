@@ -16,10 +16,10 @@ const BackToHubButton: React.FC<BackToHubButtonProps> = ({ className }) => {
 
   return (
     <Button 
-      variant="ghost" 
+      variant="secondary" 
       size="sm" 
       onClick={handleClick}
-      className={`flex items-center gap-2 hover:bg-muted hover:text-foreground ${className}`}
+      className={`flex items-center gap-2 ${className}`}
     >
       <ArrowLeft className="h-4 w-4" />
       Back to Hub
