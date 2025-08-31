@@ -1,6 +1,7 @@
 import React from "react";
 import { useLeads, useCreateLead, useUpdateLead, useDeleteLead } from "@/hooks/useLeads";
 import LeadFormDialog from "@/components/leads/LeadFormDialog";
+import ConvertLeadDialog from "@/components/sales/ConvertLeadDialog";
 import type { LeadFormValues } from "@/components/leads/LeadFormDialog";
 import ConfirmDialog from "@/components/common/ConfirmDialog";
 import { SEO } from "@/components/SEO";
@@ -13,7 +14,7 @@ import PageHeader from "@/components/common/PageHeader";
 import StatusBadge from "@/components/common/StatusBadge";
 import { Input } from "@/components/ui/input";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { Mail, Phone, Activity, Flame, TrendingUp, CalendarCheck, Pencil, Trash2, ChevronDown, MoreHorizontal, Filter } from "lucide-react";
+import { Mail, Phone, Activity, Flame, TrendingUp, CalendarCheck, Pencil, Trash2, ChevronDown, MoreHorizontal, Filter, DollarSign } from "lucide-react";
 import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from "@/components/ui/select";
 import StatCard from "@/components/dashboard/StatCard";
 import { isSameDay, differenceInDays } from "date-fns";
@@ -22,6 +23,7 @@ const Leads: React.FC = () => {
   const [leadDialogOpen, setLeadDialogOpen] = React.useState(false);
   const [editingLead, setEditingLead] = React.useState<any>(null);
   const [deletingLeadId, setDeletingLeadId] = React.useState<string | null>(null);
+  const [convertingLead, setConvertingLead] = React.useState<any>(null);
   
   const { data, isLoading, error } = useLeads();
   const createLeadMutation = useCreateLead();
@@ -279,6 +281,15 @@ const kpis = React.useMemo(() => {
                                           </DropdownMenuItem>
                                         </>
                                       )}
+                                      {(l.status === "qualified" || l.status === "contacted") && (
+                                        <DropdownMenuItem 
+                                          onClick={() => setConvertingLead(l)}
+                                          className="text-sm"
+                                        >
+                                          <DollarSign className="h-3 w-3 mr-2" />
+                                          Convert to Sale
+                                        </DropdownMenuItem>
+                                      )}
                                       <DropdownMenuItem 
                                         onClick={() => setEditingLead(l)}
                                         className="text-sm"
@@ -323,6 +334,12 @@ const kpis = React.useMemo(() => {
         onOpenChange={(open) => !open && setEditingLead(null)}
         initialValues={editingLead}
         onSubmit={handleUpdateLead}
+      />
+      
+      <ConvertLeadDialog
+        open={!!convertingLead}
+        onOpenChange={(open) => !open && setConvertingLead(null)}
+        lead={convertingLead}
       />
       
       <ConfirmDialog

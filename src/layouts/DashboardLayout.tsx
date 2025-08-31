@@ -1,6 +1,6 @@
 import React from "react";
 import { Outlet, NavLink, useLocation } from "react-router-dom";
-import { Car, Users, Inbox, LayoutDashboard } from "lucide-react";
+import { Car, Users, Inbox, LayoutDashboard, DollarSign } from "lucide-react";
 import BackToHubButton from "@/components/common/BackToHubButton";
 import PageHeader from "@/components/common/PageHeader";
 import { robustSignOut } from "@/lib/auth";
@@ -28,6 +28,7 @@ const navItems = [
   { title: "Dashboard", url: "/app/dashboard", icon: LayoutDashboard },
   { title: "Inventory", url: "/app/inventory", icon: Car },
   { title: "Leads", url: "/app/leads", icon: Inbox },
+  { title: "Sales", url: "/app/sales", icon: DollarSign },
   { title: "Customers", url: "/app/customers", icon: Users },
 ];
 
@@ -60,6 +61,14 @@ function AppSidebar() {
         queryKey: ["customers"],
         queryFn: async () => {
           const { data } = await supabase.from("customers").select("id").limit(1);
+          return data ?? [];
+        },
+      });
+    } else if (path.includes("/sales")) {
+      queryClient.prefetchQuery({
+        queryKey: ["sales"],
+        queryFn: async () => {
+          const { data } = await supabase.from("sales").select("id").limit(1);
           return data ?? [];
         },
       });
@@ -114,6 +123,7 @@ const DashboardLayout: React.FC = () => {
     overview: "Overview",
     inventory: "Inventory",
     leads: "Leads",
+    sales: "Sales",
     customers: "Customers",
   };
   const pageLabel = titles[page] ?? "Overview";

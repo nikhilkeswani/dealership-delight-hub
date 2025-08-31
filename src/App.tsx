@@ -21,6 +21,7 @@ const Overview = lazy(() => import("./pages/dashboard/Overview"));
 const DashboardHome = lazy(() => import("./pages/dashboard/DashboardHome"));
 const Inventory = lazy(() => import("./pages/dashboard/Inventory"));
 const Leads = lazy(() => import("./pages/dashboard/Leads"));
+const Sales = lazy(() => import("./pages/dashboard/Sales"));
 const Customers = lazy(() => import("./pages/dashboard/Customers"));
 const Onboarding = lazy(() => import("./pages/Onboarding"));
 const SettingsProfile = lazy(() => import("./pages/settings/Profile"));
@@ -74,6 +75,7 @@ const App = () => (
                   <Route path="/app/dashboard" element={<DashboardHome />} />
                   <Route path="/app/inventory" element={<Inventory />} />
                   <Route path="/app/leads" element={<Leads />} />
+                  <Route path="/app/sales" element={<Sales />} />
                   <Route path="/app/customers" element={<Customers />} />
                 </Route>
 
