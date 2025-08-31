@@ -56,7 +56,7 @@ export default function Configure() {
                   variant="ghost" 
                   size="sm" 
                   onClick={() => navigate(-1)}
-                  className="flex items-center gap-2"
+                  className="flex items-center gap-2 hover:bg-muted hover:text-foreground"
                 >
                   <ArrowLeft className="h-4 w-4" />
                   Back
