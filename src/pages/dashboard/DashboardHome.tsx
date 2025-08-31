@@ -199,17 +199,23 @@ const DashboardHome: React.FC = () => {
         title="CRM Dashboard | Dealer CRM"
         description="Data-driven overview of your dealership: inventory, leads, sales, and appointments."
       />
-      <header className="flex items-center justify-between mb-6">
-        <div className="flex items-center gap-4">
-          <BackToHubButton />
-          <div>
-            <h1 className="text-2xl md:text-3xl font-semibold tracking-tight">CRM Dashboard</h1>
-            <p className="text-sm text-muted-foreground mt-1">Your dealership at a glance</p>
+      <div className="border-b">
+        <div className="container py-6">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <BackToHubButton />
+              <div>
+                <h1 className="text-2xl font-semibold">CRM Dashboard</h1>
+                <p className="text-muted-foreground text-sm mt-1">
+                  Your dealership at a glance
+                </p>
+              </div>
+            </div>
           </div>
         </div>
-      </header>
+      </div>
 
-      <main className="space-y-6 animate-fade-in">
+      <main className="container py-6 space-y-6 animate-fade-in">
 
         <section aria-label="Key metrics" className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           <StatCard
