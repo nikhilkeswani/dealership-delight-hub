@@ -69,83 +69,78 @@ export function WebsitePreview({ device }: WebsitePreviewProps) {
     };
 
   return (
-    <div className={`${containerClasses} h-full overflow-auto bg-white border rounded-lg text-gray-900`}>
+    <div className={`${containerClasses} h-full overflow-auto`} style={{ backgroundColor: '#ffffff', color: '#000000', border: '1px solid #e5e7eb', borderRadius: '8px' }}>
       {/* Header */}
-      <header className="border-b p-4 bg-white">
+      <header style={{ borderBottom: '1px solid #e5e7eb', padding: '16px', backgroundColor: '#ffffff' }}>
         <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
           <div className="flex items-center gap-3">
             <Avatar className="h-8 w-8">
               <AvatarImage src={config.brand.logoUrl || undefined} alt={`${businessName} logo`} />
-              <AvatarFallback className="text-xs bg-gray-100 text-gray-900">{businessInitials}</AvatarFallback>
+              <AvatarFallback style={{ backgroundColor: '#f3f4f6', color: '#111827', fontSize: '12px' }}>{businessInitials}</AvatarFallback>
             </Avatar>
             <div>
-              <p className="text-xs text-gray-500">Powered by DealerDelight</p>
-              <h1 className="font-semibold text-gray-900">{businessName}</h1>
-              <p className="text-xs text-gray-600">{config.brand.tagline}</p>
+              <p style={{ fontSize: '12px', color: '#6b7280' }}>Powered by DealerDelight</p>
+              <h1 style={{ fontWeight: '600', color: '#111827' }}>{businessName}</h1>
+              <p style={{ fontSize: '12px', color: '#4b5563' }}>{config.brand.tagline}</p>
             </div>
           </div>
           <div className="flex gap-2">
-            <Button variant="outline" size="sm" className="bg-white border-gray-300 text-gray-900 hover:bg-gray-50">Contact</Button>
-            <Button size="sm" className="bg-purple-600 text-white hover:bg-purple-700">Test Drive</Button>
+            <button style={{ backgroundColor: '#ffffff', border: '1px solid #d1d5db', color: '#111827', padding: '6px 12px', borderRadius: '6px', fontSize: '14px' }}>Contact</button>
+            <button style={{ backgroundColor: '#7c3aed', color: '#ffffff', padding: '6px 12px', borderRadius: '6px', fontSize: '14px', border: 'none' }}>Test Drive</button>
           </div>
         </div>
       </header>
 
       {/* Hero Section */}
-      <section className="p-4 md:p-6 bg-gradient-to-br from-purple-100 via-purple-50 to-green-50">
+      <section style={{ padding: '16px 24px', background: 'linear-gradient(135deg, #ede9fe 0%, #f3e8ff 50%, #dcfce7 100%)' }}>
         <div className="space-y-4">
           <div className="flex flex-wrap gap-1">
-            <Badge variant="secondary" className="flex items-center gap-1 text-xs bg-white text-gray-700 border border-gray-200">
+            <span style={{ backgroundColor: '#ffffff', color: '#374151', padding: '4px 8px', borderRadius: '4px', fontSize: '12px', border: '1px solid #d1d5db', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
               <Star className="h-3 w-3" /> 4.9 Rating
-            </Badge>
-            <Badge variant="secondary" className="flex items-center gap-1 text-xs bg-white text-gray-700 border border-gray-200">
+            </span>
+            <span style={{ backgroundColor: '#ffffff', color: '#374151', padding: '4px 8px', borderRadius: '4px', fontSize: '12px', border: '1px solid #d1d5db', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
               <Award className="h-3 w-3" /> Award Winning
-            </Badge>
-            <Badge variant="secondary" className="flex items-center gap-1 text-xs bg-white text-gray-700 border border-gray-200">
+            </span>
+            <span style={{ backgroundColor: '#ffffff', color: '#374151', padding: '4px 8px', borderRadius: '4px', fontSize: '12px', border: '1px solid #d1d5db', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
               <ShieldCheck className="h-3 w-3" /> Certified
-            </Badge>
-            <Badge variant="secondary" className="flex items-center gap-1 text-xs bg-white text-gray-700 border border-gray-200">
+            </span>
+            <span style={{ backgroundColor: '#ffffff', color: '#374151', padding: '4px 8px', borderRadius: '4px', fontSize: '12px', border: '1px solid #d1d5db', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
               <Tag className="h-3 w-3" /> Best Prices
-            </Badge>
+            </span>
           </div>
 
           <div className="space-y-3">
-            <h2 className={`${textSizes.headline} font-semibold tracking-tight text-gray-900`}>
+            <h2 style={{ fontSize: device === "mobile" ? '24px' : '36px', fontWeight: '600', color: '#111827', lineHeight: '1.2' }}>
               {config.hero.headline}
             </h2>
-            <p className={`${textSizes.subtitle} text-gray-600`}>
+            <p style={{ fontSize: device === "mobile" ? '14px' : '18px', color: '#4b5563' }}>
               {config.hero.subtitle}
             </p>
           </div>
 
-          <div className="rounded-lg border border-gray-200 bg-white/80 backdrop-blur p-3 md:p-4">
+          <div style={{ borderRadius: '8px', border: '1px solid #d1d5db', backgroundColor: 'rgba(255, 255, 255, 0.9)', padding: '16px' }}>
             <div className="space-y-3">
               <div className="relative">
                 <input 
-                  className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md pl-8 bg-white text-gray-900 placeholder-gray-500"
+                  style={{ width: '100%', padding: '8px 12px 8px 32px', fontSize: '14px', border: '1px solid #d1d5db', borderRadius: '6px', backgroundColor: '#ffffff', color: '#111827' }}
                   placeholder="Search by make, model, year..."
                 />
-                <div className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
               </div>
-              <div className="flex flex-wrap gap-1 text-xs">
-                <span className="text-gray-600">Popular:</span>
+              <div className="flex flex-wrap gap-1" style={{ fontSize: '12px' }}>
+                <span style={{ color: '#4b5563' }}>Popular:</span>
                 {["SUVs", "Sedans", "Electric"].map((term) => (
-                  <Button key={term} variant="outline" size="sm" className="h-7 text-xs px-2 bg-white border-gray-300 text-gray-700 hover:bg-gray-50">
+                  <button key={term} style={{ height: '28px', fontSize: '12px', padding: '0 8px', backgroundColor: '#ffffff', border: '1px solid #d1d5db', color: '#374151', borderRadius: '4px' }}>
                     {term}
-                  </Button>
+                  </button>
                 ))}
               </div>
               <div className="flex flex-col sm:flex-row gap-2">
-                <Button className="w-full bg-purple-600 text-white hover:bg-purple-700" size={device === "mobile" ? "sm" : "default"}>
+                <button style={{ width: '100%', backgroundColor: '#7c3aed', color: '#ffffff', padding: '10px 16px', borderRadius: '6px', fontSize: '14px', border: 'none', fontWeight: '500' }}>
                   Search Now
-                </Button>
-                <Button 
-                  variant="preview-button" 
-                  className="w-full sm:w-auto bg-white border-gray-300 text-gray-900 hover:bg-gray-50" 
-                  size={device === "mobile" ? "sm" : "default"}
-                >
+                </button>
+                <button style={{ backgroundColor: '#ffffff', border: '1px solid #d1d5db', color: '#111827', padding: '10px 16px', borderRadius: '6px', fontSize: '14px', fontWeight: '500' }}>
                   View All Inventory
-                </Button>
+                </button>
               </div>
             </div>
           </div>
@@ -153,26 +148,26 @@ export function WebsitePreview({ device }: WebsitePreviewProps) {
       </section>
 
       {/* Vehicles Preview */}
-      <section className="p-4 md:p-6 bg-white">
-        <h3 className="font-semibold mb-4 text-gray-900">Available Vehicles</h3>
+      <section style={{ padding: '16px 24px', backgroundColor: '#ffffff' }}>
+        <h3 style={{ fontWeight: '600', marginBottom: '16px', color: '#111827' }}>Available Vehicles</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {[1, 2, 3].map((i) => (
-            <div key={i} className="border border-gray-200 rounded-lg overflow-hidden bg-white">
-              <div className="h-32 bg-gray-100 flex items-center justify-center">
-                <p className="text-xs text-gray-500">Vehicle Image</p>
+            <div key={i} style={{ border: '1px solid #d1d5db', borderRadius: '8px', overflow: 'hidden', backgroundColor: '#ffffff' }}>
+              <div style={{ height: '128px', backgroundColor: '#f3f4f6', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <p style={{ fontSize: '12px', color: '#6b7280' }}>Vehicle Image</p>
               </div>
-              <div className="p-3 space-y-2">
+              <div style={{ padding: '12px' }} className="space-y-2">
                 <div className="flex items-center justify-between">
-                  <p className="font-medium text-sm text-gray-900">2024 Sample Car</p>
-                  <Badge variant="outline" className="text-xs bg-green-50 text-green-700 border-green-200">New</Badge>
+                  <p style={{ fontWeight: '500', fontSize: '14px', color: '#111827' }}>2024 Sample Car</p>
+                  <span style={{ fontSize: '12px', backgroundColor: '#dcfce7', color: '#166534', padding: '2px 6px', borderRadius: '4px', border: '1px solid #bbf7d0' }}>New</span>
                 </div>
-                <p className="text-lg font-semibold text-gray-900">$35,990</p>
-                <p className="text-xs text-gray-600">
+                <p style={{ fontSize: '18px', fontWeight: '600', color: '#111827' }}>$35,990</p>
+                <p style={{ fontSize: '12px', color: '#4b5563' }}>
                   Premium features, great mileage
                 </p>
-                <Button variant="outline" size="sm" className="w-full bg-white border-gray-300 text-gray-900 hover:bg-gray-50">
+                <button style={{ width: '100%', backgroundColor: '#ffffff', border: '1px solid #d1d5db', color: '#111827', padding: '8px 12px', borderRadius: '6px', fontSize: '14px' }}>
                   View Details
-                </Button>
+                </button>
               </div>
             </div>
           ))}
@@ -180,72 +175,72 @@ export function WebsitePreview({ device }: WebsitePreviewProps) {
       </section>
 
       {/* About Preview */}
-      <section className="p-4 md:p-6 bg-gray-50">
-        <h3 className="font-semibold mb-4 text-gray-900">About Our Dealership</h3>
-        <p className="text-sm text-gray-600 mb-4">
+      <section style={{ padding: '16px 24px', backgroundColor: '#f9fafb' }}>
+        <h3 style={{ fontWeight: '600', marginBottom: '16px', color: '#111827' }}>About Our Dealership</h3>
+        <p style={{ fontSize: '14px', color: '#4b5563', marginBottom: '16px' }}>
           We're committed to providing exceptional service and helping you find the perfect vehicle. 
           With years of experience in the automotive industry, we pride ourselves on transparent 
           pricing, quality vehicles, and customer satisfaction.
         </p>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="text-center p-3 bg-white rounded-lg border border-gray-200">
-            <p className="font-semibold text-lg text-gray-900">500+</p>
-            <p className="text-xs text-gray-600">Happy Customers</p>
+          <div style={{ textAlign: 'center', padding: '12px', backgroundColor: '#ffffff', borderRadius: '8px', border: '1px solid #d1d5db' }}>
+            <p style={{ fontWeight: '600', fontSize: '18px', color: '#111827' }}>500+</p>
+            <p style={{ fontSize: '12px', color: '#4b5563' }}>Happy Customers</p>
           </div>
-          <div className="text-center p-3 bg-white rounded-lg border border-gray-200">
-            <p className="font-semibold text-lg text-gray-900">15+</p>
-            <p className="text-xs text-gray-600">Years Experience</p>
+          <div style={{ textAlign: 'center', padding: '12px', backgroundColor: '#ffffff', borderRadius: '8px', border: '1px solid #d1d5db' }}>
+            <p style={{ fontWeight: '600', fontSize: '18px', color: '#111827' }}>15+</p>
+            <p style={{ fontSize: '12px', color: '#4b5563' }}>Years Experience</p>
           </div>
-          <div className="text-center p-3 bg-white rounded-lg border border-gray-200">
-            <p className="font-semibold text-lg text-gray-900">4.9/5</p>
-            <p className="text-xs text-gray-600">Customer Rating</p>
+          <div style={{ textAlign: 'center', padding: '12px', backgroundColor: '#ffffff', borderRadius: '8px', border: '1px solid #d1d5db' }}>
+            <p style={{ fontWeight: '600', fontSize: '18px', color: '#111827' }}>4.9/5</p>
+            <p style={{ fontSize: '12px', color: '#4b5563' }}>Customer Rating</p>
           </div>
         </div>
       </section>
 
       {/* Contact Preview */}
-      <section className="p-4 md:p-6 border-t border-gray-200 bg-white">
-        <h3 className="font-semibold mb-4 text-gray-900">Contact Us</h3>
+      <section style={{ padding: '16px 24px', borderTop: '1px solid #d1d5db', backgroundColor: '#ffffff' }}>
+        <h3 style={{ fontWeight: '600', marginBottom: '16px', color: '#111827' }}>Contact Us</h3>
         <div className="space-y-3">
           <div className="flex items-center gap-3">
-            <div className="p-2 bg-gray-100 rounded-full">
-              <Phone className="h-4 w-4 text-gray-600" />
+            <div style={{ padding: '8px', backgroundColor: '#f3f4f6', borderRadius: '50%' }}>
+              <Phone className="h-4 w-4" style={{ color: '#4b5563' }} />
             </div>
             <div>
-              <p className="font-medium text-sm text-gray-900">{config.contact.phone}</p>
-              <p className="text-xs text-gray-600">Call us anytime</p>
+              <p style={{ fontWeight: '500', fontSize: '14px', color: '#111827' }}>{config.contact.phone}</p>
+              <p style={{ fontSize: '12px', color: '#4b5563' }}>Call us anytime</p>
             </div>
           </div>
           
           <div className="flex items-center gap-3">
-            <div className="p-2 bg-gray-100 rounded-full">
-              <Mail className="h-4 w-4 text-gray-600" />
+            <div style={{ padding: '8px', backgroundColor: '#f3f4f6', borderRadius: '50%' }}>
+              <Mail className="h-4 w-4" style={{ color: '#4b5563' }} />
             </div>
             <div>
-              <p className="font-medium text-sm text-gray-900">{config.contact.email}</p>
-              <p className="text-xs text-gray-600">Email us</p>
+              <p style={{ fontWeight: '500', fontSize: '14px', color: '#111827' }}>{config.contact.email}</p>
+              <p style={{ fontSize: '12px', color: '#4b5563' }}>Email us</p>
             </div>
           </div>
           
           <div className="flex items-center gap-3">
-            <div className="p-2 bg-gray-100 rounded-full">
-              <MapPin className="h-4 w-4 text-gray-600" />
+            <div style={{ padding: '8px', backgroundColor: '#f3f4f6', borderRadius: '50%' }}>
+              <MapPin className="h-4 w-4" style={{ color: '#4b5563' }} />
             </div>
             <div>
-              <p className="font-medium text-sm text-gray-900">Visit Our Showroom</p>
-              <p className="text-xs text-gray-600">
+              <p style={{ fontWeight: '500', fontSize: '14px', color: '#111827' }}>Visit Our Showroom</p>
+              <p style={{ fontSize: '12px', color: '#4b5563' }}>
                 {config.contact.address}
               </p>
             </div>
           </div>
           
-          <Button className="w-full mt-4 bg-purple-600 text-white hover:bg-purple-700">Get Directions</Button>
+          <button style={{ width: '100%', marginTop: '16px', backgroundColor: '#7c3aed', color: '#ffffff', padding: '10px 16px', borderRadius: '6px', fontSize: '14px', border: 'none', fontWeight: '500' }}>Get Directions</button>
         </div>
       </section>
 
       {/* Footer */}
-      <footer className="p-4 border-t border-gray-200 bg-gray-50 text-center">
-        <p className="text-xs text-gray-600">
+      <footer style={{ padding: '16px', borderTop: '1px solid #d1d5db', backgroundColor: '#f9fafb', textAlign: 'center' }}>
+        <p style={{ fontSize: '12px', color: '#4b5563' }}>
           © 2024 {businessName}. Powered by DealerDelight.
         </p>
       </footer>
