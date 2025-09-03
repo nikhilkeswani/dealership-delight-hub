@@ -140,7 +140,7 @@ export function WebsitePreview({ device }: WebsitePreviewProps) {
                   Search Now
                 </Button>
                 <Button 
-                  variant="secondary" 
+                  variant="preview-button" 
                   className="w-full sm:w-auto" 
                   size={device === "mobile" ? "sm" : "default"}
                 >

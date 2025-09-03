@@ -20,6 +20,7 @@ const buttonVariants = cva(
         link: "text-primary underline-offset-4 hover:underline",
         hero: "[background:var(--gradient-primary)] text-[hsl(var(--brand-foreground))] shadow-[var(--shadow-elegant)] hover:opacity-95",
         "hero-outline": "border-2 border-white/30 bg-white/10 text-white backdrop-blur-sm hover:bg-white/20 hover:border-white/50",
+        "preview-button": "bg-white border border-gray-300 text-gray-900 hover:bg-gray-50",
       },
       size: {
         default: "h-10 px-4 py-2",
