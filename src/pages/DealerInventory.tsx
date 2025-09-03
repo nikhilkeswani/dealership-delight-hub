@@ -18,9 +18,13 @@ import sedan from "@/assets/cars/sedan.jpg";
 const DealerInventory = () => {
   const { slug } = useParams();
   const [query, setQuery] = useState("");
-  const [sort, setSort] = useState<"relevance" | "price-asc" | "price-desc" | "year-desc" | "mileage-asc">("relevance");
+  const [sort, setSort] = useState<"relevance" | "price-asc" | "price-desc" | "year-desc" | "mileage-asc" | "recently-added">("relevance");
   const [currentPage, setCurrentPage] = useState(1);
   const [makeFilter, setMakeFilter] = useState<string>("");
+  const [bodyTypeFilter, setBodyTypeFilter] = useState<string>("");
+  const [fuelTypeFilter, setFuelTypeFilter] = useState<string>("");
+  const [transmissionFilter, setTransmissionFilter] = useState<string>("");
+  const [conditionFilter, setConditionFilter] = useState<string>("");
   const [priceRange, setPriceRange] = useState<[number, number]>([0, 200000]);
   const [mileageRange, setMileageRange] = useState<[number, number]>([0, 150000]);
   const [yearRange, setYearRange] = useState<[number, number]>([2000, 2025]);
@@ -42,26 +46,59 @@ const DealerInventory = () => {
     return makes;
   }, [publicVehicles]);
 
+  // Get unique filter options
+  const availableBodyTypes = useMemo(() => {
+    const types = [...new Set((publicVehicles || []).map((v: any) => v.body_type).filter(Boolean))].sort();
+    return types;
+  }, [publicVehicles]);
+
+  const availableFuelTypes = useMemo(() => {
+    const types = [...new Set((publicVehicles || []).map((v: any) => v.fuel_type).filter(Boolean))].sort();
+    return types;
+  }, [publicVehicles]);
+
+  const availableTransmissions = useMemo(() => {
+    const types = [...new Set((publicVehicles || []).map((v: any) => v.transmission).filter(Boolean))].sort();
+    return types;
+  }, [publicVehicles]);
+
+  const availableConditions = useMemo(() => {
+    const types = [...new Set((publicVehicles || []).map((v: any) => v.condition).filter(Boolean))].sort();
+    return types;
+  }, [publicVehicles]);
+
   // Filter and sort vehicles
   const filteredVehicles = useMemo(() => {
     return (publicVehicles || []).filter((v: any) => {
       const q = query.trim().toLowerCase();
       const vehicleTitle = `${v.year} ${v.make} ${v.model}`;
-      const matchesSearch = !q || vehicleTitle.toLowerCase().includes(q) || 
-                           (v.description && v.description.toLowerCase().includes(q));
+      const vin = v.vin || '';
+      const description = v.description || '';
+      
+      // Enhanced search including VIN, features, and description
+      const matchesSearch = !q || 
+        vehicleTitle.toLowerCase().includes(q) ||
+        description.toLowerCase().includes(q) ||
+        vin.toLowerCase().includes(q) ||
+        (v.features && JSON.stringify(v.features).toLowerCase().includes(q));
       
       const price = parsePrice(v.price);
       const mileage = v.mileage || 0;
       const year = v.year || 2000;
       
       const matchesMake = !makeFilter || v.make === makeFilter;
+      const matchesBodyType = !bodyTypeFilter || v.body_type === bodyTypeFilter;
+      const matchesFuelType = !fuelTypeFilter || v.fuel_type === fuelTypeFilter;
+      const matchesTransmission = !transmissionFilter || v.transmission === transmissionFilter;
+      const matchesCondition = !conditionFilter || v.condition === conditionFilter;
       const matchesPrice = price >= priceRange[0] && price <= priceRange[1];
       const matchesMileage = mileage >= mileageRange[0] && mileage <= mileageRange[1];
       const matchesYear = year >= yearRange[0] && year <= yearRange[1];
       
-      return matchesSearch && matchesMake && matchesPrice && matchesMileage && matchesYear;
+      return matchesSearch && matchesMake && matchesBodyType && matchesFuelType && 
+             matchesTransmission && matchesCondition && matchesPrice && matchesMileage && matchesYear;
     });
-  }, [publicVehicles, query, makeFilter, priceRange, mileageRange, yearRange]);
+  }, [publicVehicles, query, makeFilter, bodyTypeFilter, fuelTypeFilter, transmissionFilter, conditionFilter, priceRange, mileageRange, yearRange]);
 
   const parsePrice = (price: any) => {
     if (typeof price === 'number') return price;
@@ -75,6 +112,7 @@ const DealerInventory = () => {
       if (sort === "price-desc") return parsePrice(b.price) - parsePrice(a.price);
       if (sort === "year-desc") return (b.year || 0) - (a.year || 0);
       if (sort === "mileage-asc") return (a.mileage || 0) - (b.mileage || 0);
+      if (sort === "recently-added") return new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime();
       return 0;
     });
   }, [filteredVehicles, sort]);
@@ -83,6 +121,10 @@ const DealerInventory = () => {
   const clearAllFilters = () => {
     setQuery("");
     setMakeFilter("");
+    setBodyTypeFilter("");
+    setFuelTypeFilter("");
+    setTransmissionFilter("");
+    setConditionFilter("");
     setPriceRange([0, 200000]);
     setMileageRange([0, 150000]);
     setYearRange([2000, 2025]);
@@ -138,7 +180,7 @@ const DealerInventory = () => {
                   setQuery(e.target.value);
                   setCurrentPage(1);
                 }}
-                placeholder="Search by make, model, year..."
+                placeholder="Search by make, model, year, VIN, or features..."
                 className="pl-9"
               />
             </div>
@@ -153,6 +195,7 @@ const DealerInventory = () => {
                   <SelectItem value="price-desc">Price: High to Low</SelectItem>
                   <SelectItem value="year-desc">Year: Newest First</SelectItem>
                   <SelectItem value="mileage-asc">Mileage: Low to High</SelectItem>
+                  <SelectItem value="recently-added">Recently Added</SelectItem>
                 </SelectContent>
               </Select>
               <Button
@@ -196,6 +239,72 @@ const DealerInventory = () => {
                     </Select>
                   </div>
 
+                  {/* Body Type Filter */}
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">Body Type</label>
+                    <Select value={bodyTypeFilter} onValueChange={setBodyTypeFilter}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="All Types" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="">All Types</SelectItem>
+                        {availableBodyTypes.map((type) => (
+                          <SelectItem key={type} value={type}>{type}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  {/* Fuel Type Filter */}
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">Fuel Type</label>
+                    <Select value={fuelTypeFilter} onValueChange={setFuelTypeFilter}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="All Fuel Types" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="">All Fuel Types</SelectItem>
+                        {availableFuelTypes.map((type) => (
+                          <SelectItem key={type} value={type}>{type}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  {/* Transmission Filter */}
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">Transmission</label>
+                    <Select value={transmissionFilter} onValueChange={setTransmissionFilter}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="All Transmissions" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="">All Transmissions</SelectItem>
+                        {availableTransmissions.map((type) => (
+                          <SelectItem key={type} value={type}>{type}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  {/* Condition Filter */}
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">Condition</label>
+                    <Select value={conditionFilter} onValueChange={setConditionFilter}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="All Conditions" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="">All Conditions</SelectItem>
+                        {availableConditions.map((condition) => (
+                          <SelectItem key={condition} value={condition}>{condition}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                   {/* Price Range */}
                   <div className="space-y-2">
                     <label className="text-sm font-medium">

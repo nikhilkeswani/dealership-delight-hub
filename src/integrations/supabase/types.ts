@@ -266,34 +266,46 @@ export type Database = {
         Row: {
           commission: number | null
           created_at: string
-          customer_id: string
+          customer_id: string | null
+          deal_notes: string | null
           dealer_id: string
+          expected_close_date: string | null
           id: string
+          lead_id: string | null
           notes: string | null
-          sale_date: string
-          sale_price: number
+          sale_date: string | null
+          sale_price: number | null
+          stage: string
           vehicle_id: string
         }
         Insert: {
           commission?: number | null
           created_at?: string
-          customer_id: string
+          customer_id?: string | null
+          deal_notes?: string | null
           dealer_id: string
+          expected_close_date?: string | null
           id?: string
+          lead_id?: string | null
           notes?: string | null
-          sale_date?: string
-          sale_price: number
+          sale_date?: string | null
+          sale_price?: number | null
+          stage?: string
           vehicle_id: string
         }
         Update: {
           commission?: number | null
           created_at?: string
-          customer_id?: string
+          customer_id?: string | null
+          deal_notes?: string | null
           dealer_id?: string
+          expected_close_date?: string | null
           id?: string
+          lead_id?: string | null
           notes?: string | null
-          sale_date?: string
-          sale_price?: number
+          sale_date?: string | null
+          sale_price?: number | null
+          stage?: string
           vehicle_id?: string
         }
         Relationships: [
@@ -309,6 +321,13 @@ export type Database = {
             columns: ["dealer_id"]
             isOneToOne: false
             referencedRelation: "dealers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "sales_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "leads"
             referencedColumns: ["id"]
           },
           {
@@ -366,10 +385,13 @@ export type Database = {
       }
       vehicles: {
         Row: {
+          body_type: string | null
+          condition: string | null
           created_at: string
           dealer_id: string
           description: string | null
           features: Json | null
+          fuel_type: string | null
           id: string
           images: string[] | null
           make: string
@@ -377,15 +399,19 @@ export type Database = {
           model: string
           price: number | null
           status: Database["public"]["Enums"]["vehicle_status"]
+          transmission: string | null
           updated_at: string
           vin: string | null
           year: number
         }
         Insert: {
+          body_type?: string | null
+          condition?: string | null
           created_at?: string
           dealer_id: string
           description?: string | null
           features?: Json | null
+          fuel_type?: string | null
           id?: string
           images?: string[] | null
           make: string
@@ -393,15 +419,19 @@ export type Database = {
           model: string
           price?: number | null
           status?: Database["public"]["Enums"]["vehicle_status"]
+          transmission?: string | null
           updated_at?: string
           vin?: string | null
           year: number
         }
         Update: {
+          body_type?: string | null
+          condition?: string | null
           created_at?: string
           dealer_id?: string
           description?: string | null
           features?: Json | null
+          fuel_type?: string | null
           id?: string
           images?: string[] | null
           make?: string
@@ -409,6 +439,7 @@ export type Database = {
           model?: string
           price?: number | null
           status?: Database["public"]["Enums"]["vehicle_status"]
+          transmission?: string | null
           updated_at?: string
           vin?: string | null
           year?: number
