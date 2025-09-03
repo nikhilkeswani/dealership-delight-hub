@@ -135,9 +135,18 @@ export function WebsitePreview({ device }: WebsitePreviewProps) {
                   </Button>
                 ))}
               </div>
-              <Button className="w-full" size={device === "mobile" ? "sm" : "default"}>
-                Search Now
-              </Button>
+              <div className="flex flex-col sm:flex-row gap-2">
+                <Button className="w-full" size={device === "mobile" ? "sm" : "default"}>
+                  Search Now
+                </Button>
+                <Button 
+                  variant="outline" 
+                  className="w-full sm:w-auto" 
+                  size={device === "mobile" ? "sm" : "default"}
+                >
+                  View All Inventory
+                </Button>
+              </div>
             </div>
           </div>
         </div>
