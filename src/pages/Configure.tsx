@@ -69,7 +69,8 @@ export default function Configure() {
         </div>
 
         <div className="container py-6">
-          <div className="max-w-4xl mx-auto">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 max-w-7xl mx-auto">
+            {/* Configuration Panel */}
             <Card>
               <CardHeader className="pb-3">
                 <CardTitle className="text-lg">Customize</CardTitle>
@@ -122,6 +123,16 @@ export default function Configure() {
                     </TabsContent>
                   </div>
                 </Tabs>
+              </CardContent>
+            </Card>
+
+            {/* Website Preview Panel */}
+            <Card>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-lg">Website Preview</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <WebsitePreview device="desktop" />
               </CardContent>
             </Card>
           </div>
