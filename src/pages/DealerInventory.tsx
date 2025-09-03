@@ -6,8 +6,10 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { ArrowLeft, Search } from "lucide-react";
-import { useState } from "react";
+import { Slider } from "@/components/ui/slider";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { ArrowLeft, Search, Filter, X } from "lucide-react";
+import { useState, useMemo } from "react";
 import { usePublicDealer } from "@/hooks/usePublicDealer";
 import { usePublicVehicles } from "@/hooks/usePublicVehicles";
 import { formatCurrency } from "@/lib/format";
@@ -16,8 +18,13 @@ import sedan from "@/assets/cars/sedan.jpg";
 const DealerInventory = () => {
   const { slug } = useParams();
   const [query, setQuery] = useState("");
-  const [sort, setSort] = useState<"relevance" | "price-asc" | "price-desc">("relevance");
+  const [sort, setSort] = useState<"relevance" | "price-asc" | "price-desc" | "year-desc" | "mileage-asc">("relevance");
   const [currentPage, setCurrentPage] = useState(1);
+  const [makeFilter, setMakeFilter] = useState<string>("");
+  const [priceRange, setPriceRange] = useState<[number, number]>([0, 200000]);
+  const [mileageRange, setMileageRange] = useState<[number, number]>([0, 150000]);
+  const [yearRange, setYearRange] = useState<[number, number]>([2000, 2025]);
+  const [showFilters, setShowFilters] = useState(false);
   const vehiclesPerPage = 12;
 
   const { data: publicDealer } = usePublicDealer(slug);
@@ -29,14 +36,32 @@ const DealerInventory = () => {
 
   const brandInitials = (dealerName || "").split(" ").slice(0,2).map(w=>w[0]).join("").toUpperCase() || "DL";
 
+  // Get unique makes for filter
+  const availableMakes = useMemo(() => {
+    const makes = [...new Set((publicVehicles || []).map((v: any) => v.make))].sort();
+    return makes;
+  }, [publicVehicles]);
+
   // Filter and sort vehicles
-  const filteredVehicles = (publicVehicles || []).filter((v: any) => {
-    const q = query.trim().toLowerCase();
-    if (!q) return true;
-    const vehicleTitle = `${v.year} ${v.make} ${v.model}`;
-    return vehicleTitle.toLowerCase().includes(q) || 
-           (v.description && v.description.toLowerCase().includes(q));
-  });
+  const filteredVehicles = useMemo(() => {
+    return (publicVehicles || []).filter((v: any) => {
+      const q = query.trim().toLowerCase();
+      const vehicleTitle = `${v.year} ${v.make} ${v.model}`;
+      const matchesSearch = !q || vehicleTitle.toLowerCase().includes(q) || 
+                           (v.description && v.description.toLowerCase().includes(q));
+      
+      const price = parsePrice(v.price);
+      const mileage = v.mileage || 0;
+      const year = v.year || 2000;
+      
+      const matchesMake = !makeFilter || v.make === makeFilter;
+      const matchesPrice = price >= priceRange[0] && price <= priceRange[1];
+      const matchesMileage = mileage >= mileageRange[0] && mileage <= mileageRange[1];
+      const matchesYear = year >= yearRange[0] && year <= yearRange[1];
+      
+      return matchesSearch && matchesMake && matchesPrice && matchesMileage && matchesYear;
+    });
+  }, [publicVehicles, query, makeFilter, priceRange, mileageRange, yearRange]);
 
   const parsePrice = (price: any) => {
     if (typeof price === 'number') return price;
@@ -44,11 +69,25 @@ const DealerInventory = () => {
     return isNaN(n) ? 0 : n;
   };
 
-  const sortedVehicles = [...filteredVehicles].sort((a, b) => {
-    if (sort === "price-asc") return parsePrice(a.price) - parsePrice(b.price);
-    if (sort === "price-desc") return parsePrice(b.price) - parsePrice(a.price);
-    return 0;
-  });
+  const sortedVehicles = useMemo(() => {
+    return [...filteredVehicles].sort((a, b) => {
+      if (sort === "price-asc") return parsePrice(a.price) - parsePrice(b.price);
+      if (sort === "price-desc") return parsePrice(b.price) - parsePrice(a.price);
+      if (sort === "year-desc") return (b.year || 0) - (a.year || 0);
+      if (sort === "mileage-asc") return (a.mileage || 0) - (b.mileage || 0);
+      return 0;
+    });
+  }, [filteredVehicles, sort]);
+
+  // Clear all filters
+  const clearAllFilters = () => {
+    setQuery("");
+    setMakeFilter("");
+    setPriceRange([0, 200000]);
+    setMileageRange([0, 150000]);
+    setYearRange([2000, 2025]);
+    setCurrentPage(1);
+  };
 
   // Pagination
   const totalPages = Math.ceil(sortedVehicles.length / vehiclesPerPage);
@@ -90,7 +129,7 @@ const DealerInventory = () => {
       <main className="container py-8">
         {/* Search and Filters */}
         <div className="mb-8 space-y-4">
-          <div className="flex flex-col sm:flex-row gap-4">
+          <div className="flex flex-col lg:flex-row gap-4">
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
@@ -103,17 +142,117 @@ const DealerInventory = () => {
                 className="pl-9"
               />
             </div>
-            <Select value={sort} onValueChange={(v) => setSort(v as any)}>
-              <SelectTrigger className="w-full sm:w-48">
-                <SelectValue placeholder="Sort by" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="relevance">Relevance</SelectItem>
-                <SelectItem value="price-asc">Price: Low to High</SelectItem>
-                <SelectItem value="price-desc">Price: High to Low</SelectItem>
-              </SelectContent>
-            </Select>
+            <div className="flex flex-col sm:flex-row gap-2">
+              <Select value={sort} onValueChange={(v) => setSort(v as any)}>
+                <SelectTrigger className="w-full sm:w-48">
+                  <SelectValue placeholder="Sort by" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="relevance">Relevance</SelectItem>
+                  <SelectItem value="price-asc">Price: Low to High</SelectItem>
+                  <SelectItem value="price-desc">Price: High to Low</SelectItem>
+                  <SelectItem value="year-desc">Year: Newest First</SelectItem>
+                  <SelectItem value="mileage-asc">Mileage: Low to High</SelectItem>
+                </SelectContent>
+              </Select>
+              <Button
+                variant="outline"
+                onClick={() => setShowFilters(!showFilters)}
+                className="w-full sm:w-auto"
+              >
+                <Filter className="h-4 w-4 mr-2" />
+                Filters
+              </Button>
+            </div>
           </div>
+
+          {/* Advanced Filters */}
+          {showFilters && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center justify-between">
+                  <span>Advanced Filters</span>
+                  <Button variant="ghost" size="sm" onClick={clearAllFilters}>
+                    <X className="h-4 w-4 mr-1" />
+                    Clear All
+                  </Button>
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                  {/* Make Filter */}
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">Make</label>
+                    <Select value={makeFilter} onValueChange={setMakeFilter}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="All Makes" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="">All Makes</SelectItem>
+                        {availableMakes.map((make) => (
+                          <SelectItem key={make} value={make}>{make}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  {/* Price Range */}
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">
+                      Price: {formatCurrency(priceRange[0])} - {formatCurrency(priceRange[1])}
+                    </label>
+                    <Slider
+                      value={priceRange}
+                      onValueChange={(value) => {
+                        setPriceRange(value as [number, number]);
+                        setCurrentPage(1);
+                      }}
+                      max={200000}
+                      min={0}
+                      step={5000}
+                      className="w-full"
+                    />
+                  </div>
+
+                  {/* Mileage Range */}
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">
+                      Mileage: {mileageRange[0].toLocaleString()} - {mileageRange[1].toLocaleString()} mi
+                    </label>
+                    <Slider
+                      value={mileageRange}
+                      onValueChange={(value) => {
+                        setMileageRange(value as [number, number]);
+                        setCurrentPage(1);
+                      }}
+                      max={150000}
+                      min={0}
+                      step={5000}
+                      className="w-full"
+                    />
+                  </div>
+
+                  {/* Year Range */}
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">
+                      Year: {yearRange[0]} - {yearRange[1]}
+                    </label>
+                    <Slider
+                      value={yearRange}
+                      onValueChange={(value) => {
+                        setYearRange(value as [number, number]);
+                        setCurrentPage(1);
+                      }}
+                      max={2025}
+                      min={2000}
+                      step={1}
+                      className="w-full"
+                    />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          )}
 
           <div className="flex items-center justify-between">
             <p className="text-sm text-muted-foreground">
@@ -141,9 +280,9 @@ const DealerInventory = () => {
             <Button 
               variant="outline" 
               className="mt-4" 
-              onClick={() => {setQuery(""); setCurrentPage(1);}}
+              onClick={clearAllFilters}
             >
-              Clear Search
+              Clear Filters
             </Button>
           </div>
         ) : (

@@ -13,21 +13,18 @@ import { DomainConfig } from "@/components/configure/DomainConfig";
 import { ContactConfig } from "@/components/configure/ContactConfig";
 import { WebsitePreview } from "@/components/configure/WebsitePreview";
 import { useDealer } from "@/hooks/useDealer";
+import { useWebsitePublishing } from "@/hooks/useWebsitePublishing";
 import { toast } from "sonner";
 
 export default function Configure() {
   const [activeTab, setActiveTab] = useState("customize");
   const { data: dealer } = useDealer();
+  const { publish, isPublishing, isPublished } = useWebsitePublishing();
   const navigate = useNavigate();
 
   const handlePublish = async () => {
     if (!dealer?.id) return;
-    
-    try {
-      toast.success("Website published successfully!");
-    } catch (error) {
-      toast.error("Failed to publish website");
-    }
+    publish({});
   };
 
   const handlePreview = () => {
@@ -63,8 +60,8 @@ export default function Configure() {
                 <Button onClick={handlePreview} variant="outline">
                   Preview in New Tab
                 </Button>
-                <Button onClick={handlePublish} variant="default">
-                  Publish Website
+                <Button onClick={handlePublish} variant="default" disabled={isPublishing}>
+                  {isPublishing ? "Publishing..." : isPublished ? "Update Website" : "Publish Website"}
                 </Button>
               </div>
             </div>

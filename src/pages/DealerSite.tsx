@@ -404,15 +404,14 @@ const DealerSite = () => {
                   <Button type="submit" variant="hero" size="lg" className="w-full sm:w-auto">Search Now</Button>
                   <Button
                     type="button"
-                    variant="ghost"
+                    variant="outline"
+                    size="lg"
                     className="w-full sm:w-auto"
-                    onClick={() => {
-                      setQuery("");
-                      setType(null);
-                      document.getElementById("inventory")?.scrollIntoView({ behavior: "smooth" });
-                    }}
+                    asChild
                   >
-                    Browse Inventory
+                    <Link to={`/dealer/${slug}/inventory`}>
+                      View All Inventory
+                    </Link>
                   </Button>
                 </div>
               </form>

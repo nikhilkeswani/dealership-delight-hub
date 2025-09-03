@@ -12,6 +12,7 @@ import { Switch } from "@/components/ui/switch";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { CheckCircle, Globe, ExternalLink, Copy, AlertTriangle, Clock, Shield } from "lucide-react";
 import { useDealer } from "@/hooks/useDealer";
+import { useWebsitePublishing } from "@/hooks/useWebsitePublishing";
 import { toast } from "sonner";
 
 const schema = z.object({
@@ -25,6 +26,7 @@ type FormData = z.infer<typeof schema>;
 
 export function DomainConfig() {
   const { data: dealer } = useDealer();
+  const { publish, unpublish, isPublished, isPublishing, isUnpublishing } = useWebsitePublishing();
   const [domainStatus, setDomainStatus] = useState<"checking" | "verified" | "error" | "none">("none");
   const [sslStatus, setSslStatus] = useState<"active" | "pending" | "error" | "none">("none");
   
@@ -34,7 +36,7 @@ export function DomainConfig() {
       customDomain: "",
       enableSsl: true,
       enableWww: true,
-      isPublished: false,
+      isPublished: isPublished,
     },
   });
 
@@ -63,27 +65,14 @@ export function DomainConfig() {
   };
 
   const handlePublish = async () => {
-    try {
-      const data = form.getValues();
-      console.log("Publishing website:", data);
-      
-      // Simulate publishing
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      
-      form.setValue("isPublished", true);
-      toast.success("Website published successfully!");
-    } catch (error) {
-      toast.error("Failed to publish website");
-    }
+    const data = form.getValues();
+    publish({
+      domain_name: data.customDomain,
+    });
   };
 
   const handleUnpublish = async () => {
-    try {
-      form.setValue("isPublished", false);
-      toast.success("Website unpublished");
-    } catch (error) {
-      toast.error("Failed to unpublish website");
-    }
+    unpublish();
   };
 
   const copyDnsRecord = (record: string) => {
@@ -100,7 +89,7 @@ export function DomainConfig() {
     }
   };
 
-  const isPublished = form.watch("isPublished");
+  const currentlyPublished = isPublished;
   const hasCustomDomain = !!form.watch("customDomain");
 
   return (
@@ -120,20 +109,20 @@ export function DomainConfig() {
               Website Status
             </Badge>
 
-            <Alert className={isPublished ? "border-green-200 bg-green-50" : "border-yellow-200 bg-yellow-50"}>
+            <Alert className={currentlyPublished ? "border-green-200 bg-green-50" : "border-yellow-200 bg-yellow-50"}>
               <div className="flex items-center gap-2">
-                {isPublished ? (
+                {currentlyPublished ? (
                   <CheckCircle className="h-4 w-4 text-green-600" />
                 ) : (
                   <Clock className="h-4 w-4 text-yellow-600" />
                 )}
-                <AlertDescription className={isPublished ? "text-green-800" : "text-yellow-800"}>
-                  {isPublished ? "Your website is live and accessible to customers" : "Your website is not yet published"}
+                <AlertDescription className={currentlyPublished ? "text-green-800" : "text-yellow-800"}>
+                  {currentlyPublished ? "Your website is live and accessible to customers" : "Your website is not yet published"}
                 </AlertDescription>
               </div>
             </Alert>
 
-            {isPublished && (
+            {currentlyPublished && (
               <div className="space-y-2">
                 <Label className="text-sm font-medium">Your website is available at:</Label>
                 <div className="flex items-center gap-2 p-3 bg-muted/30 rounded-lg">
@@ -312,13 +301,14 @@ export function DomainConfig() {
             </Badge>
 
             <div className="flex flex-col gap-3">
-              {!isPublished ? (
+              {!currentlyPublished ? (
                 <Button
                   type="button"
                   onClick={handlePublish}
                   className="w-full"
+                  disabled={isPublishing}
                 >
-                  Publish Website
+                  {isPublishing ? "Publishing..." : "Publish Website"}
                 </Button>
               ) : (
                 <div className="space-y-2">
@@ -327,8 +317,9 @@ export function DomainConfig() {
                     variant="outline"
                     onClick={handleUnpublish}
                     className="w-full"
+                    disabled={isUnpublishing}
                   >
-                    Unpublish Website
+                    {isUnpublishing ? "Unpublishing..." : "Unpublish Website"}
                   </Button>
                   <p className="text-xs text-muted-foreground text-center">
                     Unpublishing will make your website inaccessible to visitors
