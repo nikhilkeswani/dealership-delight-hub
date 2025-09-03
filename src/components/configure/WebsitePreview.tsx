@@ -143,9 +143,20 @@ export function WebsitePreview({ device }: WebsitePreviewProps) {
                 <button style={{ width: '100%', backgroundColor: '#7c3aed', color: '#ffffff', padding: '10px 16px', borderRadius: '6px', fontSize: '14px', border: 'none', fontWeight: '500' }}>
                   Search Now
                 </button>
-                <button style={{ width: '100%', backgroundColor: '#7c3aed', border: '1px solid #000000', color: '#ffffff', padding: '10px 16px', borderRadius: '6px', fontSize: '14px', fontWeight: '500' }}>
-                  View All Inventory
-                </button>
+                <button 
+  style={{ 
+    width: '100%', 
+    backgroundColor: '#7c3aed', 
+    color: '#ffffff', 
+    padding: '10px 16px', 
+    borderRadius: '6px', 
+    fontSize: '14px', 
+    fontWeight: '500', 
+    border: 'none'   // remove border
+  }}
+>
+  View All Inventory
+</button>
               </div>
             </div>
           </div>
