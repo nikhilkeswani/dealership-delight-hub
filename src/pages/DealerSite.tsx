@@ -404,7 +404,7 @@ const DealerSite = () => {
                   <Button type="submit" variant="hero" size="lg" className="w-full sm:w-auto">Search Now</Button>
                   <Button
                     type="button"
-                    variant="hero-outline"
+                    variant="hero"
                     size="lg"
                     className="w-full sm:w-auto"
                     asChild
