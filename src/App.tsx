@@ -26,6 +26,10 @@ const Onboarding = lazy(() => import("./pages/Onboarding"));
 const SettingsProfile = lazy(() => import("./pages/settings/Profile"));
 const SettingsDealers = lazy(() => import("./pages/settings/Dealers"));
 const SettingsBilling = lazy(() => import("./pages/settings/Billing"));
+const ProviderLayout = lazy(() => import("./layouts/ProviderLayout"));
+const ProviderDashboard = lazy(() => import("./pages/provider/Dashboard"));
+const ProviderDealers = lazy(() => import("./pages/provider/Dealers"));
+const RequireProvider = lazy(() => import("./components/RequireProvider"));
 
 const queryClient = new QueryClient();
 
@@ -90,6 +94,20 @@ const App = () => (
                   <Route path="/app/settings/profile" element={<SettingsProfile />} />
                   <Route path="/app/settings/dealers" element={<SettingsDealers />} />
                   <Route path="/app/settings/billing" element={<SettingsBilling />} />
+                </Route>
+
+                {/* Provider routes with separate layout */}
+                <Route
+                  element={
+                    <ProtectedRoute>
+                      <RequireProvider>
+                        <ProviderLayout />
+                      </RequireProvider>
+                    </ProtectedRoute>
+                  }
+                >
+                  <Route path="/provider" element={<ProviderDashboard />} />
+                  <Route path="/provider/dealers" element={<ProviderDealers />} />
                 </Route>
 
                 {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}

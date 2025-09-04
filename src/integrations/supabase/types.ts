@@ -14,6 +14,36 @@ export type Database = {
   }
   public: {
     Tables: {
+      audit_logs: {
+        Row: {
+          action: string
+          created_at: string
+          details: Json | null
+          id: string
+          resource_id: string | null
+          resource_type: string
+          user_id: string
+        }
+        Insert: {
+          action: string
+          created_at?: string
+          details?: Json | null
+          id?: string
+          resource_id?: string | null
+          resource_type: string
+          user_id: string
+        }
+        Update: {
+          action?: string
+          created_at?: string
+          details?: Json | null
+          id?: string
+          resource_id?: string | null
+          resource_type?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       customers: {
         Row: {
           address: string | null
@@ -151,7 +181,9 @@ export type Database = {
           logo_url: string | null
           onboarded_at: string | null
           phone: string | null
+          provider_id: string | null
           state: string | null
+          status: string
           tier: Database["public"]["Enums"]["dealer_tier"]
           updated_at: string
           user_id: string
@@ -169,7 +201,9 @@ export type Database = {
           logo_url?: string | null
           onboarded_at?: string | null
           phone?: string | null
+          provider_id?: string | null
           state?: string | null
+          status?: string
           tier?: Database["public"]["Enums"]["dealer_tier"]
           updated_at?: string
           user_id: string
@@ -187,14 +221,24 @@ export type Database = {
           logo_url?: string | null
           onboarded_at?: string | null
           phone?: string | null
+          provider_id?: string | null
           state?: string | null
+          status?: string
           tier?: Database["public"]["Enums"]["dealer_tier"]
           updated_at?: string
           user_id?: string
           website_url?: string | null
           zip_code?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "dealers_provider_id_fkey"
+            columns: ["provider_id"]
+            isOneToOne: false
+            referencedRelation: "providers"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       leads: {
         Row: {
@@ -261,6 +305,36 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      providers: {
+        Row: {
+          company_name: string
+          contact_email: string
+          created_at: string
+          id: string
+          is_active: boolean
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          company_name: string
+          contact_email: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          company_name?: string
+          contact_email?: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
       }
       sales: {
         Row: {
@@ -383,6 +457,27 @@ export type Database = {
           },
         ]
       }
+      user_roles: {
+        Row: {
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
       vehicles: {
         Row: {
           body_type: string | null
@@ -459,9 +554,33 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      get_user_provider_id: {
+        Args: { _user_id: string }
+        Returns: string
+      }
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
+      is_provider: {
+        Args: { _user_id: string }
+        Returns: boolean
+      }
+      log_audit_action: {
+        Args: {
+          _action: string
+          _details?: Json
+          _resource_id?: string
+          _resource_type: string
+        }
+        Returns: undefined
+      }
     }
     Enums: {
+      app_role: "provider" | "admin" | "dealer"
       dealer_tier: "basic" | "premium" | "enterprise"
       lead_source:
         | "website"
@@ -600,6 +719,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      app_role: ["provider", "admin", "dealer"],
       dealer_tier: ["basic", "premium", "enterprise"],
       lead_source: [
         "website",
