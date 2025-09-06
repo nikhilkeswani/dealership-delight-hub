@@ -4,10 +4,11 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate, Outlet } from "react-router-dom";
 import { HelmetProvider } from "react-helmet-async";
-import React, { lazy, Suspense } from "react";
+import React, { lazy, Suspense, useEffect } from "react";
 import ProtectedRoute from "./components/ProtectedRoute";
 import RequireDealer from "./components/RequireDealer";
 import ErrorBoundary from "./components/common/ErrorBoundary";
+import { getSubdomainInfo } from "./utils/subdomain";
 
 const Index = lazy(() => import("./pages/Index"));
 const NotFound = lazy(() => import("./pages/NotFound"));
@@ -33,6 +34,26 @@ const RequireProvider = lazy(() => import("./components/RequireProvider"));
 
 const queryClient = new QueryClient();
 
+const SubdomainRouter = () => {
+  useEffect(() => {
+    const subdomainInfo = getSubdomainInfo();
+    
+    // If we're on a subdomain, redirect to the dealer page
+    if (subdomainInfo.isSubdomain && subdomainInfo.dealerSlug) {
+      const currentPath = window.location.pathname;
+      
+      // Don't redirect if we're already on a dealer page
+      if (!currentPath.startsWith('/dealer/')) {
+        // Redirect to the dealer page with the current path
+        const newPath = `/dealer/${subdomainInfo.dealerSlug}${currentPath === '/' ? '' : currentPath}`;
+        window.history.replaceState(null, '', newPath);
+      }
+    }
+  }, []);
+
+  return null;
+};
+
 const App = () => (
   <HelmetProvider>
     <QueryClientProvider client={queryClient}>
@@ -41,6 +62,7 @@ const App = () => (
           <Toaster />
           <Sonner />
           <BrowserRouter>
+            <SubdomainRouter />
             <Suspense fallback={<div className="p-8">Loading...</div>}>
               <Routes>
                 <Route path="/" element={<Index />} />

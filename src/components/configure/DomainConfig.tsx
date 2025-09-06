@@ -14,6 +14,7 @@ import { CheckCircle, Globe, ExternalLink, Copy, AlertTriangle, Clock, Shield } 
 import { useDealer } from "@/hooks/useDealer";
 import { useWebsitePublishing } from "@/hooks/useWebsitePublishing";
 import { toast } from "sonner";
+import SubdomainPreview from "./SubdomainPreview";
 
 const schema = z.object({
   customDomain: z.string().optional(),
@@ -93,8 +94,11 @@ export function DomainConfig() {
   const hasCustomDomain = !!form.watch("customDomain");
 
   return (
-    <>
-      <CardHeader>
+    <div className="space-y-6">
+      <SubdomainPreview />
+      
+      <div>
+        <CardHeader>
         <CardTitle>Domain & Publishing</CardTitle>
         <CardDescription>
           Configure your website domain and publishing settings
@@ -333,7 +337,8 @@ export function DomainConfig() {
             Save Domain Settings
           </Button>
         </form>
-      </CardContent>
-    </>
+        </CardContent>
+      </div>
+    </div>
   );
 }
