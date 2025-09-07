@@ -554,6 +554,18 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      create_public_lead: {
+        Args: {
+          p_dealer_id: string
+          p_email: string
+          p_first_name: string
+          p_last_name: string
+          p_notes?: string
+          p_phone?: string
+          p_source?: string
+        }
+        Returns: string
+      }
       get_user_provider_id: {
         Args: { _user_id: string }
         Returns: string
