@@ -289,16 +289,6 @@ const Auth = () => {
                 )}
               </div>
 
-              <div className="text-center pt-6 border-t">
-                <Button 
-                  variant="ghost" 
-                  size="sm" 
-                  onClick={robustSignOut}
-                  className="text-muted-foreground"
-                >
-                  Sign out (if stuck)
-                </Button>
-              </div>
             </div>
           </div>
         </section>
