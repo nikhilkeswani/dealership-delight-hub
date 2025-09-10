@@ -8,7 +8,9 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { cleanupAuthState, robustSignOut } from "@/lib/auth";
-import { Eye, EyeOff } from "lucide-react";
+import { Eye, EyeOff, Loader2 } from "lucide-react";
+import { errorHandlers, withErrorHandling } from "@/lib/errors";
+import LoadingState from "@/components/common/LoadingState";
 
 const Auth = () => {
   const { toast } = useToast();
@@ -40,25 +42,27 @@ const Auth = () => {
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    try {
+    
+    const result = await withErrorHandling(async () => {
       cleanupAuthState();
       try { await supabase.auth.signOut({ scope: "global" }); } catch (_) {}
 
       const { error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) throw error;
+      
       toast({ title: "Signed in", description: "Welcome back!" });
       // Redirect handled by onAuthStateChange
-    } catch (err: any) {
-      toast({ title: "Sign in failed", description: err?.message ?? "Please try again.", variant: "destructive" });
-    } finally {
-      setLoading(false);
-    }
+    }, 'sign in');
+
+    setLoading(false);
+    return result;
   };
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    try {
+    
+    const result = await withErrorHandling(async () => {
       cleanupAuthState();
       const redirectUrl = `${window.location.origin}/`;
       const { error } = await supabase.auth.signUp({
@@ -67,12 +71,27 @@ const Auth = () => {
         options: { emailRedirectTo: redirectUrl },
       });
       if (error) throw error;
+      
       toast({ title: "Check your email", description: "We sent a confirmation link to complete sign up." });
-    } catch (err: any) {
-      toast({ title: "Sign up failed", description: err?.message ?? "Please try again.", variant: "destructive" });
-    } finally {
-      setLoading(false);
+    }, 'sign up');
+
+    setLoading(false);
+    return result;
+  };
+
+  const handleForgotPassword = async () => {
+    if (!email) {
+      toast({ title: "Enter your email first", variant: "destructive" });
+      return;
     }
+
+    await withErrorHandling(async () => {
+      const redirectTo = `${window.location.origin}/auth`;
+      const { error } = await supabase.auth.resetPasswordForEmail(email, { redirectTo });
+      if (error) throw error;
+      
+      toast({ title: "Reset email sent", description: "Check your inbox to continue." });
+    }, 'password reset');
   };
 
   return (
@@ -116,17 +135,14 @@ const Auth = () => {
                     <div className="space-y-2">
                       <div className="flex items-center justify-between">
                         <Label htmlFor="password">Password</Label>
-                        <button type="button" className="text-sm underline" onClick={async () => {
-                          try {
-                            if (!email) return toast({ title: "Enter your email first", variant: "destructive" });
-                            const redirectTo = `${window.location.origin}/auth`;
-                            const { error } = await supabase.auth.resetPasswordForEmail(email, { redirectTo });
-                            if (error) throw error;
-                            toast({ title: "Reset email sent", description: "Check your inbox to continue." });
-                          } catch (err: any) {
-                            toast({ title: "Couldn't send reset", description: err?.message ?? "Try again.", variant: "destructive" });
-                          }
-                        }}>Forgot password?</button>
+                        <button 
+                          type="button" 
+                          className="text-sm underline hover:no-underline" 
+                          onClick={handleForgotPassword}
+                          disabled={loading}
+                        >
+                          Forgot password?
+                        </button>
                       </div>
                       <div className="relative">
                         <Input id="password" type={showPassword ? "text" : "password"} value={password} onChange={(e) => setPassword(e.target.value)} required placeholder="••••••••" />
@@ -135,8 +151,15 @@ const Auth = () => {
                         </button>
                       </div>
                     </div>
-                    <Button type="submit" variant="hero" size="xl" disabled={loading} aria-label="Sign in">
-                      {loading ? "Signing in..." : "Sign in"}
+                    <Button type="submit" variant="hero" size="xl" disabled={loading} aria-label="Sign in" className="w-full">
+                      {loading ? (
+                        <>
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          Signing in...
+                        </>
+                      ) : (
+                        "Sign in"
+                      )}
                     </Button>
                   </form>
                 </TabsContent>
@@ -150,8 +173,15 @@ const Auth = () => {
                       <Label htmlFor="password2">Password</Label>
                       <Input id="password2" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required placeholder="Create a strong password" />
                     </div>
-                    <Button type="submit" variant="hero" size="xl" disabled={loading} aria-label="Create account">
-                      {loading ? "Creating account..." : "Create account"}
+                    <Button type="submit" variant="hero" size="xl" disabled={loading} aria-label="Create account" className="w-full">
+                      {loading ? (
+                        <>
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          Creating account...
+                        </>
+                      ) : (
+                        "Create account"
+                      )}
                     </Button>
                   </form>
                 </TabsContent>
