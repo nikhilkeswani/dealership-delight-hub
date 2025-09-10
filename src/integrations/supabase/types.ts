@@ -570,6 +570,10 @@ export type Database = {
         Args: { _user_id: string }
         Returns: string
       }
+      grant_provider_role_by_email: {
+        Args: { user_email: string }
+        Returns: undefined
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
