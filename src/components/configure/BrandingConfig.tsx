@@ -13,6 +13,7 @@ import { useDealer } from "@/hooks/useDealer";
 import { useImageUpload } from "@/hooks/useImageUpload";
 import { useDealerSiteConfig } from "@/hooks/useDealerSiteConfig";
 import { toast } from "sonner";
+import { errorHandlers } from "@/lib/errors";
 
 const schema = z.object({
   businessName: z.string().min(2, "Business name is required"),
@@ -103,7 +104,7 @@ export function BrandingConfig() {
       // Branding configuration saved successfully
       toast.success("Branding settings saved!");
     } catch (error) {
-      toast.error("Failed to save branding settings");
+      errorHandlers.database(error);
     }
   };
 

@@ -3,6 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useDealer } from "./useDealer";
 import type { Tables } from "@/integrations/supabase/types";
 import { toast } from "sonner";
+import { errorHandlers } from "@/lib/errors";
 
 export type Vehicle = Tables<"vehicles">;
 
@@ -65,7 +66,7 @@ export const useCreateVehicle = () => {
       toast.success("Vehicle added successfully");
     },
     onError: (error: any) => {
-      toast.error("Failed to add vehicle: " + error.message);
+      errorHandlers.database(error);
     },
   });
 };
@@ -90,7 +91,7 @@ export const useUpdateVehicle = () => {
       toast.success("Vehicle updated successfully");
     },
     onError: (error: any) => {
-      toast.error("Failed to update vehicle: " + error.message);
+      errorHandlers.database(error);
     },
   });
 };
@@ -112,7 +113,7 @@ export const useDeleteVehicle = () => {
       toast.success("Vehicle deleted successfully");
     },
     onError: (error: any) => {
-      toast.error("Failed to delete vehicle: " + error.message);
+      errorHandlers.database(error);
     },
   });
 };

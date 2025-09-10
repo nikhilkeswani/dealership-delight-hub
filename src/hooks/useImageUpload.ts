@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { errorHandlers, ERROR_CODES, ERROR_MESSAGES } from "@/lib/errors";
 
 export function useImageUpload() {
   const [isUploading, setIsUploading] = useState(false);
@@ -11,12 +12,14 @@ export function useImageUpload() {
     userId?: string
   ): Promise<string | null> => {
     if (!file.type.startsWith('image/')) {
-      toast.error("Please select an image file");
+      const error = ERROR_MESSAGES[ERROR_CODES.FILE_INVALID_TYPE];
+      toast.error(error.userMessage);
       return null;
     }
 
     if (file.size > 5 * 1024 * 1024) { // 5MB limit
-      toast.error("Image size should be less than 5MB");
+      const error = ERROR_MESSAGES[ERROR_CODES.FILE_TOO_LARGE];
+      toast.error(error.userMessage);
       return null;
     }
 
@@ -49,8 +52,7 @@ export function useImageUpload() {
 
       return urlData.publicUrl;
     } catch (error: any) {
-      console.error('Upload error:', error);
-      toast.error(error.message || "Failed to upload image");
+      errorHandlers.upload(error);
       return null;
     } finally {
       setIsUploading(false);
@@ -74,8 +76,7 @@ export function useImageUpload() {
       
       return true;
     } catch (error: any) {
-      console.error('Delete error:', error);
-      toast.error("Failed to delete image");
+      errorHandlers.database(error);
       return false;
     }
   };

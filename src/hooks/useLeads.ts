@@ -3,6 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useDealer } from "./useDealer";
 import type { Tables, TablesUpdate } from "@/integrations/supabase/types";
 import { toast } from "sonner";
+import { errorHandlers } from "@/lib/errors";
 
 export type Lead = Tables<"leads">;
 
@@ -63,7 +64,7 @@ export const useCreateLead = () => {
       toast.success("Lead created successfully");
     },
     onError: (error: any) => {
-      toast.error("Failed to create lead: " + error.message);
+      errorHandlers.database(error);
     },
   });
 };
@@ -88,7 +89,7 @@ export const useUpdateLead = () => {
       toast.success("Lead updated successfully");
     },
     onError: (error: any) => {
-      toast.error("Failed to update lead: " + error.message);
+      errorHandlers.database(error);
     },
   });
 };
@@ -110,7 +111,7 @@ export const useDeleteLead = () => {
       toast.success("Lead deleted successfully");
     },
     onError: (error: any) => {
-      toast.error("Failed to delete lead: " + error.message);
+      errorHandlers.database(error);
     },
   });
 };
