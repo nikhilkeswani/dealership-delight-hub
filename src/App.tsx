@@ -30,6 +30,12 @@ const SettingsBilling = lazy(() => import("./pages/settings/Billing"));
 const ProviderLayout = lazy(() => import("./layouts/ProviderLayout"));
 const ProviderDashboard = lazy(() => import("./pages/provider/Dashboard"));
 const ProviderDealers = lazy(() => import("./pages/provider/Dealers"));
+const ProviderUsers = lazy(() => import("./pages/provider/Users"));
+const ProviderAnalytics = lazy(() => import("./pages/provider/Analytics"));
+const ProviderSubscriptions = lazy(() => import("./pages/provider/Subscriptions"));
+const ProviderAuditLogs = lazy(() => import("./pages/provider/AuditLogs"));
+const ProviderSecurity = lazy(() => import("./pages/provider/Security"));
+const ProviderSettings = lazy(() => import("./pages/provider/Settings"));
 const RequireProvider = lazy(() => import("./components/RequireProvider"));
 
 const queryClient = new QueryClient();
@@ -130,6 +136,12 @@ const App = () => (
                 >
                   <Route path="/provider" element={<ProviderDashboard />} />
                   <Route path="/provider/dealers" element={<ProviderDealers />} />
+                  <Route path="/provider/users" element={<ProviderUsers />} />
+                  <Route path="/provider/analytics" element={<ProviderAnalytics />} />
+                  <Route path="/provider/subscriptions" element={<ProviderSubscriptions />} />
+                  <Route path="/provider/audit" element={<ProviderAuditLogs />} />
+                  <Route path="/provider/security" element={<ProviderSecurity />} />
+                  <Route path="/provider/settings" element={<ProviderSettings />} />
                 </Route>
 
                 {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
