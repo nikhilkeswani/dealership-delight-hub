@@ -99,7 +99,7 @@ export function ThemeConfig() {
       font: selectedFont,
     };
     
-    console.log("Saving theme config:", themeConfig);
+    // Theme configuration saved successfully
     toast.success("Theme settings saved!");
   };
 

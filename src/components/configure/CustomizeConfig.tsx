@@ -244,12 +244,7 @@ export function CustomizeConfig() {
 
   const onSubmit = async (data: FormData) => {
     try {
-      console.log("Manual save - all data:", {
-        ...data,
-        aboutContent,
-        services: servicesEnabled ? services : [],
-        whyChooseUsPoints: whyChooseUsEnabled ? whyChooseUsPoints : [],
-      });
+      // Website settings saved successfully
       toast.success("Website settings saved!");
     } catch (error) {
       toast.error("Failed to save settings");

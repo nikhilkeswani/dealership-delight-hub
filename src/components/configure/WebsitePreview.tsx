@@ -11,13 +11,8 @@ interface WebsitePreviewProps {
 }
 
 export function WebsitePreview({ device }: WebsitePreviewProps) {
-  console.log("WebsitePreview rendering with device:", device);
-  
   const { data: dealer } = useDealer();
-  console.log("Dealer data:", dealer);
-  
   const slug = dealer?.business_name?.toLowerCase().replace(/[^a-z0-9]+/g, '-') || 'demo';
-  console.log("Generated slug:", slug);
   
   const defaultConfig = {
     brand: {

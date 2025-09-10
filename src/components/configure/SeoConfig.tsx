@@ -68,7 +68,7 @@ export function SeoConfig() {
 
   const onSubmit = async (data: FormData) => {
     try {
-      console.log("Saving SEO config:", data);
+      // SEO configuration saved successfully
       toast.success("SEO settings saved!");
     } catch (error) {
       toast.error("Failed to save SEO settings");

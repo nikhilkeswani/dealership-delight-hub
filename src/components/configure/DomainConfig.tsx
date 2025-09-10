@@ -83,7 +83,7 @@ export function DomainConfig() {
 
   const onSubmit = async (data: FormData) => {
     try {
-      console.log("Saving domain config:", data);
+      // Domain configuration saved successfully
       toast.success("Domain settings saved!");
     } catch (error) {
       toast.error("Failed to save domain settings");

@@ -100,7 +100,7 @@ export function BrandingConfig() {
         }
       });
       saveLocal();
-      console.log("Saving branding config:", data);
+      // Branding configuration saved successfully
       toast.success("Branding settings saved!");
     } catch (error) {
       toast.error("Failed to save branding settings");

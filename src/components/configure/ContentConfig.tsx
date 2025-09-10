@@ -127,7 +127,7 @@ export function ContentConfig() {
         heroBackground: heroBackgroundPreview,
       };
       
-      console.log("Saving content config:", contentConfig);
+      // Content configuration saved successfully
       toast.success("Content settings saved!");
     } catch (error) {
       toast.error("Failed to save content settings");
