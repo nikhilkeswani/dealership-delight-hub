@@ -12,7 +12,6 @@ const MainActionCards: React.FC = () => {
       icon: Settings,
       href: "/app/configure",
       buttonText: "Configure Website",
-      variant: "default" as const,
     },
     {
       title: "Open CRM Dashboard", 
@@ -20,47 +19,39 @@ const MainActionCards: React.FC = () => {
       icon: LayoutDashboard,
       href: "/app/dashboard",
       buttonText: "Open Dashboard",
-      variant: "secondary" as const,
     },
     {
       title: "Manage My Account",
       description: "Update profile, manage dealers & teams, billing settings, and account preferences.",
       icon: User,
       href: "/app/settings/profile",
-      buttonText: "Manage Account", 
-      variant: "outline" as const,
+      buttonText: "Manage Account",
     },
   ];
 
   return (
-    <div className="grid gap-8 md:grid-cols-3">
+    <div className="grid gap-6 md:grid-cols-3">
       {actionCards.map((card) => {
         const IconComponent = card.icon;
         return (
-          <Card key={card.title} className="glass-card hover-scale group border-border/50 hover:border-primary/20 transition-all duration-300">
-            <CardHeader className="space-y-4">
-              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary/10 to-primary/5 flex items-center justify-center group-hover:from-primary/20 group-hover:to-primary/10 transition-all duration-300">
+          <Card key={card.title} className="p-6 hover-scale transition-all duration-300">
+            <div className="space-y-4">
+              <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center">
                 <IconComponent className="h-6 w-6 text-primary" />
               </div>
-              <CardTitle className="text-xl font-semibold text-foreground group-hover:text-primary transition-colors duration-300">
-                {card.title}
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              <p className="text-muted-foreground text-sm leading-relaxed">
-                {card.description}
-              </p>
+              <div>
+                <h3 className="text-lg font-semibold mb-2">{card.title}</h3>
+                <p className="text-sm text-muted-foreground mb-4">
+                  {card.description}
+                </p>
+              </div>
               <NavLink to={card.href} className="block">
-                <Button 
-                  variant={card.variant} 
-                  className="w-full group/btn"
-                  size="lg"
-                >
+                <Button className="w-full" size="lg">
                   {card.buttonText}
-                  <ArrowRight className="ml-2 h-4 w-4 group-hover/btn:translate-x-1 transition-transform duration-200" />
+                  <ArrowRight className="ml-2 h-4 w-4" />
                 </Button>
               </NavLink>
-            </CardContent>
+            </div>
           </Card>
         );
       })}
