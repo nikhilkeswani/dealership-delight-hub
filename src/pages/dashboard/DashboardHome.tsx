@@ -198,8 +198,13 @@ const DashboardHome: React.FC = () => {
         title="CRM Dashboard | Dealer CRM"
         description="Data-driven overview of your dealership: inventory, leads, sales, and appointments."
       />
-      <main className="space-y-6 animate-fade-in">
-        <section aria-label="Key metrics" className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <main className="space-y-8 animate-fade-in">
+        <div className="space-y-2">
+          <h1 className="text-3xl font-semibold tracking-tight">Dashboard</h1>
+          <p className="text-muted-foreground">Welcome back! Here's what's happening at your dealership.</p>
+        </div>
+
+        <section aria-label="Key metrics" className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
           <StatCard
             title="Total Inventory"
             value={vehiclesCount ?? 0}
@@ -228,9 +233,9 @@ const DashboardHome: React.FC = () => {
 
         <section>
           {recentLoading || apptLoading ? (
-            <div className="grid gap-4 lg:grid-cols-2">
-              <div className="h-[300px] w-full rounded-md bg-muted animate-pulse" />
-              <div className="h-[300px] w-full rounded-md bg-muted animate-pulse" />
+            <div className="grid gap-6 lg:grid-cols-2">
+              <div className="h-[400px] w-full glass-card animate-pulse" />
+              <div className="h-[400px] w-full glass-card animate-pulse" />
             </div>
           ) : (
             <ActivityFeed recentLeads={recentLeads ?? []} todaysAppointments={todaysAppointments ?? []} />

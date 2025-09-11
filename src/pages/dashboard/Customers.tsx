@@ -139,23 +139,23 @@ const Customers: React.FC = () => {
         canonical="/app/customers"
         noIndex
       />
-      <section className="animate-fade-in space-y-4">
-        <PageHeader
-          title="Customers"
-          description="Customer directory and insights"
-          actions={
-            <div className="flex items-center gap-2">
-              <Button variant="outline" onClick={handleExport}>
-                <Download className="h-4 w-4 mr-2" /> Export CSV
-              </Button>
-              <Button onClick={onAdd} variant="hero">
-                <Plus className="h-4 w-4 mr-2" /> Add Customer
-              </Button>
-            </div>
-          }
-        />
+      <section className="animate-fade-in space-y-8">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div className="space-y-2">
+            <h1 className="text-3xl font-semibold tracking-tight">Customers</h1>
+            <p className="text-muted-foreground">Customer directory and insights</p>
+          </div>
+          <div className="flex items-center gap-3">
+            <Button variant="outline" onClick={handleExport}>
+              <Download className="h-4 w-4 mr-2" /> Export CSV
+            </Button>
+            <Button onClick={onAdd}>
+              <Plus className="h-4 w-4 mr-2" /> Add Customer
+            </Button>
+          </div>
+        </div>
 
-        <section aria-label="KPIs" className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <section aria-label="KPIs" className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
           <Card className="glass-card">
             <CardHeader className="pb-2"><CardTitle className="text-sm text-muted-foreground">Total Customers</CardTitle></CardHeader>
             <CardContent className="text-2xl font-bold">{totalCustomers}</CardContent>
@@ -164,21 +164,21 @@ const Customers: React.FC = () => {
             <CardHeader className="pb-2"><CardTitle className="text-sm text-muted-foreground">New This Month</CardTitle></CardHeader>
             <CardContent className="text-2xl font-bold">{newThisMonth}</CardContent>
           </Card>
-          <Card>
+          <Card className="glass-card">
             <CardHeader className="pb-2"><CardTitle className="text-sm text-muted-foreground">Total Spent</CardTitle></CardHeader>
             <CardContent className="text-2xl font-bold">{formatCurrency(totalSpent)}</CardContent>
           </Card>
-          <Card>
+          <Card className="glass-card">
             <CardHeader className="pb-2"><CardTitle className="text-sm text-muted-foreground">Avg Spent</CardTitle></CardHeader>
             <CardContent className="text-2xl font-bold">{formatCurrency(avgSpent)}</CardContent>
           </Card>
         </section>
 
-        <Card>
-          <CardHeader className="gap-3">
-            <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3">
-              <div>
-                <CardTitle>Customer List</CardTitle>
+        <Card className="glass-card">
+          <CardHeader className="space-y-4">
+            <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+              <div className="space-y-1">
+                <CardTitle className="text-xl">Customer List</CardTitle>
                 <CardDescription>All customers associated with your dealership</CardDescription>
               </div>
               <div className="flex flex-col sm:flex-row gap-3 w-full lg:w-auto">
@@ -187,11 +187,12 @@ const Customers: React.FC = () => {
                     placeholder="Search name, email, phone..."
                     value={search}
                     onChange={(e) => setSearch(e.currentTarget.value)}
+                    className="h-10"
                   />
                 </div>
                 <Select value={stateFilter} onValueChange={setStateFilter}>
-                  <SelectTrigger className="w-[180px]"><SelectValue placeholder="State" /></SelectTrigger>
-                  <SelectContent>
+                  <SelectTrigger className="w-[180px] h-10 glass-card"><SelectValue placeholder="State" /></SelectTrigger>
+                  <SelectContent className="glass-card">
                     <SelectItem value="all">All states</SelectItem>
                     {uniqueStates.map((s) => (
                       <SelectItem key={s} value={s}>{s}</SelectItem>
@@ -199,8 +200,8 @@ const Customers: React.FC = () => {
                   </SelectContent>
                 </Select>
                 <Select value={dateFilter} onValueChange={setDateFilter}>
-                  <SelectTrigger className="w-[180px]"><SelectValue placeholder="Date range" /></SelectTrigger>
-                  <SelectContent>
+                  <SelectTrigger className="w-[180px] h-10 glass-card"><SelectValue placeholder="Date range" /></SelectTrigger>
+                  <SelectContent className="glass-card">
                     <SelectItem value="all">All time</SelectItem>
                     <SelectItem value="30">Last 30 days</SelectItem>
                     <SelectItem value="90">Last 90 days</SelectItem>
@@ -222,30 +223,30 @@ const Customers: React.FC = () => {
             {!isLoading && !error && (
               <>
                 {pageRows && pageRows.length > 0 ? (
-                  <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                  <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
                     {pageRows.map((c) => (
                       <Card
                         key={c.id}
-                        className="relative overflow-hidden bg-card/60 backdrop-blur border hover-scale cursor-pointer"
+                        className="glass-card hover-scale cursor-pointer group"
                         onClick={() => onView(c)}
                       >
-                        <CardHeader className="pb-2">
-                          <CardTitle className="text-base">{c.first_name} {c.last_name}</CardTitle>
-                          <CardDescription>{c.email || "-"}</CardDescription>
+                        <CardHeader className="pb-3">
+                          <CardTitle className="text-lg group-hover:text-primary transition-colors">{c.first_name} {c.last_name}</CardTitle>
+                          <CardDescription className="text-sm">{c.email || "-"}</CardDescription>
                         </CardHeader>
                         <CardContent className="text-sm text-muted-foreground flex items-start justify-between gap-4">
-                          <div className="space-y-1">
-                            <div>Phone: {c.phone ?? "-"}</div>
-                            <div>Location: {[c.city, c.state].filter(Boolean).join(", ") || "-"}</div>
-                            <div>Joined: {formatDate(c.created_at)}</div>
+                          <div className="space-y-2">
+                            <div><span className="font-medium">Phone:</span> {c.phone ?? "-"}</div>
+                            <div><span className="font-medium">Location:</span> {[c.city, c.state].filter(Boolean).join(", ") || "-"}</div>
+                            <div><span className="font-medium">Joined:</span> {formatDate(c.created_at)}</div>
                           </div>
                           <div className="flex flex-col gap-2" onClick={(e) => e.stopPropagation()}>
-                            <Button size="sm" variant="outline" onClick={() => onEdit(c)}>Edit</Button>
+                            <Button size="sm" variant="outline" onClick={() => onEdit(c)} className="h-8">Edit</Button>
                             <AlertDialog>
                               <AlertDialogTrigger asChild>
-                                <Button size="sm" variant="ghost">Delete</Button>
+                                <Button size="sm" variant="ghost" className="h-8 text-destructive hover:text-destructive">Delete</Button>
                               </AlertDialogTrigger>
-                              <AlertDialogContent>
+                              <AlertDialogContent className="glass-card">
                                 <AlertDialogHeader>
                                   <AlertDialogTitle>Delete Customer</AlertDialogTitle>
                                   <AlertDialogDescription>

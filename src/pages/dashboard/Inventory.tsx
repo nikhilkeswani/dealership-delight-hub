@@ -84,42 +84,46 @@ const Inventory: React.FC = () => {
         canonical="/app/inventory"
         noIndex
       />
-      <section className="animate-fade-in">
-        <PageHeader
-          title="Inventory"
-          description="Manage your vehicles with a refined interface."
-          actions={<Button size="sm" variant="hero" onClick={() => setVehicleDialogOpen(true)}>Add Vehicle</Button>}
-        />
-        <div className="mt-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      <section className="animate-fade-in space-y-8">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div className="space-y-2">
+            <h1 className="text-3xl font-semibold tracking-tight">Inventory</h1>
+            <p className="text-muted-foreground">Manage your vehicles with ease and precision.</p>
+          </div>
+          <Button size="sm" onClick={() => setVehicleDialogOpen(true)} className="w-fit">
+            Add Vehicle
+          </Button>
+        </div>
+        
+        <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-4">
           <StatCard title="Total Vehicles" value={kpis.total} icon={Car} />
           <StatCard title="Available" value={kpis.available} icon={CircleDot} />
           <StatCard title="Reserved" value={kpis.reserved} icon={Clock} />
           <StatCard title="Sold This Month" value={kpis.soldThisMonth} icon={CalendarCheck} />
         </div>
         <Card className="glass-card">
-          <CardHeader className="flex items-center justify-between">
-            <div>
-              <CardTitle>Vehicles</CardTitle>
-              <CardDescription>Your current listed vehicles</CardDescription>
-            </div>
+          <CardHeader className="space-y-1">
+            <CardTitle className="text-xl">Vehicles</CardTitle>
+            <CardDescription>Your current listed vehicles</CardDescription>
           </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <CardContent className="space-y-6">
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
               <div className="w-full sm:max-w-md">
                 <Input
                   placeholder="Search by make, model, or year..."
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
                   aria-label="Search vehicles"
+                  className="h-10"
                 />
               </div>
-              <div className="flex w-full sm:w-auto items-center gap-2">
+              <div className="flex w-full sm:w-auto items-center gap-3">
                 <div className="w-full sm:w-56">
                   <Select value={status} onValueChange={setStatus}>
-                    <SelectTrigger aria-label="Filter by status" className="bg-background">
+                    <SelectTrigger aria-label="Filter by status" className="h-10 glass-card">
                       <SelectValue placeholder="All statuses" />
                     </SelectTrigger>
-                    <SelectContent className="z-50 bg-popover">
+                    <SelectContent className="z-50 glass-card">
                       <SelectItem value="all">All statuses</SelectItem>
                       <SelectItem value="available">Available</SelectItem>
                       <SelectItem value="pending">Pending</SelectItem>
@@ -127,7 +131,7 @@ const Inventory: React.FC = () => {
                     </SelectContent>
                   </Select>
                 </div>
-                <Button variant="outline" className="whitespace-nowrap">
+                <Button variant="outline" className="whitespace-nowrap h-10">
                   <Filter className="mr-2 h-4 w-4" /> Filters
                 </Button>
               </div>

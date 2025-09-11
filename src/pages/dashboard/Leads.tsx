@@ -102,23 +102,28 @@ const kpis = React.useMemo(() => {
         canonical="/app/leads"
         noIndex
       />
-      <section className="animate-fade-in">
-        <PageHeader
-          title="Leads"
-          description="Track and manage sales leads for your dealership."
-          actions={<Button size="sm" variant="hero" onClick={() => setLeadDialogOpen(true)}>Add Lead</Button>}
-/>
-        <div className="mt-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      <section className="animate-fade-in space-y-8">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div className="space-y-2">
+            <h1 className="text-3xl font-semibold tracking-tight">Leads</h1>
+            <p className="text-muted-foreground">Track and manage sales leads for your dealership.</p>
+          </div>
+          <Button size="sm" onClick={() => setLeadDialogOpen(true)} className="w-fit">
+            Add Lead
+          </Button>
+        </div>
+        
+        <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-4">
           <StatCard title="Active Leads" value={kpis.active} icon={Activity} />
           <StatCard title="Hot Leads" value={kpis.hot} icon={Flame} />
           <StatCard title="Conversion Rate" value={`${kpis.convRate}%`} icon={TrendingUp} />
           <StatCard title="Follow-ups Today" value={kpis.todayFollowUps} icon={CalendarCheck} />
         </div>
         <Card className="glass-card">
-          <CardHeader className="gap-3">
-            <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3">
-              <div>
-                <CardTitle>Recent Leads</CardTitle>
+          <CardHeader className="space-y-4">
+            <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+              <div className="space-y-1">
+                <CardTitle className="text-xl">Recent Leads</CardTitle>
                 <CardDescription>New inquiries and their status</CardDescription>
               </div>
               <div className="flex flex-col sm:flex-row gap-3 w-full lg:w-auto">
@@ -128,14 +133,15 @@ const kpis = React.useMemo(() => {
                     value={query}
                     onChange={(e) => setQuery(e.currentTarget.value)}
                     aria-label="Search leads"
+                    className="h-10"
                   />
                 </div>
                 <div className="w-full sm:w-56">
                   <Select value={status} onValueChange={setStatus}>
-                    <SelectTrigger aria-label="Filter by status" className="bg-background border border-border/50 hover:bg-muted/50 transition-colors shadow-sm">
+                    <SelectTrigger aria-label="Filter by status" className="h-10 glass-card">
                       <SelectValue placeholder="Filter by status" />
                     </SelectTrigger>
-                    <SelectContent className="z-[100] bg-popover border border-border/80 shadow-lg rounded-md">
+                    <SelectContent className="z-[100] glass-card">
                       {["all", "new", "contacted", "qualified", "converted", "lost"].map((s) => (
                         <SelectItem key={s} value={s} className="capitalize hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground cursor-pointer">
                           {s}

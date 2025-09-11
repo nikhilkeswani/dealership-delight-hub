@@ -2,7 +2,6 @@ import React from "react";
 import { Outlet, NavLink, useLocation } from "react-router-dom";
 import { Car, Users, Inbox, LayoutDashboard } from "lucide-react";
 import BackToHubButton from "@/components/common/BackToHubButton";
-import PageHeader from "@/components/common/PageHeader";
 import { robustSignOut } from "@/lib/auth";
 import {
   SidebarProvider,
@@ -122,8 +121,8 @@ const DashboardLayout: React.FC = () => {
     <SidebarProvider>
       <AppSidebar />
       <SidebarInset>
-        <header className="sticky top-0 z-50 border-b bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-          <div className="flex h-14 items-center gap-2 px-4">
+        <header className="sticky top-0 z-50 glass-card border-b">
+          <div className="flex h-16 items-center gap-2 px-6">
             <SidebarTrigger className="mr-2" />
             <Breadcrumb>
               <BreadcrumbList>
@@ -136,7 +135,7 @@ const DashboardLayout: React.FC = () => {
                   <>
                     <BreadcrumbSeparator />
                     <BreadcrumbItem>
-                      <BreadcrumbPage>{pageLabel}</BreadcrumbPage>
+                      <BreadcrumbPage className="font-medium">{pageLabel}</BreadcrumbPage>
                     </BreadcrumbItem>
                   </>
                 )}
@@ -145,13 +144,13 @@ const DashboardLayout: React.FC = () => {
             <div className="ml-auto">
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <button aria-label="Open user menu" className="rounded-full focus:outline-none focus:ring-2 focus:ring-ring/50">
-                    <Avatar>
-                      <AvatarFallback>DC</AvatarFallback>
+                  <button aria-label="Open user menu" className="rounded-full focus:outline-none focus:ring-2 focus:ring-ring/50 hover-scale">
+                    <Avatar className="h-9 w-9">
+                      <AvatarFallback className="bg-primary/10 text-primary font-semibold">DC</AvatarFallback>
                     </Avatar>
                   </button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
+                <DropdownMenuContent align="end" className="w-48 glass-card">
                   <DropdownMenuLabel>My Account</DropdownMenuLabel>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem asChild>
@@ -168,10 +167,7 @@ const DashboardLayout: React.FC = () => {
           </div>
         </header>
         
-        <div className="p-4 md:p-6 space-y-6">
-          <PageHeader 
-            title="CRM Dashboard" 
-          />
+        <div className="p-6 lg:p-8 space-y-8">
           <Outlet />
         </div>
       </SidebarInset>
