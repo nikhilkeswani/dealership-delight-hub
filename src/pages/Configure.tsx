@@ -45,22 +45,26 @@ export default function Configure() {
       />
       
       <div className="min-h-screen bg-background">
-        {/* Simple Header */}
-        <div className="border-b">
-          <div className="container py-6">
-            <div className="flex items-center justify-between">
+        {/* Header */}
+        <div className="relative border-b overflow-hidden">
+          <div className="absolute inset-0 pointer-events-none opacity-70" aria-hidden>
+            <div className="absolute -top-24 -right-24 h-48 w-48 rounded-full blur-3xl opacity-30" style={{ background: "var(--gradient-primary)" }} />
+          </div>
+          <div className="container py-8 relative">
+            <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
               <div className="flex items-center gap-4">
                 <BackToHubButton />
-                <div>
-                  <h1 className="text-2xl font-semibold">Website Builder</h1>
+                <div className="space-y-1">
+                  <h1 className="text-2xl md:text-3xl font-semibold tracking-tight">Website Builder</h1>
+                  <p className="text-sm text-muted-foreground">Configure your dealer website and publish it live</p>
                 </div>
               </div>
               
               <div className="flex gap-2">
-                <Button onClick={handlePreview} variant="outline">
-                  Preview in New Tab
+                <Button onClick={handlePreview} variant="outline" size="lg">
+                  Preview Site
                 </Button>
-                <Button onClick={handlePublish} variant="default" disabled={isPublishing}>
+                <Button onClick={handlePublish} variant="default" size="lg" disabled={isPublishing}>
                   {isPublishing ? "Publishing..." : isPublished ? "Update Website" : "Publish Website"}
                 </Button>
               </div>
@@ -68,14 +72,15 @@ export default function Configure() {
           </div>
         </div>
 
-        <div className="container py-6">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 max-w-7xl mx-auto">
+        <div className="container py-8">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 max-w-7xl mx-auto">
             {/* Configuration Panel */}
-            <Card>
-              <CardHeader className="pb-3">
-                <CardTitle className="text-lg">Customize</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
+            <div className="rounded-xl border bg-card/60 backdrop-blur">
+              <div className="p-6 border-b">
+                <h2 className="text-xl font-medium">Website Configuration</h2>
+                <p className="text-sm text-muted-foreground mt-1">Customize your dealer website</p>
+              </div>
+              <div className="p-6 space-y-4">
                 {/* Simple Tab Navigation */}
                 <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
                   <TabsList className="grid w-full grid-cols-5 h-auto p-1">
@@ -123,18 +128,19 @@ export default function Configure() {
                     </TabsContent>
                   </div>
                 </Tabs>
-              </CardContent>
-            </Card>
+              </div>
+            </div>
 
             {/* Website Preview Panel */}
-            <Card>
-              <CardHeader className="pb-3">
-                <CardTitle className="text-lg">Website Preview</CardTitle>
-              </CardHeader>
-              <CardContent>
+            <div className="rounded-xl border bg-card/60 backdrop-blur">
+              <div className="p-6 border-b">
+                <h2 className="text-xl font-medium">Live Preview</h2>
+                <p className="text-sm text-muted-foreground mt-1">See your changes in real-time</p>
+              </div>
+              <div className="p-6">
                 <WebsitePreview device="desktop" />
-              </CardContent>
-            </Card>
+              </div>
+            </div>
           </div>
         </div>
       </div>
