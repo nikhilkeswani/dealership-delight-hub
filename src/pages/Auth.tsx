@@ -98,74 +98,105 @@ const Auth = () => {
       <SEO title="Log in or Sign up – DealerDelight" description="Access your DealerDelight dashboard with secure email and password authentication." noIndex />
 
       <div className="min-h-screen bg-background">
-        <div className="grid min-h-screen lg:grid-cols-2">
-          {/* Hero Section */}
-          <div className="relative flex flex-col justify-center px-8 py-12 lg:px-12 overflow-hidden">
+        <div className="grid min-h-screen xl:grid-cols-5 lg:grid-cols-3">
+          {/* Hero Section - Takes more space on larger screens */}
+          <div className="relative xl:col-span-3 lg:col-span-2 flex flex-col justify-center px-6 py-12 sm:px-8 lg:px-16 xl:px-20 overflow-hidden">
             {/* Background decorations */}
             <div className="absolute inset-0 pointer-events-none" aria-hidden>
-              <div className="absolute -top-24 -left-24 h-64 w-64 rounded-full blur-3xl opacity-15" style={{ background: "var(--gradient-primary)" }} />
-              <div className="absolute -bottom-24 -right-24 h-64 w-64 rounded-full blur-3xl opacity-15" style={{ background: "var(--gradient-primary)" }} />
+              <div className="absolute -top-32 -left-32 h-80 w-80 rounded-full blur-3xl opacity-20" style={{ background: "var(--gradient-primary)" }} />
+              <div className="absolute -bottom-32 -right-32 h-80 w-80 rounded-full blur-3xl opacity-15" style={{ background: "var(--gradient-primary)" }} />
+              <div className="absolute top-1/4 right-1/4 h-48 w-48 rounded-full blur-3xl opacity-10" style={{ background: "var(--gradient-primary)" }} />
             </div>
             
-            <div className="relative max-w-md space-y-8 animate-fade-in">
-              <div className="space-y-6">
-                <div className="flex items-center gap-2">
-                  <div className="h-8 w-8 rounded-md" style={{ background: "var(--gradient-primary)" }} />
-                  <span className="text-xl font-semibold">DealerDelight</span>
+            <div className="relative max-w-2xl mx-auto lg:mx-0 space-y-12 animate-fade-in">
+              <div className="space-y-8">
+                <div className="flex items-center gap-3">
+                  <div className="h-10 w-10 rounded-xl" style={{ background: "var(--gradient-primary)" }} />
+                  <span className="text-2xl font-bold">DealerDelight</span>
                 </div>
-                <div className="space-y-3">
-                  <h1 className="text-3xl md:text-4xl font-semibold tracking-tight">
-                    {mode === "signin" ? "Welcome back" : "Start your journey"}
+                <div className="space-y-6">
+                  <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight leading-tight">
+                    {mode === "signin" ? (
+                      <>Welcome back to your <span className="text-primary">dealer hub</span></>
+                    ) : (
+                      <>Start your <span className="text-primary">dealer journey</span> today</>
+                    )}
                   </h1>
-                  <p className="text-muted-foreground text-lg">
+                  <p className="text-muted-foreground text-xl sm:text-2xl leading-relaxed max-w-xl">
                     {mode === "signin" 
-                      ? "Access your dealer management dashboard and grow your business"
-                      : "Launch your professional dealer website in minutes, no coding required"
+                      ? "Access your complete dealer management dashboard and continue growing your automotive business with powerful tools and insights."
+                      : "Launch your professional dealer website in minutes. No coding required, no setup fees. Join thousands of successful dealers already using our platform."
                     }
                   </p>
                 </div>
               </div>
 
-              <div className="rounded-xl border bg-card/60 backdrop-blur p-6 space-y-4">
-                <h3 className="font-medium">What you'll get:</h3>
-                <div className="space-y-3 text-sm">
-                  <div className="flex items-center gap-3">
-                    <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center">
-                      <span className="text-primary font-medium">✓</span>
+              <div className="grid sm:grid-cols-2 gap-6">
+                <div className="rounded-2xl border bg-card/60 backdrop-blur p-8 space-y-6">
+                  <h3 className="font-semibold text-lg">Core Features</h3>
+                  <div className="space-y-4">
+                    <div className="flex items-start gap-4">
+                      <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+                        <span className="text-primary font-bold text-lg">✓</span>
+                      </div>
+                      <div>
+                        <div className="font-medium">Professional Website</div>
+                        <div className="text-sm text-muted-foreground">Custom dealer website with your branding</div>
+                      </div>
                     </div>
-                    <span className="text-muted-foreground">Professional dealer website</span>
+                    <div className="flex items-start gap-4">
+                      <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+                        <span className="text-primary font-bold text-lg">✓</span>
+                      </div>
+                      <div>
+                        <div className="font-medium">Lead Management</div>
+                        <div className="text-sm text-muted-foreground">Advanced CRM and lead tracking tools</div>
+                      </div>
+                    </div>
                   </div>
-                  <div className="flex items-center gap-3">
-                    <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center">
-                      <span className="text-primary font-medium">✓</span>
+                </div>
+                
+                <div className="rounded-2xl border bg-card/60 backdrop-blur p-8 space-y-6">
+                  <h3 className="font-semibold text-lg">Growth Tools</h3>
+                  <div className="space-y-4">
+                    <div className="flex items-start gap-4">
+                      <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+                        <span className="text-primary font-bold text-lg">✓</span>
+                      </div>
+                      <div>
+                        <div className="font-medium">Analytics Dashboard</div>
+                        <div className="text-sm text-muted-foreground">Performance tracking and insights</div>
+                      </div>
                     </div>
-                    <span className="text-muted-foreground">Lead management & CRM tools</span>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center">
-                      <span className="text-primary font-medium">✓</span>
+                    <div className="flex items-start gap-4">
+                      <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+                        <span className="text-primary font-bold text-lg">✓</span>
+                      </div>
+                      <div>
+                        <div className="font-medium">Inventory Management</div>
+                        <div className="text-sm text-muted-foreground">Easy vehicle listing and updates</div>
+                      </div>
                     </div>
-                    <span className="text-muted-foreground">Analytics & performance tracking</span>
                   </div>
                 </div>
               </div>
             </div>
           </div>
 
-          {/* Auth Form */}
-          <div className="relative flex items-center justify-center px-8 py-12 lg:px-12">
+          {/* Auth Form - Optimized width */}
+          <div className="relative xl:col-span-2 lg:col-span-1 flex items-center justify-center px-6 py-12 sm:px-8 lg:px-12">
             {/* Subtle glow effect */}
             <div className="absolute inset-0 pointer-events-none opacity-5" aria-hidden>
               <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-96 w-96 rounded-full blur-3xl" style={{ background: "var(--gradient-primary)" }} />
             </div>
             
-            <div className="relative w-full max-w-sm">
-              <div className="rounded-xl border bg-card/60 backdrop-blur p-8 space-y-6 animate-fade-in" style={{ animationDelay: "0.1s" }}>
-                <div className="text-center space-y-2">
-                  <h2 className="text-2xl font-semibold">
+            <div className="relative w-full max-w-md">
+              <div className="rounded-2xl border bg-card/80 backdrop-blur p-10 space-y-8 animate-fade-in shadow-2xl" style={{ animationDelay: "0.1s" }}>
+                <div className="text-center space-y-3">
+                  <h2 className="text-3xl font-bold">
                     {mode === "signin" ? "Sign in" : "Create account"}
                   </h2>
-                  <p className="text-muted-foreground text-sm">
+                  <p className="text-muted-foreground">
                     {mode === "signin" 
                       ? "Welcome back! Please enter your details"
                       : "Join thousands of successful dealers"
@@ -173,15 +204,15 @@ const Auth = () => {
                   </p>
                 </div>
               <Tabs value={mode} onValueChange={(v) => setMode(v as any)}>
-                <TabsList className="grid grid-cols-2 w-full mb-6">
-                  <TabsTrigger value="signin">Sign in</TabsTrigger>
-                  <TabsTrigger value="signup">Create account</TabsTrigger>
+                <TabsList className="grid grid-cols-2 w-full mb-8">
+                  <TabsTrigger value="signin" className="text-base py-3">Sign in</TabsTrigger>
+                  <TabsTrigger value="signup" className="text-base py-3">Create account</TabsTrigger>
                 </TabsList>
                 
                 <TabsContent value="signin">
-                  <form onSubmit={handleSignIn} className="space-y-5">
-                    <div className="space-y-2">
-                      <Label htmlFor="email">Email</Label>
+                  <form onSubmit={handleSignIn} className="space-y-6">
+                    <div className="space-y-3">
+                      <Label htmlFor="email" className="text-base">Email</Label>
                       <Input 
                         id="email" 
                         type="email" 
@@ -189,15 +220,15 @@ const Auth = () => {
                         onChange={(e) => setEmail(e.target.value)} 
                         required 
                         placeholder="you@dealership.com"
-                        className="h-12"
+                        className="h-14 text-base"
                       />
                     </div>
-                    <div className="space-y-2">
+                    <div className="space-y-3">
                       <div className="flex items-center justify-between">
-                        <Label htmlFor="password">Password</Label>
+                        <Label htmlFor="password" className="text-base">Password</Label>
                         <button 
                           type="button" 
-                          className="text-sm text-primary hover:underline" 
+                          className="text-sm text-primary hover:underline font-medium" 
                           onClick={handleForgotPassword}
                           disabled={loading}
                         >
@@ -212,15 +243,15 @@ const Auth = () => {
                           onChange={(e) => setPassword(e.target.value)} 
                           required 
                           placeholder="••••••••"
-                          className="h-12"
+                          className="h-14 text-base pr-12"
                         />
                         <button 
                           type="button" 
                           aria-label="Toggle password visibility" 
-                          className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground" 
+                          className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground" 
                           onClick={() => setShowPassword((s) => !s)}
                         >
-                          {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                          {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                         </button>
                       </div>
                     </div>
@@ -230,11 +261,11 @@ const Auth = () => {
                       size="lg" 
                       disabled={loading} 
                       aria-label="Sign in" 
-                      className="w-full h-12"
+                      className="w-full h-14 text-base font-semibold"
                     >
                       {loading ? (
                         <>
-                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          <Loader2 className="mr-2 h-5 w-5 animate-spin" />
                           Signing in...
                         </>
                       ) : (
@@ -245,9 +276,9 @@ const Auth = () => {
                 </TabsContent>
                 
                 <TabsContent value="signup">
-                  <form onSubmit={handleSignUp} className="space-y-5">
-                    <div className="space-y-2">
-                      <Label htmlFor="email2">Email</Label>
+                  <form onSubmit={handleSignUp} className="space-y-6">
+                    <div className="space-y-3">
+                      <Label htmlFor="email2" className="text-base">Email</Label>
                       <Input 
                         id="email2" 
                         type="email" 
@@ -255,11 +286,11 @@ const Auth = () => {
                         onChange={(e) => setEmail(e.target.value)} 
                         required 
                         placeholder="you@dealership.com"
-                        className="h-12"
+                        className="h-14 text-base"
                       />
                     </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="password2">Password</Label>
+                    <div className="space-y-3">
+                      <Label htmlFor="password2" className="text-base">Password</Label>
                       <Input 
                         id="password2" 
                         type="password" 
@@ -267,7 +298,7 @@ const Auth = () => {
                         onChange={(e) => setPassword(e.target.value)} 
                         required 
                         placeholder="Create a strong password"
-                        className="h-12"
+                        className="h-14 text-base"
                       />
                     </div>
                     <Button 
@@ -276,11 +307,11 @@ const Auth = () => {
                       size="lg" 
                       disabled={loading} 
                       aria-label="Create account" 
-                      className="w-full h-12"
+                      className="w-full h-14 text-base font-semibold"
                     >
                       {loading ? (
                         <>
-                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          <Loader2 className="mr-2 h-5 w-5 animate-spin" />
                           Creating account...
                         </>
                       ) : (
@@ -291,14 +322,14 @@ const Auth = () => {
                 </TabsContent>
               </Tabs>
 
-                <div className="text-center text-sm text-muted-foreground">
+                <div className="text-center text-muted-foreground">
                   {mode === "signin" ? (
                     <span>
-                      New here? <button className="text-primary hover:underline" onClick={() => setMode("signup")}>Create an account</button>
+                      New here? <button className="text-primary hover:underline font-medium" onClick={() => setMode("signup")}>Create an account</button>
                     </span>
                   ) : (
                     <span>
-                      Have an account? <button className="text-primary hover:underline" onClick={() => setMode("signin")}>Sign in</button>
+                      Have an account? <button className="text-primary hover:underline font-medium" onClick={() => setMode("signin")}>Sign in</button>
                     </span>
                   )}
                 </div>
