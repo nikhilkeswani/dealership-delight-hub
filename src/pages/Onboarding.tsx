@@ -117,33 +117,8 @@ const Onboarding: React.FC = () => {
   return (
     <>
       <SEO title="Dealer Onboarding" description="Create your dealer profile" noIndex />
-      
-      <div className="min-h-screen bg-background">
-        {/* Background decorations */}
-        <div className="absolute inset-0 pointer-events-none overflow-hidden" aria-hidden>
-          <div className="absolute -top-24 -left-24 h-64 w-64 rounded-full blur-3xl opacity-15" style={{ background: "var(--gradient-primary)" }} />
-          <div className="absolute -bottom-24 -right-24 h-64 w-64 rounded-full blur-3xl opacity-15" style={{ background: "var(--gradient-primary)" }} />
-        </div>
-
-        <main className="relative container mx-auto max-w-3xl py-12 animate-fade-in">
-          {/* Header */}
-          <div className="text-center space-y-4 mb-8">
-            <div className="flex items-center justify-center gap-2 mb-4">
-              <div className="h-8 w-8 rounded-md" style={{ background: "var(--gradient-primary)" }} />
-              <span className="text-xl font-semibold">DealerDelight</span>
-            </div>
-            <h1 className="text-3xl md:text-4xl font-semibold tracking-tight">Welcome to DealerDelight</h1>
-            <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-              Let's set up your dealer profile to get your professional website live in minutes
-            </p>
-          </div>
-
-          {/* Form Card */}
-          <div className="rounded-xl border bg-card/60 backdrop-blur p-8 space-y-6">
-            <div className="space-y-2">
-              <h2 className="text-xl font-medium">Business Information</h2>
-              <p className="text-sm text-muted-foreground">Tell us about your dealership</p>
-            </div>
+      <main className="container mx-auto max-w-2xl py-10">
+        <h1 className="text-2xl font-semibold mb-6">Set up your dealer profile</h1>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
             <FormField
@@ -262,14 +237,12 @@ const Onboarding: React.FC = () => {
               />
             </div>
 
-            <div className="pt-4">
-              <Button type="submit" size="lg" className="w-full">Create profile & continue</Button>
+            <div className="pt-2">
+              <Button type="submit" className="w-full">Create profile</Button>
             </div>
           </form>
         </Form>
-          </div>
-        </main>
-      </div>
+      </main>
     </>
   );
 };

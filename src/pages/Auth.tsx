@@ -97,81 +97,67 @@ const Auth = () => {
     <div className="min-h-screen bg-background">
       <SEO title="Log in or Sign up – DealerDelight" description="Access your DealerDelight dashboard with secure email and password authentication." noIndex />
 
-      <div className="min-h-screen bg-background">
-        <div className="grid min-h-screen lg:grid-cols-2">
-          {/* Hero Section */}
-          <div className="relative flex flex-col justify-center px-8 py-12 lg:px-12 overflow-hidden">
-            {/* Background decorations */}
-            <div className="absolute inset-0 pointer-events-none" aria-hidden>
-              <div className="absolute -top-24 -left-24 h-64 w-64 rounded-full blur-3xl opacity-15" style={{ background: "var(--gradient-primary)" }} />
-              <div className="absolute -bottom-24 -right-24 h-64 w-64 rounded-full blur-3xl opacity-15" style={{ background: "var(--gradient-primary)" }} />
+      <main className="min-h-screen lg:grid lg:grid-cols-5">
+        {/* Left Hero Section */}
+        <aside className="relative lg:col-span-2 bg-gradient-to-br from-primary via-primary/90 to-primary/80 p-8 lg:p-12 flex flex-col justify-center text-white">
+          <div className="absolute inset-0 bg-gradient-to-br from-transparent via-black/5 to-black/20" />
+          <div className="relative z-10">
+            <div className="mb-8">
+              <h2 className="text-4xl lg:text-5xl font-bold mb-4">DealerDelight</h2>
+              <p className="text-lg text-white/90 mb-8 max-w-lg">
+                All-in-one dealer marketing website and CRM. Launch fast, manage leads, and close more deals.
+              </p>
             </div>
             
-            <div className="relative max-w-md space-y-8 animate-fade-in">
-              <div className="space-y-6">
-                <div className="flex items-center gap-2">
-                  <div className="h-8 w-8 rounded-md" style={{ background: "var(--gradient-primary)" }} />
-                  <span className="text-xl font-semibold">DealerDelight</span>
+            <div className="space-y-6">
+              <div className="flex items-start gap-4">
+                <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center mt-1">
+                  <div className="w-2 h-2 bg-white rounded-full" />
                 </div>
-                <div className="space-y-3">
-                  <h1 className="text-3xl md:text-4xl font-semibold tracking-tight">
-                    {mode === "signin" ? "Welcome back" : "Start your journey"}
-                  </h1>
-                  <p className="text-muted-foreground text-lg">
-                    {mode === "signin" 
-                      ? "Access your dealer management dashboard and grow your business"
-                      : "Launch your professional dealer website in minutes, no coding required"
-                    }
-                  </p>
+                <div>
+                  <h3 className="font-semibold mb-1">Beautiful Website</h3>
+                  <p className="text-sm text-white/80">Responsive, professional design that converts visitors</p>
                 </div>
               </div>
-
-              <div className="rounded-xl border bg-card/60 backdrop-blur p-6 space-y-4">
-                <h3 className="font-medium">What you'll get:</h3>
-                <div className="space-y-3 text-sm">
-                  <div className="flex items-center gap-3">
-                    <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center">
-                      <span className="text-primary font-medium">✓</span>
-                    </div>
-                    <span className="text-muted-foreground">Professional dealer website</span>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center">
-                      <span className="text-primary font-medium">✓</span>
-                    </div>
-                    <span className="text-muted-foreground">Lead management & CRM tools</span>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center">
-                      <span className="text-primary font-medium">✓</span>
-                    </div>
-                    <span className="text-muted-foreground">Analytics & performance tracking</span>
-                  </div>
+              
+              <div className="flex items-start gap-4">
+                <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center mt-1">
+                  <div className="w-2 h-2 bg-white rounded-full" />
+                </div>
+                <div>
+                  <h3 className="font-semibold mb-1">Complete CRM</h3>
+                  <p className="text-sm text-white/80">Manage leads, customers, and sales in one place</p>
+                </div>
+              </div>
+              
+              <div className="flex items-start gap-4">
+                <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center mt-1">
+                  <div className="w-2 h-2 bg-white rounded-full" />
+                </div>
+                <div>
+                  <h3 className="font-semibold mb-1">Easy Analytics</h3>
+                  <p className="text-sm text-white/80">Track performance and grow your business</p>
                 </div>
               </div>
             </div>
           </div>
+        </aside>
 
-          {/* Auth Form */}
-          <div className="relative flex items-center justify-center px-8 py-12 lg:px-12">
-            {/* Subtle glow effect */}
-            <div className="absolute inset-0 pointer-events-none opacity-5" aria-hidden>
-              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-96 w-96 rounded-full blur-3xl" style={{ background: "var(--gradient-primary)" }} />
-            </div>
-            
-            <div className="relative w-full max-w-sm">
-              <div className="rounded-xl border bg-card/60 backdrop-blur p-8 space-y-6 animate-fade-in" style={{ animationDelay: "0.1s" }}>
-                <div className="text-center space-y-2">
-                  <h2 className="text-2xl font-semibold">
-                    {mode === "signin" ? "Sign in" : "Create account"}
-                  </h2>
-                  <p className="text-muted-foreground text-sm">
-                    {mode === "signin" 
-                      ? "Welcome back! Please enter your details"
-                      : "Join thousands of successful dealers"
-                    }
-                  </p>
-                </div>
+        {/* Right Auth Section */}
+        <section className="lg:col-span-3 flex items-center justify-center p-8 lg:p-12">
+          <div className="w-full max-w-md">
+            <header className="text-center mb-8">
+              <h1 className="text-3xl lg:text-4xl font-semibold mb-3">
+                {mode === "signin" ? "Welcome back" : "Create your account"}
+              </h1>
+              <p className="text-muted-foreground">
+                {mode === "signin" 
+                  ? "Sign in to manage your website, inventory, leads, and analytics." 
+                  : "Sign up to launch your dealer website and CRM in minutes."}
+              </p>
+            </header>
+
+            <div className="space-y-6">
               <Tabs value={mode} onValueChange={(v) => setMode(v as any)}>
                 <TabsList className="grid grid-cols-2 w-full mb-6">
                   <TabsTrigger value="signin">Sign in</TabsTrigger>
@@ -291,22 +277,22 @@ const Auth = () => {
                 </TabsContent>
               </Tabs>
 
-                <div className="text-center text-sm text-muted-foreground">
-                  {mode === "signin" ? (
-                    <span>
-                      New here? <button className="text-primary hover:underline" onClick={() => setMode("signup")}>Create an account</button>
-                    </span>
-                  ) : (
-                    <span>
-                      Have an account? <button className="text-primary hover:underline" onClick={() => setMode("signin")}>Sign in</button>
-                    </span>
-                  )}
-                </div>
+              <div className="text-center text-sm text-muted-foreground">
+                {mode === "signin" ? (
+                  <span>
+                    New here? <button className="text-primary hover:underline" onClick={() => setMode("signup")}>Create an account</button>
+                  </span>
+                ) : (
+                  <span>
+                    Have an account? <button className="text-primary hover:underline" onClick={() => setMode("signin")}>Sign in</button>
+                  </span>
+                )}
               </div>
+
             </div>
           </div>
-        </div>
-      </div>
+        </section>
+      </main>
     </div>
   );
 };
