@@ -198,54 +198,76 @@ const DashboardHome: React.FC = () => {
         title="CRM Dashboard | Dealer CRM"
         description="Data-driven overview of your dealership: inventory, leads, sales, and appointments."
       />
-      <main className="space-y-8 animate-fade-in">
-        <div className="space-y-2">
-          <h1 className="text-3xl font-semibold tracking-tight">Dashboard</h1>
-          <p className="text-muted-foreground">Welcome back! Here's what's happening at your dealership.</p>
-        </div>
+      <div className="min-h-screen bg-gradient-to-br from-background to-background/80">
+        <main className="container mx-auto px-4 py-8 space-y-12 animate-fade-in">
+          {/* Header Section */}
+          <div className="glass-card p-8 text-center">
+            <h1 className="text-4xl font-bold tracking-tight bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
+              Dashboard
+            </h1>
+            <p className="text-lg text-muted-foreground mt-2">
+              Welcome back! Here's what's happening at your dealership.
+            </p>
+          </div>
 
-        <section aria-label="Key metrics" className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-          <StatCard
-            title="Total Inventory"
-            value={vehiclesCount ?? 0}
-            icon={LayoutDashboard}
-            isLoading={anyLoading}
-          />
-          <StatCard
-            title="Active Leads"
-            value={activeLeadsCount ?? 0}
-            icon={Users}
-            isLoading={anyLoading}
-          />
-          <StatCard
-            title="Monthly Sales"
-            value={formatCurrency(monthlySales ?? 0)}
-            icon={ShoppingCart}
-            isLoading={anyLoading}
-          />
-          <StatCard
-            title="Conversion Rate"
-            value={`${conversionRate}%`}
-            icon={TrendingUp}
-            isLoading={anyLoading}
-          />
-        </section>
+          {/* Key Metrics Section */}
+          <section aria-label="Key metrics" className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
+            <StatCard
+              title="Total Inventory"
+              value={vehiclesCount ?? 0}
+              icon={LayoutDashboard}
+              isLoading={anyLoading}
+              helperText="Vehicles in stock"
+            />
+            <StatCard
+              title="Active Leads"
+              value={activeLeadsCount ?? 0}
+              icon={Users}
+              isLoading={anyLoading}
+              helperText="Requiring follow-up"
+            />
+            <StatCard
+              title="Monthly Sales"
+              value={formatCurrency(monthlySales ?? 0)}
+              icon={ShoppingCart}
+              isLoading={anyLoading}
+              helperText="This month's revenue"
+            />
+            <StatCard
+              title="Conversion Rate"
+              value={`${conversionRate}%`}
+              icon={TrendingUp}
+              isLoading={anyLoading}
+              helperText="Last 30 days"
+            />
+          </section>
 
-        <section>
-          {recentLoading || apptLoading ? (
-            <div className="grid gap-6 lg:grid-cols-2">
-              <div className="h-[400px] w-full glass-card animate-pulse" />
-              <div className="h-[400px] w-full glass-card animate-pulse" />
+          {/* Activity Feed Section */}
+          <section className="space-y-6">
+            <div className="text-center">
+              <h2 className="text-2xl font-semibold text-foreground mb-2">Recent Activity</h2>
+              <p className="text-muted-foreground">Stay up to date with your latest leads and appointments</p>
             </div>
-          ) : (
-            <ActivityFeed recentLeads={recentLeads ?? []} todaysAppointments={todaysAppointments ?? []} />
-          )}
-        </section>
+            {recentLoading || apptLoading ? (
+              <div className="grid gap-8 lg:grid-cols-2">
+                <div className="h-[400px] w-full glass-card animate-pulse rounded-2xl" />
+                <div className="h-[400px] w-full glass-card animate-pulse rounded-2xl" />
+              </div>
+            ) : (
+              <ActivityFeed recentLeads={recentLeads ?? []} todaysAppointments={todaysAppointments ?? []} />
+            )}
+          </section>
 
-        <section>
-          <QuickActions />
-        </section>
-      </main>
+          {/* Quick Actions Section */}
+          <section className="space-y-6">
+            <div className="text-center">
+              <h2 className="text-2xl font-semibold text-foreground mb-2">Quick Actions</h2>
+              <p className="text-muted-foreground">Get started with common tasks</p>
+            </div>
+            <QuickActions />
+          </section>
+        </main>
+      </div>
     </>
   );
 };
