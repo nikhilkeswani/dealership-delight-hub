@@ -115,14 +115,14 @@ const Auth = () => {
                   <span className="text-2xl font-bold">DealerDelight</span>
                 </div>
                 <div className="space-y-6">
-                  <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight leading-tight">
+                  <h1 className="text-4xl md:text-6xl font-[600] leading-tight">
                     {mode === "signin" ? (
                       <>Welcome back to your <span className="text-primary">dealer hub</span></>
                     ) : (
                       <>Start your <span className="text-primary">dealer journey</span> today</>
                     )}
                   </h1>
-                  <p className="text-muted-foreground text-xl sm:text-2xl leading-relaxed max-w-xl">
+                  <p className="text-lg text-muted-foreground max-w-xl">
                     {mode === "signin" 
                       ? "Access your complete dealer management dashboard and continue growing your automotive business with powerful tools and insights."
                       : "Launch your professional dealer website in minutes. No coding required, no setup fees. Join thousands of successful dealers already using our platform."
@@ -133,7 +133,7 @@ const Auth = () => {
 
               <div className="grid sm:grid-cols-2 gap-6">
                 <div className="rounded-2xl border bg-card/60 backdrop-blur p-8 space-y-6">
-                  <h3 className="font-semibold text-lg">Core Features</h3>
+                  <h3 className="font-medium text-lg">Core Features</h3>
                   <div className="space-y-4">
                     <div className="flex items-start gap-4">
                       <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
@@ -157,7 +157,7 @@ const Auth = () => {
                 </div>
                 
                 <div className="rounded-2xl border bg-card/60 backdrop-blur p-8 space-y-6">
-                  <h3 className="font-semibold text-lg">Growth Tools</h3>
+                  <h3 className="font-medium text-lg">Growth Tools</h3>
                   <div className="space-y-4">
                     <div className="flex items-start gap-4">
                       <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
@@ -193,7 +193,7 @@ const Auth = () => {
             <div className="relative w-full max-w-md">
               <div className="rounded-2xl border bg-card/80 backdrop-blur p-10 space-y-8 animate-fade-in shadow-2xl" style={{ animationDelay: "0.1s" }}>
                 <div className="text-center space-y-3">
-                  <h2 className="text-3xl font-bold">
+                  <h2 className="text-3xl font-semibold">
                     {mode === "signin" ? "Sign in" : "Create account"}
                   </h2>
                   <p className="text-muted-foreground">
