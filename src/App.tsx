@@ -18,6 +18,7 @@ const Auth = lazy(() => import("./pages/Auth"));
 const Configure = lazy(() => import("./pages/Configure"));
 const DashboardLayout = lazy(() => import("./layouts/DashboardLayout"));
 const SettingsLayout = lazy(() => import("./layouts/SettingsLayout"));
+const AppLanding = lazy(() => import("./pages/AppLanding"));
 const Overview = lazy(() => import("./pages/dashboard/Overview"));
 const DashboardHome = lazy(() => import("./pages/dashboard/DashboardHome"));
 const Inventory = lazy(() => import("./pages/dashboard/Inventory"));
@@ -78,7 +79,6 @@ const App = () => (
                 <Route path="/dealer/:slug/inventory" element={<DealerInventory />} />
 
                 {/* Hub routes without dashboard layout */}
-                <Route path="/app" element={<Navigate to="/app/overview" replace />} />
                 <Route
                   element={
                     <ProtectedRoute>
@@ -88,6 +88,7 @@ const App = () => (
                     </ProtectedRoute>
                   }
                 >
+                  <Route path="/app" element={<AppLanding />} />
                   <Route path="/app/overview" element={<Overview />} />
                   <Route path="/app/onboarding" element={<Onboarding />} />
                   <Route path="/app/configure" element={<Configure />} />
