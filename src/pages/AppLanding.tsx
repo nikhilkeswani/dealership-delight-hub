@@ -1,21 +1,32 @@
-import React from "react";
+import React, { useEffect } from "react";
 import SEO from "@/components/SEO";
 import PageHeader from "@/components/common/PageHeader";
 import MainActionCards from "@/components/dashboard/MainActionCards";
 import { useDealer } from "@/hooks/useDealer";
 import LoadingState from "@/components/common/LoadingState";
+import CacheBuster from "@/components/common/CacheBuster";
 
 const AppLanding: React.FC = () => {
   const { data: dealer, isLoading } = useDealer();
 
+  // Debug logging to track when this component renders
+  useEffect(() => {
+    console.log('AppLanding rendered:', { 
+      path: window.location.pathname, 
+      dealer: dealer?.business_name || 'No dealer',
+      isLoading 
+    });
+  }, [dealer, isLoading]);
+
   return (
     <>
+      <CacheBuster />
       <SEO
         title="Dashboard – DealerDelight"
         description="Your dealer management hub. Configure your website, access CRM tools, and manage your account."
       />
       
-      <main className="space-y-8 animate-fade-in">
+      <main className="space-y-8 animate-fade-in" key="app-landing">
         {/* Welcome Section */}
         <div className="text-center space-y-4 py-8">
           {isLoading ? (
@@ -38,7 +49,7 @@ const AppLanding: React.FC = () => {
 
         {/* Main Actions */}
         <section aria-label="Main Actions">
-          <MainActionCards />
+          <MainActionCards key="main-action-cards" />
         </section>
       </main>
     </>
