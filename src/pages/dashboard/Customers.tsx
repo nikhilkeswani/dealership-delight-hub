@@ -48,6 +48,11 @@ const Customers: React.FC = () => {
   const { toast } = useToast();
   const { data, isLoading, error } = useCustomers();
   const deleteCustomer = useDeleteCustomer();
+  
+  // Debug logging
+  console.log("Customers page - data:", data);
+  console.log("Customers page - isLoading:", isLoading);
+  console.log("Customers page - error:", error);
 
   // UI state
   const [search, setSearch] = React.useState("");
@@ -111,6 +116,12 @@ const Customers: React.FC = () => {
     const start = new Date(d.getFullYear(), d.getMonth(), 1);
     return (data ?? []).filter((c) => new Date(c.created_at || 0) >= start).length;
   }, [data]);
+  
+  // Debug KPIs
+  console.log("KPIs - totalCustomers:", totalCustomers);
+  console.log("KPIs - totalSpent:", totalSpent);
+  console.log("KPIs - avgSpent:", avgSpent);
+  console.log("KPIs - newThisMonth:", newThisMonth);
 
   const handleExport = () => {
     const rows = [

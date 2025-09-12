@@ -17,9 +17,12 @@ export type CustomerFormValues = {
 export const useCustomers = () => {
   const { data: dealer } = useDealer();
   
+  console.log("useCustomers - dealer:", dealer);
+  
   return useQuery<Customer[]>({
     queryKey: ["customers"],
     queryFn: async () => {
+      console.log("useCustomers queryFn - dealer?.id:", dealer?.id);
       if (!dealer?.id) throw new Error("No dealer found");
       
       const { data, error } = await supabase
@@ -27,6 +30,8 @@ export const useCustomers = () => {
         .select("*")
         .eq("dealer_id", dealer.id)
         .order("created_at", { ascending: false });
+      
+      console.log("useCustomers queryFn - data:", data, "error:", error);
       
       if (error) throw error;
       return data || [];
