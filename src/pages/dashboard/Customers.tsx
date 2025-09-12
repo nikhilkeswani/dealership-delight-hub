@@ -310,9 +310,9 @@ const Customers: React.FC = () => {
                               <TableCell>
                                 <div className="flex items-center space-x-3">
                                   <Avatar className="h-8 w-8">
-                                    <AvatarFallback className="text-xs">
-                                      {c.first_name[0]}{c.last_name[0]}
-                                    </AvatarFallback>
+                                     <AvatarFallback className="text-xs">
+                                       {(c.first_name?.[0] || "?").toUpperCase()}{(c.last_name?.[0] || "?").toUpperCase()}
+                                     </AvatarFallback>
                                   </Avatar>
                                   <div>
                                     <div className="flex items-center space-x-2">
