@@ -48,11 +48,6 @@ const Customers: React.FC = () => {
   const { toast } = useToast();
   const { data, isLoading, error } = useCustomers();
   const deleteCustomer = useDeleteCustomer();
-  
-  // Debug logging
-  console.log("Customers page - data:", data);
-  console.log("Customers page - isLoading:", isLoading);
-  console.log("Customers page - error:", error);
 
   // UI state
   const [search, setSearch] = React.useState("");
@@ -116,12 +111,6 @@ const Customers: React.FC = () => {
     const start = new Date(d.getFullYear(), d.getMonth(), 1);
     return (data ?? []).filter((c) => new Date(c.created_at || 0) >= start).length;
   }, [data]);
-  
-  // Debug KPIs
-  console.log("KPIs - totalCustomers:", totalCustomers);
-  console.log("KPIs - totalSpent:", totalSpent);
-  console.log("KPIs - avgSpent:", avgSpent);
-  console.log("KPIs - newThisMonth:", newThisMonth);
 
   const handleExport = () => {
     const rows = [
@@ -197,37 +186,45 @@ const Customers: React.FC = () => {
         </div>
 
         <section aria-label="KPIs" className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-          <StatCard
-            title="Total Customers"
-            value={totalCustomers.toString()}
-            icon={Users}
-            helperText={`+${newThisMonth} this month`}
-            isLoading={isLoading}
-          />
-          
-          <StatCard
-            title="New This Month"
-            value={newThisMonth.toString()}
-            icon={UserPlus}
-            helperText="From this month"
-            isLoading={isLoading}
-          />
-          
-          <StatCard
-            title="Total Revenue"
-            value={formatCurrency(totalSpent)}
-            icon={DollarSign}
-            helperText="Lifetime value"
-            isLoading={isLoading}
-          />
-          
-          <StatCard
-            title="Avg. Spent"
-            value={formatCurrency(avgSpent)}
-            icon={TrendingUp}
-            helperText="Per customer"
-            isLoading={isLoading}
-          />
+          {!isLoading && !error ? (
+            <>
+              <StatCard
+                title="Total Customers"
+                value={totalCustomers.toString()}
+                icon={Users}
+                helperText={`+${newThisMonth} this month`}
+                isLoading={isLoading}
+              />
+              
+              <StatCard
+                title="New This Month"
+                value={newThisMonth.toString()}
+                icon={UserPlus}
+                helperText="From this month"
+                isLoading={isLoading}
+              />
+              
+              <StatCard
+                title="Total Revenue"
+                value={formatCurrency(totalSpent)}
+                icon={DollarSign}
+                helperText="Lifetime value"
+                isLoading={isLoading}
+              />
+              
+              <StatCard
+                title="Avg. Spent"
+                value={formatCurrency(avgSpent)}
+                icon={TrendingUp}
+                helperText="Per customer"
+                isLoading={isLoading}
+              />
+            </>
+          ) : (
+            <div className="col-span-full text-center py-8">
+              <p className="text-muted-foreground">Loading customer statistics...</p>
+            </div>
+          )}
         </section>
 
         <Card className="glass-card">
