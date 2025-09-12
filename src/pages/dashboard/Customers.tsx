@@ -47,9 +47,13 @@ const Customers: React.FC = () => {
   const { data, isLoading: customersLoading, error: customersError } = useCustomers();
   const deleteCustomer = useDeleteCustomer();
 
+  // Ensure customers are only loaded when dealer exists
+  // Handle loading states separately for better error isolation
+  const shouldLoadCustomers = !!dealer && !dealerLoading;
+
   // Combined loading and error states
-  const isLoading = dealerLoading || customersLoading;
-  const error = dealerError || customersError;
+  const isCustomersReady = shouldLoadCustomers && !customersLoading;
+  const hasError = dealerError || customersError;
 
   // Add debugging
   React.useEffect(() => {
@@ -61,10 +65,11 @@ const Customers: React.FC = () => {
       dataLength: data?.length, 
       customersLoading, 
       customersError: !!customersError,
-      combinedLoading: isLoading,
-      combinedError: !!error
+      shouldLoadCustomers,
+      isCustomersReady,
+      hasError: !!hasError
     });
-  }, [dealer, dealerLoading, dealerError, data, customersLoading, customersError, isLoading, error]);
+  }, [dealer, dealerLoading, dealerError, data, customersLoading, customersError, shouldLoadCustomers, isCustomersReady, hasError]);
 
   // UI state
   const [search, setSearch] = React.useState("");
@@ -119,8 +124,25 @@ const Customers: React.FC = () => {
     return filtered.slice(start, start + pageSize);
   }, [filtered, page]);
 
+  // Early return for dealer loading
+  if (dealerLoading) {
+    return (
+      <>
+        <SEO
+          title="Customers | Dealer Dashboard"
+          description="View and manage your dealership's customers."
+          canonical="/app/customers"
+          noIndex
+        />
+        <div className="min-h-[50vh] flex items-center justify-center">
+          <LoadingState message="Loading dealer profile..." />
+        </div>
+      </>
+    );
+  }
+
   // Early return for no dealer
-  if (!dealerLoading && !dealer) {
+  if (!dealer) {
     return (
       <>
         <SEO
@@ -214,8 +236,8 @@ const Customers: React.FC = () => {
 
         <CustomerKPIs 
           data={data} 
-          isLoading={isLoading} 
-          error={error} 
+          isLoading={customersLoading} 
+          error={customersError} 
         />
 
         <Card className="glass-card">
@@ -256,15 +278,15 @@ const Customers: React.FC = () => {
             </div>
           </CardHeader>
           <CardContent>
-            {isLoading && (
+            {customersLoading && (
               <div className="space-y-2">
                 {[...Array(8)].map((_, i) => (
                   <Skeleton key={i} className="h-10 w-full" />
                 ))}
               </div>
             )}
-            {error && <div className="text-destructive">{(error as any).message}</div>}
-            {!isLoading && !error && (
+            {customersError && <div className="text-destructive">{(customersError as any).message}</div>}
+            {!customersLoading && !customersError && (
               <>
                 {pageRows && pageRows.length > 0 ? (
                   <div className="rounded-md border">

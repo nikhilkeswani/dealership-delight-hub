@@ -2,8 +2,7 @@ import React from "react";
 import { Users, UserPlus, DollarSign, TrendingUp } from "lucide-react";
 import StatCard from "./StatCard";
 import { formatCurrency } from "@/lib/format";
-import { useCustomers, type Customer } from "@/hooks/useCustomers";
-import { useDealer } from "@/hooks/useDealer";
+import { type Customer } from "@/hooks/useCustomers";
 import LoadingState from "@/components/common/LoadingState";
 
 interface CustomerKPIsProps {
