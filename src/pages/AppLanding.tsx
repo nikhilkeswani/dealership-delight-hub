@@ -8,10 +8,6 @@ import LoadingState from "@/components/common/LoadingState";
 const AppLanding: React.FC = () => {
   const { data: dealer, isLoading } = useDealer();
 
-  if (isLoading) {
-    return <LoadingState />;
-  }
-
   return (
     <>
       <SEO
@@ -22,13 +18,22 @@ const AppLanding: React.FC = () => {
       <main className="space-y-8 animate-fade-in">
         {/* Welcome Section */}
         <div className="text-center space-y-4 py-8">
-          <h1 className="text-3xl font-bold">
-            Welcome back{dealer?.business_name ? `, ${dealer.business_name}` : ''}! 👋
-          </h1>
-          <p className="text-muted-foreground max-w-2xl mx-auto">
-            Manage your dealership with our comprehensive platform. Configure your website, track leads, 
-            manage inventory, and grow your business all in one place.
-          </p>
+          {isLoading ? (
+            <div className="space-y-4">
+              <div className="h-8 bg-muted animate-pulse rounded-lg max-w-md mx-auto" />
+              <div className="h-6 bg-muted animate-pulse rounded-lg max-w-2xl mx-auto" />
+            </div>
+          ) : (
+            <>
+              <h1 className="text-3xl font-bold">
+                Welcome back{dealer?.business_name ? `, ${dealer.business_name}` : ''}! 👋
+              </h1>
+              <p className="text-muted-foreground max-w-2xl mx-auto">
+                Manage your dealership with our comprehensive platform. Configure your website, track leads, 
+                manage inventory, and grow your business all in one place.
+              </p>
+            </>
+          )}
         </div>
 
         {/* Main Actions */}
