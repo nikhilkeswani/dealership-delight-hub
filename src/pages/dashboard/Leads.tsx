@@ -35,8 +35,12 @@ const Leads: React.FC = () => {
   };
 
   // Helper function to get lead age in days
-  const getLeadAge = (createdAt: string) => {
-    return differenceInDays(new Date(), new Date(createdAt));
+  const getLeadAge = (createdAt: string | null | undefined) => {
+    if (!createdAt) return 0;
+    const date = new Date(createdAt);
+    if (isNaN(date.getTime())) return 0;
+    const daysDiff = differenceInDays(new Date(), date);
+    return Math.max(0, daysDiff);
   };
 
   // Helper function to handle quick status update
@@ -83,14 +87,36 @@ const Leads: React.FC = () => {
     });
   }, [data, query, status]);
 const kpis = React.useMemo(() => {
-  const all = (data ?? []) as any[];
+  // Return default values if data is not loaded yet
+  if (!data || !Array.isArray(data)) {
+    return { active: 0, hot: 0, convRate: 0, todayFollowUps: 0 };
+  }
+  
+  const all = data as any[];
   const total = all.length;
+  
+  if (total === 0) {
+    return { active: 0, hot: 0, convRate: 0, todayFollowUps: 0 };
+  }
+  
   const normalized = (s: any) => String(s ?? "").toLowerCase();
-  const active = all.filter((l) => ["new", "contacted", "qualified"].includes(normalized(l.status))).length;
-  const hot = all.filter((l) => ["qualified", "contacted"].includes(normalized(l.status))).length;
-  const converted = all.filter((l) => normalized(l.status) === "converted").length;
-  const convRate = total ? Math.round((converted / total) * 100) : 0;
-  const todayFollowUps = all.filter((l) => l.follow_up_date && isSameDay(new Date(l.follow_up_date), new Date())).length;
+  const active = all.filter((l) => l && ["new", "contacted", "qualified"].includes(normalized(l.status))).length;
+  const hot = all.filter((l) => l && ["qualified", "contacted"].includes(normalized(l.status))).length;
+  const converted = all.filter((l) => l && normalized(l.status) === "converted").length;
+  
+  // Ensure conversion rate calculation doesn't produce NaN
+  const convRate = total > 0 ? Math.round((converted / total) * 100) : 0;
+  
+  // Safe date handling for follow-ups
+  const todayFollowUps = all.filter((l) => {
+    if (!l || !l.follow_up_date) return false;
+    try {
+      return isSameDay(new Date(l.follow_up_date), new Date());
+    } catch {
+      return false;
+    }
+  }).length;
+  
   return { active, hot, convRate, todayFollowUps };
 }, [data]);
 
@@ -114,10 +140,10 @@ const kpis = React.useMemo(() => {
         </div>
         
         <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-4">
-          <StatCard title="Active Leads" value={kpis.active} icon={Activity} />
-          <StatCard title="Hot Leads" value={kpis.hot} icon={Flame} />
-          <StatCard title="Conversion Rate" value={`${kpis.convRate}%`} icon={TrendingUp} />
-          <StatCard title="Follow-ups Today" value={kpis.todayFollowUps} icon={CalendarCheck} />
+          <StatCard title="Active Leads" value={kpis.active} icon={Activity} isLoading={isLoading} />
+          <StatCard title="Hot Leads" value={kpis.hot} icon={Flame} isLoading={isLoading} />
+          <StatCard title="Conversion Rate" value={`${kpis.convRate}%`} icon={TrendingUp} isLoading={isLoading} />
+          <StatCard title="Follow-ups Today" value={kpis.todayFollowUps} icon={CalendarCheck} isLoading={isLoading} />
         </div>
         <Card className="glass-card">
           <CardHeader className="space-y-4">
@@ -178,10 +204,10 @@ const kpis = React.useMemo(() => {
                           <TableHead className="text-right">Actions</TableHead>
                         </TableRow>
                       </TableHeader>
-                      <TableBody>
+                       <TableBody>
                         {filtered.map((l: any) => {
-                          const leadAge = getLeadAge(l.created_at);
-                          const isRecent = isRecentLead(l.created_at);
+                          const leadAge = getLeadAge(l?.created_at);
+                          const isRecent = l?.created_at ? isRecentLead(l.created_at) : false;
                           
                           return (
                             <TableRow key={l.id} className="hover:bg-muted/40">
@@ -233,7 +259,7 @@ const kpis = React.useMemo(() => {
                               </TableCell>
                               <TableCell className="hidden md:table-cell">
                                 <div className="text-sm">
-                                  {leadAge === 0 ? "Today" : leadAge === 1 ? "1 day ago" : `${leadAge} days ago`}
+                                  {!l?.created_at ? "-" : leadAge === 0 ? "Today" : leadAge === 1 ? "1 day ago" : `${leadAge} days ago`}
                                 </div>
                               </TableCell>
                               <TableCell className="hidden lg:table-cell">
