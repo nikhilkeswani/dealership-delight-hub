@@ -15,6 +15,17 @@ type StatCardProps = {
 };
 
 const StatCard: React.FC<StatCardProps> = ({ title, value, icon: Icon, helperText, isLoading, delta, trend }) => {
+  // Add defensive checks and debugging
+  React.useEffect(() => {
+    console.log("StatCard render:", { title, value, isLoading, hasIcon: !!Icon });
+  }, [title, value, isLoading, Icon]);
+
+  // Defensive checks
+  if (!title || !Icon) {
+    console.warn("StatCard missing required props:", { title, hasIcon: !!Icon });
+    return null;
+  }
+
   return (
     <Card className="glass-card hover-scale transition-all duration-300 group border-0 shadow-lg hover:shadow-xl">
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
@@ -35,7 +46,7 @@ const StatCard: React.FC<StatCardProps> = ({ title, value, icon: Icon, helperTex
           <>
             <div className="flex items-baseline gap-3">
               <div className="text-3xl font-bold text-foreground group-hover:text-primary transition-colors duration-300">
-                {value}
+                {value ?? "—"}
               </div>
               {delta && (
                 <div className={`flex items-center text-sm font-medium ${

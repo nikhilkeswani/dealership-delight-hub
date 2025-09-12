@@ -25,8 +25,11 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { formatCurrency, formatDate } from "@/lib/format";
 import { useToast } from "@/hooks/use-toast";
 import { useCustomers, useDeleteCustomer, type Customer } from "@/hooks/useCustomers";
+import { useDealer } from "@/hooks/useDealer";
 import CustomerFormDialog from "@/components/customers/CustomerFormDialog";
 import CustomerDrawer from "@/components/customers/CustomerDrawer";
+import CustomerKPIs from "@/components/dashboard/CustomerKPIs";
+import LoadingState from "@/components/common/LoadingState";
 import { 
   Download, 
   Plus, 
@@ -35,19 +38,33 @@ import {
   Trash2, 
   MoreHorizontal,
   Phone,
-  Mail,
-  Users,
-  UserPlus,
-  DollarSign,
-  TrendingUp
+  Mail
 } from "lucide-react";
-import PageHeader from "@/components/common/PageHeader";
-import StatCard from "@/components/dashboard/StatCard";
 
 const Customers: React.FC = () => {
   const { toast } = useToast();
-  const { data, isLoading, error } = useCustomers();
+  const { data: dealer, isLoading: dealerLoading, error: dealerError } = useDealer();
+  const { data, isLoading: customersLoading, error: customersError } = useCustomers();
   const deleteCustomer = useDeleteCustomer();
+
+  // Combined loading and error states
+  const isLoading = dealerLoading || customersLoading;
+  const error = dealerError || customersError;
+
+  // Add debugging
+  React.useEffect(() => {
+    console.log("Customers component render:", { 
+      dealer: !!dealer, 
+      dealerLoading, 
+      dealerError: !!dealerError,
+      hasData: !!data, 
+      dataLength: data?.length, 
+      customersLoading, 
+      customersError: !!customersError,
+      combinedLoading: isLoading,
+      combinedError: !!error
+    });
+  }, [dealer, dealerLoading, dealerError, data, customersLoading, customersError, isLoading, error]);
 
   // UI state
   const [search, setSearch] = React.useState("");
@@ -102,15 +119,25 @@ const Customers: React.FC = () => {
     return filtered.slice(start, start + pageSize);
   }, [filtered, page]);
 
-  // KPIs
-  const totalCustomers = data?.length ?? 0;
-  const totalSpent = (data ?? []).reduce((sum, c) => sum + Number(c.total_spent ?? 0), 0);
-  const avgSpent = totalCustomers > 0 ? totalSpent / totalCustomers : 0;
-  const newThisMonth = React.useMemo(() => {
-    const d = new Date();
-    const start = new Date(d.getFullYear(), d.getMonth(), 1);
-    return (data ?? []).filter((c) => new Date(c.created_at || 0) >= start).length;
-  }, [data]);
+  // Early return for no dealer
+  if (!dealerLoading && !dealer) {
+    return (
+      <>
+        <SEO
+          title="Customers | Dealer Dashboard"
+          description="View and manage your dealership's customers."
+          canonical="/app/customers"
+          noIndex
+        />
+        <div className="min-h-[50vh] flex items-center justify-center">
+          <div className="text-center space-y-4">
+            <p className="text-muted-foreground">No dealer profile found.</p>
+            <p className="text-sm text-muted-foreground">Please complete your onboarding first.</p>
+          </div>
+        </div>
+      </>
+    );
+  }
 
   const handleExport = () => {
     const rows = [
@@ -185,47 +212,11 @@ const Customers: React.FC = () => {
           </div>
         </div>
 
-        <section aria-label="KPIs" className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-          {!isLoading && !error ? (
-            <>
-              <StatCard
-                title="Total Customers"
-                value={totalCustomers.toString()}
-                icon={Users}
-                helperText={`+${newThisMonth} this month`}
-                isLoading={isLoading}
-              />
-              
-              <StatCard
-                title="New This Month"
-                value={newThisMonth.toString()}
-                icon={UserPlus}
-                helperText="From this month"
-                isLoading={isLoading}
-              />
-              
-              <StatCard
-                title="Total Revenue"
-                value={formatCurrency(totalSpent)}
-                icon={DollarSign}
-                helperText="Lifetime value"
-                isLoading={isLoading}
-              />
-              
-              <StatCard
-                title="Avg. Spent"
-                value={formatCurrency(avgSpent)}
-                icon={TrendingUp}
-                helperText="Per customer"
-                isLoading={isLoading}
-              />
-            </>
-          ) : (
-            <div className="col-span-full text-center py-8">
-              <p className="text-muted-foreground">Loading customer statistics...</p>
-            </div>
-          )}
-        </section>
+        <CustomerKPIs 
+          data={data} 
+          isLoading={isLoading} 
+          error={error} 
+        />
 
         <Card className="glass-card">
           <CardHeader className="space-y-4">
