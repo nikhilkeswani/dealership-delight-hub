@@ -5,14 +5,44 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { formatCurrency, formatDate } from "@/lib/format";
 import { useToast } from "@/hooks/use-toast";
 import { useCustomers, useDeleteCustomer, type Customer } from "@/hooks/useCustomers";
 import CustomerFormDialog from "@/components/customers/CustomerFormDialog";
 import CustomerDrawer from "@/components/customers/CustomerDrawer";
-import { Download, Plus } from "lucide-react";
+import { 
+  Download, 
+  Plus, 
+  Eye, 
+  Edit, 
+  Trash2, 
+  MoreHorizontal,
+  Phone,
+  Mail,
+  Users,
+  UserPlus,
+  DollarSign,
+  TrendingUp
+} from "lucide-react";
 import PageHeader from "@/components/common/PageHeader";
+import StatCard from "@/components/dashboard/StatCard";
 
 const Customers: React.FC = () => {
   const { toast } = useToast();
@@ -156,22 +186,37 @@ const Customers: React.FC = () => {
         </div>
 
         <section aria-label="KPIs" className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-          <Card className="glass-card">
-            <CardHeader className="pb-2"><CardTitle className="text-sm text-muted-foreground">Total Customers</CardTitle></CardHeader>
-            <CardContent className="text-2xl font-bold">{totalCustomers}</CardContent>
-          </Card>
-          <Card className="glass-card">
-            <CardHeader className="pb-2"><CardTitle className="text-sm text-muted-foreground">New This Month</CardTitle></CardHeader>
-            <CardContent className="text-2xl font-bold">{newThisMonth}</CardContent>
-          </Card>
-          <Card className="glass-card">
-            <CardHeader className="pb-2"><CardTitle className="text-sm text-muted-foreground">Total Spent</CardTitle></CardHeader>
-            <CardContent className="text-2xl font-bold">{formatCurrency(totalSpent)}</CardContent>
-          </Card>
-          <Card className="glass-card">
-            <CardHeader className="pb-2"><CardTitle className="text-sm text-muted-foreground">Avg Spent</CardTitle></CardHeader>
-            <CardContent className="text-2xl font-bold">{formatCurrency(avgSpent)}</CardContent>
-          </Card>
+          <StatCard
+            title="Total Customers"
+            value={totalCustomers.toString()}
+            icon={Users}
+            helperText={`+${newThisMonth} this month`}
+            isLoading={isLoading}
+          />
+          
+          <StatCard
+            title="New This Month"
+            value={newThisMonth.toString()}
+            icon={UserPlus}
+            helperText="From this month"
+            isLoading={isLoading}
+          />
+          
+          <StatCard
+            title="Total Revenue"
+            value={formatCurrency(totalSpent)}
+            icon={DollarSign}
+            helperText="Lifetime value"
+            isLoading={isLoading}
+          />
+          
+          <StatCard
+            title="Avg. Spent"
+            value={formatCurrency(avgSpent)}
+            icon={TrendingUp}
+            helperText="Per customer"
+            isLoading={isLoading}
+          />
         </section>
 
         <Card className="glass-card">
@@ -223,51 +268,130 @@ const Customers: React.FC = () => {
             {!isLoading && !error && (
               <>
                 {pageRows && pageRows.length > 0 ? (
-                  <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-                    {pageRows.map((c) => (
-                      <Card
-                        key={c.id}
-                        className="glass-card hover-scale cursor-pointer group"
-                        onClick={() => onView(c)}
-                      >
-                        <CardHeader className="pb-3">
-                          <CardTitle className="text-lg group-hover:text-primary transition-colors">{c.first_name} {c.last_name}</CardTitle>
-                          <CardDescription className="text-sm">{c.email || "-"}</CardDescription>
-                        </CardHeader>
-                        <CardContent className="text-sm text-muted-foreground flex items-start justify-between gap-4">
-                          <div className="space-y-2">
-                            <div><span className="font-medium">Phone:</span> {c.phone ?? "-"}</div>
-                            <div><span className="font-medium">Location:</span> {[c.city, c.state].filter(Boolean).join(", ") || "-"}</div>
-                            <div><span className="font-medium">Joined:</span> {formatDate(c.created_at)}</div>
-                          </div>
-                          <div className="flex flex-col gap-2" onClick={(e) => e.stopPropagation()}>
-                            <Button size="sm" variant="outline" onClick={() => onEdit(c)} className="h-8">Edit</Button>
-                            <AlertDialog>
-                              <AlertDialogTrigger asChild>
-                                <Button size="sm" variant="ghost" className="h-8 text-destructive hover:text-destructive">Delete</Button>
-                              </AlertDialogTrigger>
-                              <AlertDialogContent className="glass-card">
-                                <AlertDialogHeader>
-                                  <AlertDialogTitle>Delete Customer</AlertDialogTitle>
-                                  <AlertDialogDescription>
-                                    Are you sure you want to delete {c.first_name} {c.last_name}? This action cannot be undone.
-                                  </AlertDialogDescription>
-                                </AlertDialogHeader>
-                                <AlertDialogFooter>
-                                  <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                  <AlertDialogAction 
-                                    onClick={() => handleDelete(c)}
-                                    className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                                  >
-                                    Delete
-                                  </AlertDialogAction>
-                                </AlertDialogFooter>
-                              </AlertDialogContent>
-                            </AlertDialog>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    ))}
+                  <div className="rounded-md border">
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>Customer</TableHead>
+                          <TableHead>Contact</TableHead>
+                          <TableHead>Location</TableHead>
+                          <TableHead>Spent</TableHead>
+                          <TableHead>Joined</TableHead>
+                          <TableHead className="w-[100px]">Actions</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {pageRows.map((c) => {
+                          const isRecent = new Date(c.created_at) > new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+                          
+                          return (
+                            <TableRow key={c.id}>
+                              <TableCell>
+                                <div className="flex items-center space-x-3">
+                                  <Avatar className="h-8 w-8">
+                                    <AvatarFallback className="text-xs">
+                                      {c.first_name[0]}{c.last_name[0]}
+                                    </AvatarFallback>
+                                  </Avatar>
+                                  <div>
+                                    <div className="flex items-center space-x-2">
+                                      <div className="font-medium">
+                                        {c.first_name} {c.last_name}
+                                      </div>
+                                      {isRecent && (
+                                        <span className="inline-flex items-center px-2 py-1 text-xs font-medium bg-primary/10 text-primary rounded-full">
+                                          RECENT
+                                        </span>
+                                      )}
+                                    </div>
+                                  </div>
+                                </div>
+                              </TableCell>
+                              <TableCell>
+                                <div className="space-y-1">
+                                  <div className="text-sm">{c.email}</div>
+                                  {c.phone && (
+                                    <div className="text-sm text-muted-foreground">{c.phone}</div>
+                                  )}
+                                </div>
+                              </TableCell>
+                              <TableCell>
+                                {c.city && c.state ? (
+                                  <div className="text-sm">
+                                    {c.city}, {c.state}
+                                  </div>
+                                ) : (
+                                  <div className="text-sm text-muted-foreground">—</div>
+                                )}
+                              </TableCell>
+                              <TableCell>
+                                <div className="font-medium">{formatCurrency(c.total_spent || 0)}</div>
+                              </TableCell>
+                              <TableCell>
+                                <div className="text-sm text-muted-foreground">
+                                  {formatDate(c.created_at)}
+                                </div>
+                              </TableCell>
+                              <TableCell>
+                                <div className="flex items-center space-x-1">
+                                  {c.phone && (
+                                    <Button variant="ghost" size="icon" className="h-8 w-8">
+                                      <Phone className="h-4 w-4" />
+                                    </Button>
+                                  )}
+                                  <Button variant="ghost" size="icon" className="h-8 w-8">
+                                    <Mail className="h-4 w-4" />
+                                  </Button>
+                                  <DropdownMenu>
+                                    <DropdownMenuTrigger asChild>
+                                      <Button variant="ghost" size="icon" className="h-8 w-8">
+                                        <MoreHorizontal className="h-4 w-4" />
+                                      </Button>
+                                    </DropdownMenuTrigger>
+                                    <DropdownMenuContent align="end" className="glass-card">
+                                      <DropdownMenuItem onClick={() => onView(c)}>
+                                        <Eye className="h-4 w-4 mr-2" />
+                                        View Details
+                                      </DropdownMenuItem>
+                                      <DropdownMenuItem onClick={() => onEdit(c)}>
+                                        <Edit className="h-4 w-4 mr-2" />
+                                        Edit Customer
+                                      </DropdownMenuItem>
+                                      <DropdownMenuSeparator />
+                                      <AlertDialog>
+                                        <AlertDialogTrigger asChild>
+                                          <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+                                            <Trash2 className="h-4 w-4 mr-2" />
+                                            Delete
+                                          </DropdownMenuItem>
+                                        </AlertDialogTrigger>
+                                        <AlertDialogContent className="glass-card">
+                                          <AlertDialogHeader>
+                                            <AlertDialogTitle>Delete Customer</AlertDialogTitle>
+                                            <AlertDialogDescription>
+                                              Are you sure you want to delete {c.first_name} {c.last_name}? This action cannot be undone.
+                                            </AlertDialogDescription>
+                                          </AlertDialogHeader>
+                                          <AlertDialogFooter>
+                                            <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                            <AlertDialogAction 
+                                              onClick={() => handleDelete(c)}
+                                              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                                            >
+                                              Delete
+                                            </AlertDialogAction>
+                                          </AlertDialogFooter>
+                                        </AlertDialogContent>
+                                      </AlertDialog>
+                                    </DropdownMenuContent>
+                                  </DropdownMenu>
+                                </div>
+                              </TableCell>
+                            </TableRow>
+                          );
+                        })}
+                      </TableBody>
+                    </Table>
                   </div>
                 ) : (
                   <div className="py-12 text-center text-muted-foreground">No customers found.</div>
