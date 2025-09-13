@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useDealer } from "@/hooks/useDealer";
 import { useDealerProfile } from "@/hooks/useDealerProfile";
+import { AccountSecurityCard } from "@/components/settings/AccountSecurityCard";
 import {
   Form,
   FormControl,
@@ -95,7 +96,7 @@ const Profile: React.FC = () => {
       <SEO title="Profile & Account | Dealer CRM" description="Manage your personal details and account settings." />
       <PageHeader title="Profile & Account" description="Update your personal information and preferences" />
       
-      <section className="grid gap-6 md:grid-cols-2">
+      <section className="grid gap-6">
         <div className="md:col-span-2">
           <Card>
             <CardHeader>
@@ -104,6 +105,7 @@ const Profile: React.FC = () => {
             <CardContent>
               <Form {...form}>
                 <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
+                  {/* ... keep existing form fields ... */}
                   <FormField
                     control={form.control}
                     name="business_name"
@@ -243,23 +245,9 @@ const Profile: React.FC = () => {
           </Card>
         </div>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Account Settings</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-muted-foreground">Personal account settings coming soon — password changes, email preferences.</p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Notifications</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-muted-foreground">Configure email alerts and reminders.</p>
-          </CardContent>
-        </Card>
+        <div className="md:col-span-2">
+          <AccountSecurityCard />
+        </div>
       </section>
     </main>
   );
