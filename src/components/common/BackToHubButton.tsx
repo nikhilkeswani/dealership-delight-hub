@@ -11,7 +11,7 @@ const BackToHubButton: React.FC<BackToHubButtonProps> = ({ className }) => {
   const navigate = useNavigate();
 
   const handleClick = () => {
-    navigate("/app/overview");
+    navigate("/app");
   };
 
   return (

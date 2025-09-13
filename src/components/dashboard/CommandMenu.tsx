@@ -41,7 +41,7 @@ const CommandMenu: React.FC<CommandMenuProps> = ({ open, onOpenChange }) => {
       <CommandList>
         <CommandEmpty>No results found.</CommandEmpty>
         <CommandGroup heading="Go to">
-          <CommandItem onSelect={() => go("/app/overview")}> 
+          <CommandItem onSelect={() => go("/app")}> 
             <LayoutDashboard className="mr-2 h-4 w-4" /> Overview
           </CommandItem>
           <CommandItem onSelect={() => go("/app/inventory")}>

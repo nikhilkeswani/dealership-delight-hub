@@ -9,7 +9,7 @@ const RequireDealer: React.FC<{ children: React.ReactNode }> = ({ children }) =>
   // Allow access to onboarding and overview routes without a dealer profile
   const pathname = location.pathname;
   const isOnboarding = pathname.includes("/app/onboarding");
-  const isHub = pathname.includes("/app/overview");
+  const isHub = pathname === "/app";
 
   if (isLoading) {
     return (
