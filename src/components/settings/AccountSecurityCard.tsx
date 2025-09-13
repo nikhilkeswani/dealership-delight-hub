@@ -30,7 +30,7 @@ export const AccountSecurityCard = () => {
   const [currentEmail, setCurrentEmail] = useState<string>("");
   const [isChangingEmail, setIsChangingEmail] = useState(false);
   const [newEmail, setNewEmail] = useState("");
-  const [isResendingVerification, setIsResendingVerification] = useState(false);
+  
 
   useEffect(() => {
     const getCurrentUser = async () => {
@@ -98,25 +98,6 @@ export const AccountSecurityCard = () => {
     }
   };
 
-  const handleResendVerification = async () => {
-    setIsResendingVerification(true);
-    try {
-      const { error } = await supabase.auth.resend({
-        type: 'signup',
-        email: currentEmail
-      });
-
-      if (error) {
-        toast.error("Failed to resend verification: " + error.message);
-      } else {
-        toast.success("Verification email sent successfully");
-      }
-    } catch (error: any) {
-      toast.error("Failed to resend verification: " + error.message);
-    } finally {
-      setIsResendingVerification(false);
-    }
-  };
 
   return (
     <div className="space-y-6">
@@ -276,23 +257,6 @@ export const AccountSecurityCard = () => {
                 {isChangingEmail ? "Updating..." : "Change Email"}
               </Button>
             </div>
-          </div>
-          
-          <Separator />
-          
-          <div className="space-y-2">
-            <Label>Email Verification</Label>
-            <p className="text-sm text-muted-foreground">
-              Ensure your email is verified to receive important updates.
-            </p>
-            <Button 
-              variant="outline" 
-              size="sm"
-              onClick={handleResendVerification}
-              disabled={isResendingVerification || !currentEmail}
-            >
-              {isResendingVerification ? "Sending..." : "Resend Verification"}
-            </Button>
           </div>
         </CardContent>
       </Card>
