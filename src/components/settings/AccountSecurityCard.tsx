@@ -1,16 +1,15 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Switch } from "@/components/ui/switch";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Separator } from "@/components/ui/separator";
-import { Eye, EyeOff, Shield, Mail, Bell } from "lucide-react";
+import { Eye, EyeOff, Shield, Mail } from "lucide-react";
 
 const passwordSchema = z.object({
   currentPassword: z.string().min(1, "Current password is required"),
@@ -28,12 +27,20 @@ export const AccountSecurityCard = () => {
   const [showCurrentPassword, setShowCurrentPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  
-  // Notification preferences state
-  const [emailNotifications, setEmailNotifications] = useState(true);
-  const [smsNotifications, setSmsNotifications] = useState(false);
-  const [marketingEmails, setMarketingEmails] = useState(true);
-  const [securityAlerts, setSecurityAlerts] = useState(true);
+  const [currentEmail, setCurrentEmail] = useState<string>("");
+  const [isChangingEmail, setIsChangingEmail] = useState(false);
+  const [newEmail, setNewEmail] = useState("");
+  const [isResendingVerification, setIsResendingVerification] = useState(false);
+
+  useEffect(() => {
+    const getCurrentUser = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user?.email) {
+        setCurrentEmail(user.email);
+      }
+    };
+    getCurrentUser();
+  }, []);
 
   const {
     register,
@@ -66,24 +73,49 @@ export const AccountSecurityCard = () => {
     }
   };
 
-  const handleNotificationUpdate = async (type: string, value: boolean) => {
-    // For now, just update local state
-    // In a real implementation, you'd save this to a user_preferences table
-    switch (type) {
-      case 'email':
-        setEmailNotifications(value);
-        break;
-      case 'sms':
-        setSmsNotifications(value);
-        break;
-      case 'marketing':
-        setMarketingEmails(value);
-        break;
-      case 'security':
-        setSecurityAlerts(value);
-        break;
+  const handleEmailChange = async () => {
+    if (!newEmail || newEmail === currentEmail) {
+      toast.error("Please enter a new email address");
+      return;
     }
-    toast.success("Notification preference updated");
+
+    setIsChangingEmail(true);
+    try {
+      const { error } = await supabase.auth.updateUser({
+        email: newEmail
+      });
+
+      if (error) {
+        toast.error("Failed to update email: " + error.message);
+      } else {
+        toast.success("Email update initiated. Please check your new email for confirmation.");
+        setNewEmail("");
+      }
+    } catch (error: any) {
+      toast.error("Failed to update email: " + error.message);
+    } finally {
+      setIsChangingEmail(false);
+    }
+  };
+
+  const handleResendVerification = async () => {
+    setIsResendingVerification(true);
+    try {
+      const { error } = await supabase.auth.resend({
+        type: 'signup',
+        email: currentEmail
+      });
+
+      if (error) {
+        toast.error("Failed to resend verification: " + error.message);
+      } else {
+        toast.success("Verification email sent successfully");
+      }
+    } catch (error: any) {
+      toast.error("Failed to resend verification: " + error.message);
+    } finally {
+      setIsResendingVerification(false);
+    }
   };
 
   return (
@@ -208,86 +240,6 @@ export const AccountSecurityCard = () => {
         </CardContent>
       </Card>
 
-      {/* Notification Preferences Section */}
-      <Card>
-        <CardHeader>
-          <div className="flex items-center gap-2">
-            <Bell className="h-5 w-5 text-primary" />
-            <div>
-              <CardTitle>Notification Preferences</CardTitle>
-              <CardDescription>
-                Manage how you receive notifications and updates
-              </CardDescription>
-            </div>
-          </div>
-        </CardHeader>
-        <CardContent className="space-y-6">
-          <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <div className="space-y-0.5">
-                <Label htmlFor="email-notifications">Email Notifications</Label>
-                <p className="text-sm text-muted-foreground">
-                  Receive notifications via email for important updates
-                </p>
-              </div>
-              <Switch
-                id="email-notifications"
-                checked={emailNotifications}
-                onCheckedChange={(checked) => handleNotificationUpdate('email', checked)}
-              />
-            </div>
-
-            <Separator />
-
-            <div className="flex items-center justify-between">
-              <div className="space-y-0.5">
-                <Label htmlFor="sms-notifications">SMS Notifications</Label>
-                <p className="text-sm text-muted-foreground">
-                  Receive critical alerts via SMS
-                </p>
-              </div>
-              <Switch
-                id="sms-notifications"
-                checked={smsNotifications}
-                onCheckedChange={(checked) => handleNotificationUpdate('sms', checked)}
-              />
-            </div>
-
-            <Separator />
-
-            <div className="flex items-center justify-between">
-              <div className="space-y-0.5">
-                <Label htmlFor="marketing-emails">Marketing Emails</Label>
-                <p className="text-sm text-muted-foreground">
-                  Receive updates about new features and promotions
-                </p>
-              </div>
-              <Switch
-                id="marketing-emails"
-                checked={marketingEmails}
-                onCheckedChange={(checked) => handleNotificationUpdate('marketing', checked)}
-              />
-            </div>
-
-            <Separator />
-
-            <div className="flex items-center justify-between">
-              <div className="space-y-0.5">
-                <Label htmlFor="security-alerts">Security Alerts</Label>
-                <p className="text-sm text-muted-foreground">
-                  Receive alerts about account security events
-                </p>
-              </div>
-              <Switch
-                id="security-alerts"
-                checked={securityAlerts}
-                onCheckedChange={(checked) => handleNotificationUpdate('security', checked)}
-              />
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
       {/* Email Preferences Section */}
       <Card>
         <CardHeader>
@@ -304,12 +256,26 @@ export const AccountSecurityCard = () => {
         <CardContent className="space-y-4">
           <div className="space-y-2">
             <Label>Primary Email</Label>
+            <p className="text-sm font-medium">{currentEmail || "No email address"}</p>
             <p className="text-sm text-muted-foreground">
               Your primary email address is used for account notifications and password resets.
             </p>
-            <Button variant="outline" size="sm">
-              Change Email
-            </Button>
+            <div className="flex gap-2">
+              <Input
+                placeholder="Enter new email address"
+                value={newEmail}
+                onChange={(e) => setNewEmail(e.target.value)}
+                className="max-w-xs"
+              />
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={handleEmailChange}
+                disabled={isChangingEmail || !newEmail}
+              >
+                {isChangingEmail ? "Updating..." : "Change Email"}
+              </Button>
+            </div>
           </div>
           
           <Separator />
@@ -319,8 +285,13 @@ export const AccountSecurityCard = () => {
             <p className="text-sm text-muted-foreground">
               Ensure your email is verified to receive important updates.
             </p>
-            <Button variant="outline" size="sm">
-              Resend Verification
+            <Button 
+              variant="outline" 
+              size="sm"
+              onClick={handleResendVerification}
+              disabled={isResendingVerification || !currentEmail}
+            >
+              {isResendingVerification ? "Sending..." : "Resend Verification"}
             </Button>
           </div>
         </CardContent>
