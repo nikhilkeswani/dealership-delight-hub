@@ -3,6 +3,7 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import SEO from "@/components/SEO";
+import PageHeader from "@/components/common/PageHeader";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -81,6 +82,7 @@ const Profile: React.FC = () => {
     return (
       <main className="space-y-6">
         <SEO title="Profile & Account | Dealer CRM" description="Manage your personal details and account settings." />
+        <PageHeader title="Profile & Account" description="Update your personal information and preferences" />
         <div className="flex items-center justify-center p-8">
           <div className="text-muted-foreground">Loading...</div>
         </div>
@@ -91,6 +93,7 @@ const Profile: React.FC = () => {
   return (
     <main className="space-y-6">
       <SEO title="Profile & Account | Dealer CRM" description="Manage your personal details and account settings." />
+      <PageHeader title="Profile & Account" description="Update your personal information and preferences" />
       
       <section className="grid gap-6 md:grid-cols-2">
         <div className="md:col-span-2">
