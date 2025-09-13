@@ -29,6 +29,11 @@ const CacheBuster: React.FC = () => {
     timestampMeta.content = timestamp.toString();
     document.head.appendChild(timestampMeta);
 
+    // Force hard refresh if on overview route
+    if (window.location.pathname === '/app/overview') {
+      window.location.replace('/app');
+    }
+
     return () => {
       // Cleanup meta tags on unmount
       document.head.removeChild(meta);

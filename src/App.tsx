@@ -88,6 +88,7 @@ const App = () => (
                   }
                 >
                   <Route path="/app" element={<AppLanding />} />
+                  <Route path="/app/overview" element={<Navigate to="/app" replace />} />
                   <Route path="/app/onboarding" element={<Onboarding />} />
                   <Route path="/app/configure" element={<Configure />} />
                 </Route>
