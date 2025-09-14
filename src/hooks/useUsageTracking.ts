@@ -66,7 +66,7 @@ export const useSubscriptionLimits = () => {
     enabled: !!dealer?.id,
   });
 
-  const limits = subscription?.subscription_plan?.limits as Record<string, number> || {};
+  const limits = subscription?.subscription_plan?.limits as Record<string, any> || {};
   
   return {
     limits,
@@ -77,12 +77,13 @@ export const useSubscriptionLimits = () => {
     },
     isWithinLimits: (feature: string) => {
       const limit = limits[feature];
+      if (typeof limit !== 'number') return true; // Non-numeric limits are always allowed
       const current = dealer?.[`monthly_${feature}_count` as keyof typeof dealer] as number || 0;
       return limit === -1 || current < limit;
     },
     getUsagePercentage: (feature: string) => {
       const limit = limits[feature];
-      if (limit === -1) return 0; // Unlimited
+      if (typeof limit !== 'number' || limit === -1) return 0; // Non-numeric or unlimited
       const current = dealer?.[`monthly_${feature}_count` as keyof typeof dealer] as number || 0;
       return Math.min((current / limit) * 100, 100);
     }

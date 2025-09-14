@@ -13,8 +13,10 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { CheckCircle, Globe, ExternalLink, Copy, AlertTriangle, Clock, Shield } from "lucide-react";
 import { useDealer } from "@/hooks/useDealer";
 import { useWebsitePublishing } from "@/hooks/useWebsitePublishing";
+import { useSubscriptionLimits } from "@/hooks/useUsageTracking";
 import { toast } from "sonner";
 import SubdomainPreview from "./SubdomainPreview";
+import { UpgradePrompt } from "@/components/common/UpgradePrompt";
 
 const schema = z.object({
   customDomain: z.string().optional(),
@@ -28,6 +30,7 @@ type FormData = z.infer<typeof schema>;
 export function DomainConfig() {
   const { data: dealer } = useDealer();
   const { publish, unpublish, isPublished, isPublishing, isUnpublishing } = useWebsitePublishing();
+  const { limits } = useSubscriptionLimits();
   const [domainStatus, setDomainStatus] = useState<"checking" | "verified" | "error" | "none">("none");
   const [sslStatus, setSslStatus] = useState<"active" | "pending" | "error" | "none">("none");
   
@@ -92,6 +95,7 @@ export function DomainConfig() {
 
   const currentlyPublished = isPublished;
   const hasCustomDomain = !!form.watch("customDomain");
+  const canUseCustomDomain = limits.domain_type === "custom";
 
   return (
     <div className="space-y-6">
@@ -183,88 +187,96 @@ export function DomainConfig() {
               Custom Domain
             </Badge>
 
-            <div className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="customDomain">Custom Domain</Label>
-                <div className="flex items-center gap-2">
-                  <Input
-                    id="customDomain"
-                    placeholder="yourdealership.com"
-                    {...form.register("customDomain")}
-                  />
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={handleDomainCheck}
-                    disabled={!form.watch("customDomain") || domainStatus === "checking"}
-                  >
-                    {domainStatus === "checking" ? "Checking..." : "Verify"}
-                  </Button>
-                </div>
-                <p className="text-xs text-muted-foreground">
-                  Enter your custom domain (requires DNS configuration)
-                </p>
-              </div>
-
-              {domainStatus === "verified" && (
-                <Alert className="border-green-200 bg-green-50">
-                  <CheckCircle className="h-4 w-4 text-green-600" />
-                  <AlertDescription className="text-green-800">
-                    Domain verified! Your custom domain is properly configured.
-                  </AlertDescription>
-                </Alert>
-              )}
-
-              {domainStatus === "error" && (
-                <Alert className="border-red-200 bg-red-50">
-                  <AlertTriangle className="h-4 w-4 text-red-600" />
-                  <AlertDescription className="text-red-800">
-                    Domain verification failed. Please check your DNS settings.
-                  </AlertDescription>
-                </Alert>
-              )}
-
-              {form.watch("customDomain") && (
-                <div className="space-y-3 p-4 bg-muted/30 rounded-lg">
-                  <p className="text-sm font-medium">DNS Configuration Required</p>
+            {!canUseCustomDomain ? (
+              <UpgradePrompt 
+                description="Custom domains are available with Premium plans. Upgrade to connect your own domain."
+              />
+            ) : (
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="customDomain">Custom Domain</Label>
+                  <div className="flex items-center gap-2">
+                    <Input
+                      id="customDomain"
+                      placeholder="yourdealership.com"
+                      {...form.register("customDomain")}
+                    />
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={handleDomainCheck}
+                      disabled={!form.watch("customDomain") || domainStatus === "checking"}
+                    >
+                      {domainStatus === "checking" ? "Checking..." : "Verify"}
+                    </Button>
+                  </div>
                   <p className="text-xs text-muted-foreground">
-                    Add these DNS records at your domain registrar:
+                    Enter your custom domain (requires DNS configuration)
                   </p>
+                </div>
+              </div>
+            )}
+
+            {domainStatus === "verified" && canUseCustomDomain && (
+              <Alert className="border-green-200 bg-green-50">
+                <CheckCircle className="h-4 w-4 text-green-600" />
+                <AlertDescription className="text-green-800">
+                  Domain verified! Your custom domain is properly configured.
+                </AlertDescription>
+              </Alert>
+            )}
+
+            {domainStatus === "error" && canUseCustomDomain && (
+              <Alert className="border-red-200 bg-red-50">
+                <AlertTriangle className="h-4 w-4 text-red-600" />
+                <AlertDescription className="text-red-800">
+                  Domain verification failed. Please check your DNS settings.
+                </AlertDescription>
+              </Alert>
+            )}
+
+            {canUseCustomDomain && form.watch("customDomain") && (
+              <div className="space-y-3 p-4 bg-muted/30 rounded-lg">
+                <p className="text-sm font-medium">DNS Configuration Required</p>
+                <p className="text-xs text-muted-foreground">
+                  Add these DNS records at your domain registrar:
+                </p>
+                
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between p-2 bg-background rounded border">
+                    <div className="space-y-1">
+                      <p className="text-xs font-mono">A Record</p>
+                      <p className="text-xs text-muted-foreground">@ → 185.158.133.1</p>
+                    </div>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => copyDnsRecord("185.158.133.1")}
+                    >
+                      <Copy className="h-3 w-3" />
+                    </Button>
+                  </div>
                   
-                  <div className="space-y-2">
-                    <div className="flex items-center justify-between p-2 bg-background rounded border">
-                      <div className="space-y-1">
-                        <p className="text-xs font-mono">A Record</p>
-                        <p className="text-xs text-muted-foreground">@ → 185.158.133.1</p>
-                      </div>
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => copyDnsRecord("185.158.133.1")}
-                      >
-                        <Copy className="h-3 w-3" />
-                      </Button>
+                  <div className="flex items-center justify-between p-2 bg-background rounded border">
+                    <div className="space-y-1">
+                      <p className="text-xs font-mono">CNAME Record</p>
+                      <p className="text-xs text-muted-foreground">www → {defaultSubdomain}</p>
                     </div>
-                    
-                    <div className="flex items-center justify-between p-2 bg-background rounded border">
-                      <div className="space-y-1">
-                        <p className="text-xs font-mono">CNAME Record</p>
-                        <p className="text-xs text-muted-foreground">www → {defaultSubdomain}</p>
-                      </div>
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => copyDnsRecord(defaultSubdomain)}
-                      >
-                        <Copy className="h-3 w-3" />
-                      </Button>
-                    </div>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => copyDnsRecord(defaultSubdomain)}
+                    >
+                      <Copy className="h-3 w-3" />
+                    </Button>
                   </div>
                 </div>
-              )}
+              </div>
+            )}
 
+            {canUseCustomDomain && (
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
                   <div className="space-y-1">
@@ -293,7 +305,7 @@ export function DomainConfig() {
                   />
                 </div>
               </div>
-            </div>
+            )}
           </div>
 
           <Separator />

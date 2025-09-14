@@ -186,10 +186,10 @@ const Index = () => {
                 <p className="text-muted-foreground mt-1">Perfect for small dealerships getting started</p>
                 <div className="mt-4 text-3xl font-semibold">$179<span className="text-base text-muted-foreground">/mo</span></div>
                 <ul className="mt-4 space-y-2 text-sm">
-                  <li className="flex items-start gap-2"><Check className="h-4 w-4 mt-0.5" /> 50 vehicle listings</li>
-                  <li className="flex items-start gap-2"><Check className="h-4 w-4 mt-0.5" /> 100 leads per month</li>
+                  <li className="flex items-start gap-2"><Check className="h-4 w-4 mt-0.5" /> 100 vehicle listings</li>
+                  <li className="flex items-start gap-2"><Check className="h-4 w-4 mt-0.5" /> 200 leads per month</li>
                   <li className="flex items-start gap-2"><Check className="h-4 w-4 mt-0.5" /> 500 customers</li>
-                  <li className="flex items-start gap-2"><Check className="h-4 w-4 mt-0.5" /> Lead management</li>
+                  <li className="flex items-start gap-2"><Check className="h-4 w-4 mt-0.5" /> Subdomain included</li>
                   <li className="flex items-start gap-2"><Check className="h-4 w-4 mt-0.5" /> Email support</li>
                 </ul>
                 <Button asChild variant="outline" size="xl" className="mt-6 w-full">
@@ -202,10 +202,10 @@ const Index = () => {
                 <p className="text-muted-foreground mt-1">Great for dealerships with advanced needs</p>
                 <div className="mt-4 text-3xl font-semibold">$279<span className="text-base text-muted-foreground">/mo</span></div>
                 <ul className="mt-4 space-y-2 text-sm">
-                  <li className="flex items-start gap-2"><Check className="h-4 w-4 mt-0.5" /> 200 vehicle listings</li>
-                  <li className="flex items-start gap-2"><Check className="h-4 w-4 mt-0.5" /> 500 leads per month</li>
+                  <li className="flex items-start gap-2"><Check className="h-4 w-4 mt-0.5" /> 500 vehicle listings</li>
+                  <li className="flex items-start gap-2"><Check className="h-4 w-4 mt-0.5" /> 1000 leads per month</li>
                   <li className="flex items-start gap-2"><Check className="h-4 w-4 mt-0.5" /> 2,000 customers</li>
-                  <li className="flex items-start gap-2"><Check className="h-4 w-4 mt-0.5" /> Advanced analytics</li>
+                  <li className="flex items-start gap-2"><Check className="h-4 w-4 mt-0.5" /> Custom domain support</li>
                   <li className="flex items-start gap-2"><Check className="h-4 w-4 mt-0.5" /> Priority support</li>
                 </ul>
                 <Button asChild variant="hero" size="xl" className="mt-6 w-full">
@@ -222,7 +222,7 @@ const Index = () => {
             <Accordion type="single" collapsible className="max-w-3xl mx-auto">
               <AccordionItem value="item-1">
                 <AccordionTrigger>Can I use my own domain?</AccordionTrigger>
-                <AccordionContent>Yes. Connect your custom domain on the Premium plan or use a free subdomain.</AccordionContent>
+                <AccordionContent>Custom domains are available with Premium plans. Basic plans include a free subdomain.</AccordionContent>
               </AccordionItem>
               <AccordionItem value="item-2">
                 <AccordionTrigger>Do I need a developer to set this up?</AccordionTrigger>
