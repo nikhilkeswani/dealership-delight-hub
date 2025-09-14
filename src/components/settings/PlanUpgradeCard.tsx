@@ -41,6 +41,10 @@ export const PlanUpgradeCard: React.FC = () => {
   const { toast } = useToast();
   const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
 
+  console.log("PlanUpgradeCard - Plans:", plans);
+  console.log("PlanUpgradeCard - Current subscription:", currentSubscription);
+  console.log("PlanUpgradeCard - Plans loading:", plansLoading);
+
   if (plansLoading) {
     return <LoadingState />;
   }
