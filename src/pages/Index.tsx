@@ -180,11 +180,11 @@ const Index = () => {
         <section id="pricing" className="border-t bg-muted/30">
           <div className="container py-16 md:py-24">
             <h2 className="text-3xl font-semibold text-center mb-10">Simple, scalable pricing</h2>
-            <div className="grid md:grid-cols-3 gap-6 max-w-6xl mx-auto">
+            <div className="grid md:grid-cols-2 gap-6 max-w-4xl mx-auto">
               <div className="rounded-xl border bg-card p-6">
                 <h3 className="text-xl font-semibold">Basic</h3>
                 <p className="text-muted-foreground mt-1">Perfect for small dealerships getting started</p>
-                <div className="mt-4 text-3xl font-semibold">$29.99<span className="text-base text-muted-foreground">/mo</span></div>
+                <div className="mt-4 text-3xl font-semibold">$179<span className="text-base text-muted-foreground">/mo</span></div>
                 <ul className="mt-4 space-y-2 text-sm">
                   <li className="flex items-start gap-2"><Check className="h-4 w-4 mt-0.5" /> 50 vehicle listings</li>
                   <li className="flex items-start gap-2"><Check className="h-4 w-4 mt-0.5" /> 100 leads per month</li>
@@ -200,7 +200,7 @@ const Index = () => {
                 <span className="absolute -top-3 right-4 rounded-full bg-primary/10 text-primary text-xs px-3 py-1 border">Most popular</span>
                 <h3 className="text-xl font-semibold">Premium</h3>
                 <p className="text-muted-foreground mt-1">Great for growing dealerships with advanced needs</p>
-                <div className="mt-4 text-3xl font-semibold">$79.99<span className="text-base text-muted-foreground">/mo</span></div>
+                <div className="mt-4 text-3xl font-semibold">$279<span className="text-base text-muted-foreground">/mo</span></div>
                 <ul className="mt-4 space-y-2 text-sm">
                   <li className="flex items-start gap-2"><Check className="h-4 w-4 mt-0.5" /> 200 vehicle listings</li>
                   <li className="flex items-start gap-2"><Check className="h-4 w-4 mt-0.5" /> 500 leads per month</li>
@@ -210,21 +210,6 @@ const Index = () => {
                 </ul>
                 <Button asChild variant="hero" size="xl" className="mt-6 w-full">
                   <Link to="/auth">Go Premium</Link>
-                </Button>
-              </div>
-              <div className="rounded-xl border bg-card p-6">
-                <h3 className="text-xl font-semibold">Enterprise</h3>
-                <p className="text-muted-foreground mt-1">Complete solution for large dealership groups</p>
-                <div className="mt-4 text-3xl font-semibold">$199.99<span className="text-base text-muted-foreground">/mo</span></div>
-                <ul className="mt-4 space-y-2 text-sm">
-                  <li className="flex items-start gap-2"><Check className="h-4 w-4 mt-0.5" /> Unlimited listings</li>
-                  <li className="flex items-start gap-2"><Check className="h-4 w-4 mt-0.5" /> Unlimited leads</li>
-                  <li className="flex items-start gap-2"><Check className="h-4 w-4 mt-0.5" /> Unlimited customers</li>
-                  <li className="flex items-start gap-2"><Check className="h-4 w-4 mt-0.5" /> Multi-location management</li>
-                  <li className="flex items-start gap-2"><Check className="h-4 w-4 mt-0.5" /> Dedicated support</li>
-                </ul>
-                <Button asChild variant="default" size="xl" className="mt-6 w-full">
-                  <Link to="/auth">Go Enterprise</Link>
                 </Button>
               </div>
             </div>
