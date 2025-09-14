@@ -94,17 +94,11 @@ export const CurrentPlanCard: React.FC = () => {
           </>
         )}
 
-        <div className="flex gap-2 pt-2">
-          <Button variant="outline" size="sm" disabled>
-            Manage Subscription
-          </Button>
-          <Button variant="outline" size="sm" disabled>
-            Upgrade Plan
-          </Button>
+        <div className="pt-2">
+          <p className="text-xs text-muted-foreground">
+            Use the Plans tab to upgrade your subscription
+          </p>
         </div>
-        <p className="text-xs text-muted-foreground">
-          Subscription management coming soon
-        </p>
       </CardContent>
     </Card>
   );

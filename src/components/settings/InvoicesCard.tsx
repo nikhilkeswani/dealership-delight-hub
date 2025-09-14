@@ -1,113 +1,114 @@
 import React from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { Download, Calendar, DollarSign } from "lucide-react";
+import { Download, FileText, CreditCard } from "lucide-react";
 import { useSubscription } from "@/hooks/useSubscription";
 import { useBillingHistory } from "@/hooks/useBillingHistory";
+import { format } from "date-fns";
 import LoadingState from "@/components/common/LoadingState";
 
 export const InvoicesCard: React.FC = () => {
-  const { data: subscription, isLoading: subscriptionLoading } = useSubscription();
-  const { data: billingHistory, isLoading: billingLoading } = useBillingHistory();
+  const { data: subscription } = useSubscription();
+  const { data: billingHistory, isLoading } = useBillingHistory();
 
-  if (subscriptionLoading || billingLoading) {
+  if (isLoading) {
     return <LoadingState />;
   }
 
-  // Use real billing history if available, otherwise show mock data
-  const invoices = billingHistory && billingHistory.length > 0 ? billingHistory.map(bill => ({
-    id: bill.id,
-    description: bill.description || `${subscription?.tier.charAt(0).toUpperCase() + subscription?.tier.slice(1)} Plan`,
-    date: new Date(bill.payment_date || bill.created_at).toLocaleDateString(),
-    amount: `$${(bill.amount / 100).toFixed(2)}`,
-    status: bill.status,
-    invoice_url: bill.invoice_url
-  })) : subscription ? [
-    {
-      id: "mock_001",
-      description: `${subscription.tier.charAt(0).toUpperCase() + subscription.tier.slice(1)} Plan - Monthly`,
-      date: new Date(2024, 0, 15).toLocaleDateString(),
-      amount: `$${(subscription.amount / 100).toFixed(2)}`,
-      status: "paid",
+  // Process billing history or create mock data
+  const invoices = billingHistory?.length ? 
+    billingHistory.map(bill => ({
+      id: bill.id,
+      description: bill.description || `${subscription?.tier} Plan`,
+      date: bill.payment_date || bill.created_at,
+      amount: Number(bill.amount),
+      status: bill.status,
+      invoice_url: bill.invoice_url
+    })) :
+    // Mock data when no billing history exists
+    subscription ? [{
+      id: 'mock-1',
+      description: `${subscription.tier} Plan`,
+      date: subscription.current_period_start || subscription.created_at,
+      amount: Number(subscription.amount),
+      status: 'paid',
       invoice_url: null
-    },
-    {
-      id: "mock_002", 
-      description: `${subscription.tier.charAt(0).toUpperCase() + subscription.tier.slice(1)} Plan - Monthly`,
-      date: new Date(2023, 11, 15).toLocaleDateString(),
-      amount: `$${(subscription.amount / 100).toFixed(2)}`,
-      status: "paid",
-      invoice_url: null
-    },
-    {
-      id: "mock_003",
-      description: `${subscription.tier.charAt(0).toUpperCase() + subscription.tier.slice(1)} Plan - Monthly`, 
-      date: new Date(2023, 10, 15).toLocaleDateString(),
-      amount: `$${(subscription.amount / 100).toFixed(2)}`,
-      status: "paid",
-      invoice_url: null
-    }
-  ] : [];
+    }] : [];
+
+  if (!subscription) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <FileText className="h-5 w-5" />
+            Recent Invoices
+          </CardTitle>
+          <CardDescription>Your billing history and invoices</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <p className="text-sm text-muted-foreground">No active subscription found.</p>
+        </CardContent>
+      </Card>
+    );
+  }
 
   return (
     <Card>
       <CardHeader>
-        <div className="flex items-center gap-2">
-          <Calendar className="h-5 w-5" />
-          <CardTitle>Recent Invoices</CardTitle>
-        </div>
-        <CardDescription>
-          View and download your recent billing invoices
-        </CardDescription>
+        <CardTitle className="flex items-center gap-2">
+          <FileText className="h-5 w-5" />
+          Recent Invoices
+        </CardTitle>
+        <CardDescription>Your billing history and invoices</CardDescription>
       </CardHeader>
-      <CardContent>
-        {subscription ? (
-          <div className="space-y-4">
-            {invoices.map((invoice, index) => (
-              <div key={invoice.id}>
-                <div className="flex items-center justify-between">
-                  <div className="space-y-1">
-                    <p className="text-sm font-medium">{invoice.description}</p>
-                    <div className="flex items-center gap-4 text-xs text-muted-foreground">
-                      <span>{invoice.date}</span>
-                      <span className="flex items-center gap-1">
-                        <DollarSign className="h-3 w-3" />
-                        {invoice.amount}
-                      </span>
-                      <span className={`px-2 py-1 rounded-full text-xs ${
-                        invoice.status === 'paid' 
-                          ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
-                          : 'bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-200'
-                      }`}>
-                        {invoice.status}
-                      </span>
-                    </div>
+      <CardContent className="space-y-4">
+        {invoices.length > 0 ? (
+          <div className="space-y-3">
+            {invoices.slice(0, 5).map((invoice, index) => (
+              <div key={invoice.id} className="flex items-center justify-between p-3 border rounded-lg">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-muted rounded-md">
+                    <CreditCard className="h-4 w-4" />
                   </div>
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
-                    disabled={!invoice.invoice_url}
-                    onClick={() => invoice.invoice_url && window.open(invoice.invoice_url, '_blank')}
-                  >
-                    <Download className="h-4 w-4 mr-2" />
-                    Download
-                  </Button>
+                  <div>
+                    <p className="font-medium text-sm">{invoice.description}</p>
+                    <p className="text-xs text-muted-foreground">
+                      {format(new Date(invoice.date), "MMM d, yyyy")}
+                    </p>
+                  </div>
                 </div>
-                {index < invoices.length - 1 && <Separator className="mt-4" />}
+                <div className="flex items-center gap-3">
+                  <div className="text-right">
+                    <p className="font-medium">${invoice.amount.toFixed(2)}</p>
+                    <Badge 
+                      variant={invoice.status === 'paid' ? 'default' : 'secondary'}
+                      className="text-xs"
+                    >
+                      {invoice.status}
+                    </Badge>
+                  </div>
+                  {invoice.invoice_url && (
+                    <Button size="sm" variant="outline">
+                      <Download className="h-3 w-3" />
+                    </Button>
+                  )}
+                </div>
               </div>
             ))}
-            {(!billingHistory || billingHistory.length === 0) && (
-              <div className="text-xs text-muted-foreground mt-4">
-                💡 Invoice downloads will be available once Stripe integration is complete
-              </div>
-            )}
           </div>
         ) : (
-          <div className="text-center py-8">
-            <p className="text-muted-foreground">No active subscription found</p>
-          </div>
+          <p className="text-sm text-muted-foreground">No invoices available yet.</p>
         )}
+        
+        <Separator />
+        
+        <div className="text-center">
+          <p className="text-xs text-muted-foreground">
+            Invoice downloads will be available once payment processing is set up.
+          </p>
+        </div>
       </CardContent>
     </Card>
   );
