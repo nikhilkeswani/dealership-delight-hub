@@ -9,6 +9,7 @@ import hatch from "@/assets/cars/hatch.jpg";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { DealerSiteThemeProvider } from "@/components/DealerSiteThemeProvider";
 import { DEFAULT_DEALER_SITE_CONFIG, DEFAULT_COLORS, THEME_VERSION } from "@/constants/theme";
 import {
   Form,
@@ -313,7 +314,8 @@ const DealerSite = () => {
   const mapsLink = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(config.contact.address)}`;
 
   return (
-    <div className="min-h-screen bg-background">
+    <DealerSiteThemeProvider primary={config.colors.primary} accent={config.colors.accent}>
+      <div className="min-h-screen bg-background">
       <SEO
         title={`${dealerName} – Inventory & Test Drives | DealerDelight`}
         description={`${dealerName}: Browse vehicles, book test drives, and contact our showroom. Powered by DealerDelight.`}
@@ -724,7 +726,8 @@ const DealerSite = () => {
           © {new Date().getFullYear()} {dealerName}. Powered by DealerDelight.
         </div>
       </footer>
-    </div>
+      </div>
+    </DealerSiteThemeProvider>
   );
 };
 

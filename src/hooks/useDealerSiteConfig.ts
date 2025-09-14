@@ -113,14 +113,8 @@ export function useDealerSiteConfig(slug: string | undefined, defaults: DealerSi
     return defaults;
   });
 
-  // Apply theme colors to CSS variables
-  useEffect(() => {
-    const root = document.documentElement;
-    const primaryHsl = hexToHslString(config.colors.primary);
-    const accentHsl = hexToHslString(config.colors.accent);
-    root.style.setProperty("--primary", primaryHsl);
-    root.style.setProperty("--accent", accentHsl);
-  }, [config.colors.primary, config.colors.accent]);
+  // Note: CSS variables are NOT applied globally to avoid affecting the main SaaS platform
+  // Custom colors are only applied in specific dealer site contexts
 
   const update = (partial: Partial<DealerSiteConfig>) => {
     setConfig((prev) => ({

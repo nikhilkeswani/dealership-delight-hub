@@ -32,6 +32,10 @@ export function WebsitePreview({ device }: WebsitePreviewProps) {
   
   const { config } = useDealerSiteConfig(slug, defaultConfig);
   
+  // Get theme colors from config (not global CSS variables)
+  const primaryColor = config.colors.primary;
+  const accentColor = config.colors.accent;
+  
   const businessName = config.brand.name;
   const businessInitials = businessName
     .split(" ")
@@ -74,7 +78,7 @@ export function WebsitePreview({ device }: WebsitePreviewProps) {
           </div>
           <div className="flex gap-2">
             <button style={{ backgroundColor: '#ffffff', border: '1px solid #d1d5db', color: '#111827', padding: '6px 12px', borderRadius: '6px', fontSize: '14px' }}>Contact</button>
-            <button style={{ backgroundColor: '#7c3aed', color: '#ffffff', padding: '6px 12px', borderRadius: '6px', fontSize: '14px', border: 'none' }}>Test Drive</button>
+            <button style={{ backgroundColor: primaryColor, color: '#ffffff', padding: '6px 12px', borderRadius: '6px', fontSize: '14px', border: 'none' }}>Test Drive</button>
           </div>
         </div>
       </header>
@@ -123,7 +127,7 @@ export function WebsitePreview({ device }: WebsitePreviewProps) {
                 ))}
               </div>
               <div className="flex flex-col sm:flex-row gap-2">
-                <button style={{ width: '100%', backgroundColor: '#7c3aed', color: '#ffffff', padding: '10px 16px', borderRadius: '6px', fontSize: '14px', border: 'none', fontWeight: '500' }}>
+                <button style={{ width: '100%', backgroundColor: primaryColor, color: '#ffffff', padding: '10px 16px', borderRadius: '6px', fontSize: '14px', border: 'none', fontWeight: '500' }}>
                   Search Now
                 </button>
                 <button
@@ -233,7 +237,7 @@ export function WebsitePreview({ device }: WebsitePreviewProps) {
             </div>
           </div>
           
-          <button style={{ width: '100%', marginTop: '16px', backgroundColor: '#7c3aed', color: '#ffffff', padding: '10px 16px', borderRadius: '6px', fontSize: '14px', border: 'none', fontWeight: '500' }}>Get Directions</button>
+          <button style={{ width: '100%', marginTop: '16px', backgroundColor: primaryColor, color: '#ffffff', padding: '10px 16px', borderRadius: '6px', fontSize: '14px', border: 'none', fontWeight: '500' }}>Get Directions</button>
         </div>
       </section>
 
