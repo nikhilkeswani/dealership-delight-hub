@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -7,6 +7,9 @@ import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
 import { Palette, Check, RotateCcw } from "lucide-react";
 import { toast } from "sonner";
+import { useDealer } from "@/hooks/useDealer";
+import { useDealerSiteConfig } from "@/hooks/useDealerSiteConfig";
+import { DEFAULT_DEALER_SITE_CONFIG } from "@/constants/theme";
 
 const presetThemes = [
   {
@@ -55,11 +58,57 @@ const fontOptions = [
 ];
 
 export function ThemeConfig() {
-  const [selectedTheme, setSelectedTheme] = useState(presetThemes[1]); // Default to Luxury Purple
-  const [customPrimary, setCustomPrimary] = useState("#7c3aed");
-  const [customAccent, setCustomAccent] = useState("#f8fafc");
+  const { data: dealer } = useDealer();
+  const slug = dealer?.business_name?.toLowerCase().replace(/[^a-z0-9]+/g, '-') || 'demo';
+  
+  const defaultConfig = {
+    ...DEFAULT_DEALER_SITE_CONFIG,
+    brand: {
+      ...DEFAULT_DEALER_SITE_CONFIG.brand,
+      name: dealer?.business_name || DEFAULT_DEALER_SITE_CONFIG.brand.name,
+    },
+    contact: {
+      phone: dealer?.phone || DEFAULT_DEALER_SITE_CONFIG.contact.phone,
+      email: dealer?.contact_email || DEFAULT_DEALER_SITE_CONFIG.contact.email,
+      address: dealer?.address || DEFAULT_DEALER_SITE_CONFIG.contact.address,
+    },
+  };
+  
+  const { config, setConfig: updateConfig, saveLocal } = useDealerSiteConfig(slug, defaultConfig);
+  
+  const [selectedTheme, setSelectedTheme] = useState(() => {
+    // Find matching preset theme based on current config colors
+    const matchingTheme = presetThemes.find(theme => 
+      theme.primary === config.colors.primary && theme.accent === config.colors.accent
+    );
+    return matchingTheme || presetThemes[1]; // Default to Luxury Purple
+  });
+  
+  const [customPrimary, setCustomPrimary] = useState(config.colors.primary);
+  const [customAccent, setCustomAccent] = useState(config.colors.accent);
   const [selectedFont, setSelectedFont] = useState("inter");
-  const [isCustomMode, setIsCustomMode] = useState(false);
+  const [isCustomMode, setIsCustomMode] = useState(() => {
+    // Check if current colors match any preset
+    return !presetThemes.some(theme => 
+      theme.primary === config.colors.primary && theme.accent === config.colors.accent
+    );
+  });
+
+  // Update local state when config changes
+  useEffect(() => {
+    setCustomPrimary(config.colors.primary);
+    setCustomAccent(config.colors.accent);
+    
+    const matchingTheme = presetThemes.find(theme => 
+      theme.primary === config.colors.primary && theme.accent === config.colors.accent
+    );
+    if (matchingTheme) {
+      setSelectedTheme(matchingTheme);
+      setIsCustomMode(false);
+    } else {
+      setIsCustomMode(true);
+    }
+  }, [config.colors.primary, config.colors.accent]);
 
   const handlePresetSelect = (theme: typeof presetThemes[0]) => {
     setSelectedTheme(theme);
@@ -67,39 +116,44 @@ export function ThemeConfig() {
     setCustomAccent(theme.accent);
     setIsCustomMode(false);
     
-    // Apply theme to CSS variables
-    document.documentElement.style.setProperty('--primary', hexToHsl(theme.primary));
-    document.documentElement.style.setProperty('--accent', hexToHsl(theme.accent));
+    // Update the dealer site configuration
+    updateConfig({
+      colors: {
+        primary: theme.primary,
+        accent: theme.accent,
+      }
+    });
   };
 
   const handleCustomColorChange = (type: 'primary' | 'accent', color: string) => {
     if (type === 'primary') {
       setCustomPrimary(color);
-      document.documentElement.style.setProperty('--primary', hexToHsl(color));
+      updateConfig({
+        colors: {
+          ...config.colors,
+          primary: color,
+        }
+      });
     } else {
       setCustomAccent(color);
-      document.documentElement.style.setProperty('--accent', hexToHsl(color));
+      updateConfig({
+        colors: {
+          ...config.colors,
+          accent: color,
+        }
+      });
     }
     setIsCustomMode(true);
   };
 
   const resetToDefault = () => {
-    const defaultTheme = presetThemes[1];
+    const defaultTheme = presetThemes[1]; // Luxury Purple
     handlePresetSelect(defaultTheme);
   };
 
   const saveTheme = () => {
-    // In a real app, you would save this to the database
-    const themeConfig = {
-      preset: isCustomMode ? 'custom' : selectedTheme.name,
-      colors: {
-        primary: customPrimary,
-        accent: customAccent,
-      },
-      font: selectedFont,
-    };
-    
-    // Theme configuration saved successfully
+    // Save the current configuration to localStorage
+    saveLocal();
     toast.success("Theme settings saved!");
   };
 
