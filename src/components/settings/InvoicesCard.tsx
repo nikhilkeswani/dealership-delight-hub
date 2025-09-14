@@ -13,10 +13,6 @@ export const InvoicesCard: React.FC = () => {
   const { data: subscription } = useSubscription();
   const { data: billingHistory, isLoading } = useBillingHistory();
 
-  console.log("InvoicesCard - Subscription:", subscription);
-  console.log("InvoicesCard - Billing history:", billingHistory);
-  console.log("InvoicesCard - Loading:", isLoading);
-
   if (isLoading) {
     return <LoadingState />;
   }

@@ -33,10 +33,6 @@ export const CurrentPlanCard: React.FC = () => {
   const { data: dealer, isLoading: isDealerLoading } = useDealer();
   const { data: subscription, isLoading: isSubLoading } = useSubscription();
 
-  console.log("CurrentPlanCard - Dealer:", dealer);
-  console.log("CurrentPlanCard - Subscription:", subscription);
-  console.log("CurrentPlanCard - Loading states:", { isDealerLoading, isSubLoading });
-
   if (isDealerLoading || isSubLoading) {
     return (
       <Card>
