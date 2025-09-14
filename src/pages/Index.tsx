@@ -199,7 +199,7 @@ const Index = () => {
               <div className="rounded-xl border bg-card p-6 relative">
                 <span className="absolute -top-3 right-4 rounded-full bg-primary/10 text-primary text-xs px-3 py-1 border">Most popular</span>
                 <h3 className="text-xl font-semibold">Premium</h3>
-                <p className="text-muted-foreground mt-1">Great for growing dealerships with advanced needs</p>
+                <p className="text-muted-foreground mt-1">Great for dealerships with advanced needs</p>
                 <div className="mt-4 text-3xl font-semibold">$279<span className="text-base text-muted-foreground">/mo</span></div>
                 <ul className="mt-4 space-y-2 text-sm">
                   <li className="flex items-start gap-2"><Check className="h-4 w-4 mt-0.5" /> 200 vehicle listings</li>
