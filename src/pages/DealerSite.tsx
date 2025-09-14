@@ -9,6 +9,7 @@ import hatch from "@/assets/cars/hatch.jpg";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { DEFAULT_DEALER_SITE_CONFIG, DEFAULT_COLORS, THEME_VERSION } from "@/constants/theme";
 import {
   Form,
   FormField,
@@ -112,7 +113,7 @@ const DealerSite = () => {
       email: contactConfig?.email || email, 
       address: contactConfig?.address || address 
     },
-    colors: themeConfig?.colors || { primary: "#7c3aed", accent: "#f1f5f9" },
+    colors: themeConfig?.colors || DEFAULT_COLORS,
     content: {
       aboutContent: "We're committed to providing exceptional service and helping you find the perfect vehicle. With years of experience in the automotive industry, we pride ourselves on transparent pricing, quality vehicles, and customer satisfaction.",
       servicesEnabled: true,

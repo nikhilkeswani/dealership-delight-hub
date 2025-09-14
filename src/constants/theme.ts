@@ -1,7 +1,9 @@
 export const DEFAULT_COLORS = {
-  primary: "#8B5CF6", // Purple-500 - consistent brand color
+  primary: "#8B5CF6", // Purple-500 - consistent brand color  
   accent: "#F3F4F6",  // Gray-100 - light neutral accent
 };
+
+export const THEME_VERSION = "1.0.0"; // For localStorage migration
 
 export const DEFAULT_DEALER_SITE_CONFIG = {
   brand: {

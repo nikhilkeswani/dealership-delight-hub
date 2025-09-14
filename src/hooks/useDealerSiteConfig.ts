@@ -83,6 +83,22 @@ export function useDealerSiteConfig(slug: string | undefined, defaults: DealerSi
       const raw = localStorage.getItem(storageKey);
       if (raw) {
         const parsed = JSON.parse(raw);
+        // Check if this is an old config without theme version - if so, reset colors to defaults
+        if (!parsed.themeVersion || parsed.themeVersion !== "1.0.0") {
+          const cleanedConfig = { 
+            ...defaults, 
+            ...parsed, 
+            brand: { ...defaults.brand, ...parsed.brand }, 
+            hero: { ...defaults.hero, ...parsed.hero }, 
+            contact: { ...defaults.contact, ...parsed.contact }, 
+            colors: defaults.colors, // Always use default colors for old configs
+            content: { ...defaults.content, ...parsed.content },
+            themeVersion: "1.0.0"
+          } as DealerSiteConfig & { themeVersion: string };
+          // Save the cleaned config back
+          localStorage.setItem(storageKey, JSON.stringify(cleanedConfig));
+          return cleanedConfig;
+        }
         return { 
           ...defaults, 
           ...parsed, 
@@ -115,12 +131,14 @@ export function useDealerSiteConfig(slug: string | undefined, defaults: DealerSi
       contact: { ...prev.contact, ...(partial.contact || {}) },
       colors: { ...prev.colors, ...(partial.colors || {}) },
       content: { ...prev.content, ...(partial.content || {}) },
+      themeVersion: "1.0.0"
     }));
   };
 
   const saveLocal = () => {
     try {
-      localStorage.setItem(storageKey, JSON.stringify(config));
+      const configWithVersion = { ...config, themeVersion: "1.0.0" };
+      localStorage.setItem(storageKey, JSON.stringify(configWithVersion));
     } catch {}
   };
 
