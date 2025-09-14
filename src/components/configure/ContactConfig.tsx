@@ -15,6 +15,7 @@ import { toast } from "sonner";
 import { useDealer } from "@/hooks/useDealer";
 import { useDealerProfile } from "@/hooks/useDealerProfile";
 import { useDealerSiteConfig } from "@/hooks/useDealerSiteConfig";
+import { DEFAULT_DEALER_SITE_CONFIG } from "@/constants/theme";
 
 const contactSchema = z.object({
   phone: z.string().min(1, "Phone number is required"),
@@ -36,15 +37,17 @@ export function ContactConfig() {
   const { updateProfile, isUpdating } = useDealerProfile();
   
   const defaultConfig = {
-    brand: { name: "Demo Motors", tagline: "Your trusted car dealer" },
-    hero: { headline: "Find Your Perfect Car", subtitle: "Browse our selection" },
+    ...DEFAULT_DEALER_SITE_CONFIG,
+    brand: {
+      ...DEFAULT_DEALER_SITE_CONFIG.brand,
+      name: dealer?.business_name || DEFAULT_DEALER_SITE_CONFIG.brand.name,
+    },
     contact: { 
-      phone: dealer?.phone || "(555) 123-4567",
-      email: dealer?.contact_email || "contact@demomotors.com",
+      ...DEFAULT_DEALER_SITE_CONFIG.contact,
+      phone: dealer?.phone || DEFAULT_DEALER_SITE_CONFIG.contact.phone,
+      email: dealer?.contact_email || DEFAULT_DEALER_SITE_CONFIG.contact.email,
       address: `${dealer?.address || "123 Main St"}, ${dealer?.city || "Anytown"}, ${dealer?.state || "ST"} ${dealer?.zip_code || "12345"}`
     },
-    colors: { primary: "#2563eb", accent: "#22c55e" },
-    content: {}
   };
 
   const { config, setConfig: updateSiteConfig, saveLocal } = useDealerSiteConfig(
