@@ -44,6 +44,45 @@ export type Database = {
         }
         Relationships: []
       }
+      billing_history: {
+        Row: {
+          amount: number
+          created_at: string
+          currency: string
+          description: string | null
+          id: string
+          invoice_url: string | null
+          payment_date: string | null
+          status: string
+          stripe_invoice_id: string | null
+          subscription_id: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          currency?: string
+          description?: string | null
+          id?: string
+          invoice_url?: string | null
+          payment_date?: string | null
+          status: string
+          stripe_invoice_id?: string | null
+          subscription_id: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          currency?: string
+          description?: string | null
+          id?: string
+          invoice_url?: string | null
+          payment_date?: string | null
+          status?: string
+          stripe_invoice_id?: string | null
+          subscription_id?: string
+        }
+        Relationships: []
+      }
       customers: {
         Row: {
           address: string | null
@@ -178,7 +217,11 @@ export type Database = {
           created_at: string
           id: string
           is_active: boolean
+          last_usage_reset: string | null
           logo_url: string | null
+          monthly_customers_count: number | null
+          monthly_leads_count: number | null
+          monthly_vehicles_count: number | null
           onboarded_at: string | null
           phone: string | null
           provider_id: string | null
@@ -198,7 +241,11 @@ export type Database = {
           created_at?: string
           id?: string
           is_active?: boolean
+          last_usage_reset?: string | null
           logo_url?: string | null
+          monthly_customers_count?: number | null
+          monthly_leads_count?: number | null
+          monthly_vehicles_count?: number | null
           onboarded_at?: string | null
           phone?: string | null
           provider_id?: string | null
@@ -218,7 +265,11 @@ export type Database = {
           created_at?: string
           id?: string
           is_active?: boolean
+          last_usage_reset?: string | null
           logo_url?: string | null
+          monthly_customers_count?: number | null
+          monthly_leads_count?: number | null
+          monthly_vehicles_count?: number | null
           onboarded_at?: string | null
           phone?: string | null
           provider_id?: string | null
@@ -305,6 +356,48 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      payment_methods: {
+        Row: {
+          brand: string | null
+          created_at: string
+          dealer_id: string
+          exp_month: number | null
+          exp_year: number | null
+          id: string
+          is_default: boolean
+          last_four: string | null
+          stripe_payment_method_id: string | null
+          type: string
+          updated_at: string
+        }
+        Insert: {
+          brand?: string | null
+          created_at?: string
+          dealer_id: string
+          exp_month?: number | null
+          exp_year?: number | null
+          id?: string
+          is_default?: boolean
+          last_four?: string | null
+          stripe_payment_method_id?: string | null
+          type: string
+          updated_at?: string
+        }
+        Update: {
+          brand?: string | null
+          created_at?: string
+          dealer_id?: string
+          exp_month?: number | null
+          exp_year?: number | null
+          id?: string
+          is_default?: boolean
+          last_four?: string | null
+          stripe_payment_method_id?: string | null
+          type?: string
+          updated_at?: string
+        }
+        Relationships: []
       }
       providers: {
         Row: {
@@ -413,38 +506,104 @@ export type Database = {
           },
         ]
       }
+      subscription_plans: {
+        Row: {
+          created_at: string
+          description: string | null
+          display_name: string
+          features: Json
+          id: string
+          is_active: boolean
+          limits: Json
+          name: string
+          price_monthly: number
+          price_yearly: number | null
+          sort_order: number
+          tier: Database["public"]["Enums"]["dealer_tier"]
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          display_name: string
+          features?: Json
+          id?: string
+          is_active?: boolean
+          limits?: Json
+          name: string
+          price_monthly: number
+          price_yearly?: number | null
+          sort_order?: number
+          tier: Database["public"]["Enums"]["dealer_tier"]
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          display_name?: string
+          features?: Json
+          id?: string
+          is_active?: boolean
+          limits?: Json
+          name?: string
+          price_monthly?: number
+          price_yearly?: number | null
+          sort_order?: number
+          tier?: Database["public"]["Enums"]["dealer_tier"]
+          updated_at?: string
+        }
+        Relationships: []
+      }
       subscriptions: {
         Row: {
           amount: number
           billing_cycle: string
+          cancel_at_period_end: boolean | null
           created_at: string
+          current_period_end: string | null
+          current_period_start: string | null
           dealer_id: string
           id: string
           next_billing_date: string | null
           status: Database["public"]["Enums"]["subscription_status"]
+          stripe_customer_id: string | null
+          stripe_subscription_id: string | null
           tier: Database["public"]["Enums"]["dealer_tier"]
+          trial_end: string | null
           updated_at: string
         }
         Insert: {
           amount: number
           billing_cycle?: string
+          cancel_at_period_end?: boolean | null
           created_at?: string
+          current_period_end?: string | null
+          current_period_start?: string | null
           dealer_id: string
           id?: string
           next_billing_date?: string | null
           status?: Database["public"]["Enums"]["subscription_status"]
+          stripe_customer_id?: string | null
+          stripe_subscription_id?: string | null
           tier: Database["public"]["Enums"]["dealer_tier"]
+          trial_end?: string | null
           updated_at?: string
         }
         Update: {
           amount?: number
           billing_cycle?: string
+          cancel_at_period_end?: boolean | null
           created_at?: string
+          current_period_end?: string | null
+          current_period_start?: string | null
           dealer_id?: string
           id?: string
           next_billing_date?: string | null
           status?: Database["public"]["Enums"]["subscription_status"]
+          stripe_customer_id?: string | null
+          stripe_subscription_id?: string | null
           tier?: Database["public"]["Enums"]["dealer_tier"]
+          trial_end?: string | null
           updated_at?: string
         }
         Relationships: [
@@ -456,6 +615,39 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      usage_tracking: {
+        Row: {
+          created_at: string
+          dealer_id: string
+          feature_name: string
+          id: string
+          period_end: string
+          period_start: string
+          updated_at: string
+          usage_count: number
+        }
+        Insert: {
+          created_at?: string
+          dealer_id: string
+          feature_name: string
+          id?: string
+          period_end: string
+          period_start: string
+          updated_at?: string
+          usage_count?: number
+        }
+        Update: {
+          created_at?: string
+          dealer_id?: string
+          feature_name?: string
+          id?: string
+          period_end?: string
+          period_start?: string
+          updated_at?: string
+          usage_count?: number
+        }
+        Relationships: []
       }
       user_roles: {
         Row: {
@@ -554,6 +746,14 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      check_subscription_limit: {
+        Args: {
+          _current_count?: number
+          _dealer_id: string
+          _feature_name: string
+        }
+        Returns: boolean
+      }
       create_public_lead: {
         Args: {
           p_dealer_id: string
@@ -592,6 +792,10 @@ export type Database = {
           _resource_id?: string
           _resource_type: string
         }
+        Returns: undefined
+      }
+      reset_monthly_usage: {
+        Args: Record<PropertyKey, never>
         Returns: undefined
       }
     }
