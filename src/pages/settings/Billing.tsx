@@ -6,6 +6,7 @@ import { CurrentPlanCard } from "@/components/settings/CurrentPlanCard";
 import { InvoicesCard } from "@/components/settings/InvoicesCard";
 import { PlanUpgradeCard } from "@/components/settings/PlanUpgradeCard";
 import { UsageDashboard } from "@/components/settings/UsageDashboard";
+import { BillingDebug } from "@/components/debug/BillingDebug";
 
 const Billing: React.FC = () => {
   return (
@@ -15,6 +16,8 @@ const Billing: React.FC = () => {
         title="Billing & Subscription" 
         description="Manage your subscription, view usage, and billing history" 
       />
+      
+      <BillingDebug />
       
       <Tabs defaultValue="overview" className="space-y-6">
         <TabsList className="grid w-full grid-cols-3">
