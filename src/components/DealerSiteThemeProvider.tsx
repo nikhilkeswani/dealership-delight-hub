@@ -54,14 +54,43 @@ export function DealerSiteThemeProvider({ primary, accent, children }: DealerSit
       const primaryHsl = hexToHsl(primary);
       const accentHsl = hexToHsl(accent);
       
-      // Set CSS variables only on this container, not globally
+      // Set CSS variables with proper inheritance for all child elements
       containerRef.current.style.setProperty("--primary", primaryHsl);
       containerRef.current.style.setProperty("--accent", accentHsl);
+      containerRef.current.style.setProperty("--primary-foreground", "210 40% 98%");
+      containerRef.current.style.setProperty("--accent-foreground", "222.2 47.4% 11.2%");
+      
+      // Ensure button colors use the theme colors
+      const style = document.createElement('style');
+      style.textContent = `
+        [data-theme-container] .bg-primary { 
+          background-color: hsl(${primaryHsl}) !important; 
+        }
+        [data-theme-container] .bg-primary:hover { 
+          background-color: hsl(${primaryHsl} / 0.9) !important; 
+        }
+        [data-theme-container] .text-primary { 
+          color: hsl(${primaryHsl}) !important; 
+        }
+        [data-theme-container] .border-primary { 
+          border-color: hsl(${primaryHsl}) !important; 
+        }
+        [data-theme-container] .bg-accent { 
+          background-color: hsl(${accentHsl}) !important; 
+        }
+      `;
+      
+      // Remove old style if exists
+      const oldStyle = containerRef.current.querySelector('[data-theme-style]');
+      if (oldStyle) oldStyle.remove();
+      
+      style.setAttribute('data-theme-style', 'true');
+      containerRef.current.appendChild(style);
     }
   }, [primary, accent]);
 
   return (
-    <div ref={containerRef} className="w-full h-full">
+    <div ref={containerRef} data-theme-container className="w-full h-full">
       {children}
     </div>
   );
