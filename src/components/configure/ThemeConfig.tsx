@@ -14,52 +14,52 @@ import { ThemeDebugPanel } from "./ThemeDebugPanel";
 
 const presetThemes = [
   {
-    name: "Soft Sky Blue",
-    primary: "#60a5fa",
-    accent: "#eff6ff",
-    description: "Calm and trustworthy",
+    name: "Corporate Slate",
+    primary: "#475569",
+    accent: "#f8fafc",
+    description: "Professional and trustworthy",
   },
   {
-    name: "Gentle Lavender",
-    primary: "#a78bfa",
-    accent: "#faf5ff",
-    description: "Soothing and elegant",
+    name: "Executive Navy",
+    primary: "#1e293b",
+    accent: "#f1f5f9",
+    description: "Authoritative and sophisticated",
   },
   {
-    name: "Warm Coral",
-    primary: "#fb7185",
+    name: "Professional Gray",
+    primary: "#64748b",
+    accent: "#f8fafc",
+    description: "Clean and timeless",
+  },
+  {
+    name: "Refined Indigo",
+    primary: "#4338ca",
+    accent: "#eef2ff",
+    description: "Modern enterprise standard",
+  },
+  {
+    name: "Subtle Teal",
+    primary: "#0f766e",
+    accent: "#f0fdfa",
+    description: "Contemporary business",
+  },
+  {
+    name: "Warm Charcoal",
+    primary: "#374151",
+    accent: "#f9fafb",
+    description: "Sophisticated and readable",
+  },
+  {
+    name: "Classic Forest",
+    primary: "#065f46",
+    accent: "#ecfdf5",
+    description: "Professional stability",
+  },
+  {
+    name: "Executive Burgundy",
+    primary: "#7c2d12",
     accent: "#fef7f7",
-    description: "Friendly and welcoming",
-  },
-  {
-    name: "Sage Green",
-    primary: "#34d399",
-    accent: "#f0fdf4",
-    description: "Natural and refreshing",
-  },
-  {
-    name: "Soft Rose",
-    primary: "#f87171",
-    accent: "#fef2f2",
-    description: "Gentle and approachable",
-  },
-  {
-    name: "Ocean Breeze",
-    primary: "#22d3ee",
-    accent: "#f0fdff",
-    description: "Fresh and modern",
-  },
-  {
-    name: "Sunset Peach",
-    primary: "#fbbf24",
-    accent: "#fffbeb",
-    description: "Warm and inviting",
-  },
-  {
-    name: "Morning Mint",
-    primary: "#6ee7b7",
-    accent: "#f0fff4",
-    description: "Light and energizing",
+    description: "Premium and distinguished",
   },
 ];
 
