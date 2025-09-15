@@ -54,6 +54,22 @@ export function DealerSiteThemeProvider({ primary, accent, children }: DealerSit
       const primaryHsl = hexToHsl(primary);
       const accentHsl = hexToHsl(accent);
       
+      // Parse HSL to calculate dependent colors
+      const [h, s, l] = primaryHsl.split(' ').map((v, i) => 
+        i === 0 ? parseInt(v) : parseInt(v.replace('%', ''))
+      );
+      
+      // Calculate primary-glow (lighter version of primary)
+      const glowLightness = Math.min(l + 20, 90);
+      const primaryGlow = `${h} ${s}% ${glowLightness}%`;
+      
+      // Calculate gradient using primary and primary-glow
+      const gradientPrimary = `linear-gradient(135deg, hsl(${primaryHsl}), hsl(${primaryGlow}))`;
+      
+      // Calculate shadow with primary color
+      const shadowElegant = `0 10px 30px -10px hsl(${primaryHsl} / 0.3)`;
+      const shadowGlow = `0 0 40px hsl(${primaryGlow} / 0.4)`;
+      
       // Force override CSS variables on ALL child elements using !important
       const style = document.createElement('style');
       style.textContent = `
@@ -63,6 +79,11 @@ export function DealerSiteThemeProvider({ primary, accent, children }: DealerSit
           --accent: ${accentHsl} !important;
           --primary-foreground: 210 40% 98% !important;
           --accent-foreground: 222.2 47.4% 11.2% !important;
+          --primary-glow: ${primaryGlow} !important;
+          --gradient-primary: ${gradientPrimary} !important;
+          --shadow-elegant: ${shadowElegant} !important;
+          --shadow-glow: ${shadowGlow} !important;
+          --brand-foreground: 210 40% 98% !important;
         }
         
         /* Force specific button and component styles */
@@ -85,6 +106,13 @@ export function DealerSiteThemeProvider({ primary, accent, children }: DealerSit
         [data-theme-container] .bg-accent,
         [data-theme-container] .bg-accent * { 
           background-color: hsl(${accentHsl}) !important; 
+        }
+        
+        /* Force hero button variant styles */
+        [data-theme-container] .bg-gradient-to-br,
+        [data-theme-container] .from-primary,
+        [data-theme-container] .to-primary-glow {
+          background: ${gradientPrimary} !important;
         }
       `;
       
