@@ -111,21 +111,29 @@ export function ThemeConfig() {
   }, [config.colors.primary, config.colors.accent]);
 
   const handlePresetSelect = (theme: typeof presetThemes[0]) => {
+    console.log('Theme selected:', theme.name, theme.primary, theme.accent);
     setSelectedTheme(theme);
     setCustomPrimary(theme.primary);
     setCustomAccent(theme.accent);
     setIsCustomMode(false);
     
-    // Update the dealer site configuration
+    // Update the dealer site configuration immediately
     updateConfig({
       colors: {
         primary: theme.primary,
         accent: theme.accent,
       }
     });
+    
+    // Auto-save to localStorage immediately
+    setTimeout(() => {
+      saveLocal();
+      toast.success(`${theme.name} theme applied!`);
+    }, 100);
   };
 
   const handleCustomColorChange = (type: 'primary' | 'accent', color: string) => {
+    console.log('Custom color changed:', type, color);
     if (type === 'primary') {
       setCustomPrimary(color);
       updateConfig({
@@ -144,6 +152,11 @@ export function ThemeConfig() {
       });
     }
     setIsCustomMode(true);
+    
+    // Auto-save custom colors immediately  
+    setTimeout(() => {
+      saveLocal();
+    }, 100);
   };
 
   const resetToDefault = () => {
@@ -331,9 +344,14 @@ export function ThemeConfig() {
           </div>
         </div>
 
-        <Button onClick={saveTheme} className="w-full">
-          Save Theme Settings
-        </Button>
+        <div className="space-y-2">
+          <Button onClick={saveTheme} className="w-full">
+            Save Theme Settings
+          </Button>
+          <p className="text-xs text-center text-muted-foreground">
+            Changes are automatically applied to the preview
+          </p>
+        </div>
       </CardContent>
     </>
   );

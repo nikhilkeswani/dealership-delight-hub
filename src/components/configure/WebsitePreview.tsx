@@ -36,6 +36,9 @@ export function WebsitePreview({ device }: WebsitePreviewProps) {
   const primaryColor = config.colors.primary;
   const accentColor = config.colors.accent;
   
+  // Debug logging
+  console.log('WebsitePreview render - Primary color:', primaryColor, 'Accent:', accentColor);
+  
   const businessName = config.brand.name;
   const businessInitials = businessName
     .split(" ")
@@ -61,7 +64,11 @@ export function WebsitePreview({ device }: WebsitePreviewProps) {
     };
 
   return (
-    <div className={`${containerClasses} h-full overflow-auto`} style={{ backgroundColor: '#ffffff', color: '#000000', border: '1px solid #e5e7eb', borderRadius: '8px' }}>
+    <div 
+      key={`preview-${primaryColor}-${accentColor}`} 
+      className={`${containerClasses} h-full overflow-auto`} 
+      style={{ backgroundColor: '#ffffff', color: '#000000', border: '1px solid #e5e7eb', borderRadius: '8px' }}
+    >
       {/* Header */}
       <header style={{ borderBottom: '1px solid #e5e7eb', padding: '16px', backgroundColor: '#ffffff' }}>
         <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
