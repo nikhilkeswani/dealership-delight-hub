@@ -130,7 +130,10 @@ export function ThemeConfig() {
     console.log('[ThemeConfig] Theme selected:', theme.name, theme.primary, theme.accent);
     
     // Prevent selection if already selected (avoid infinite loops)
-    if (selectedTheme.name === theme.name && !isCustomMode) {
+    if (selectedTheme.name === theme.name && 
+        config.colors.primary === theme.primary && 
+        config.colors.accent === theme.accent && 
+        !isCustomMode) {
       console.log('[ThemeConfig] Theme already selected, skipping');
       return;
     }
@@ -140,24 +143,32 @@ export function ThemeConfig() {
     setCustomAccent(theme.accent);
     setIsCustomMode(false);
     
-    // Update the dealer site configuration immediately
-    updateConfig({
-      colors: {
-        primary: theme.primary,
-        accent: theme.accent,
-      }
-    });
-    
-    // Auto-save to localStorage immediately
-    setTimeout(() => {
-      saveLocal();
-      toast.success(`${theme.name} theme applied!`);
-    }, 100);
+    // Only update if colors are actually different
+    if (config.colors.primary !== theme.primary || config.colors.accent !== theme.accent) {
+      updateConfig({
+        colors: {
+          primary: theme.primary,
+          accent: theme.accent,
+        }
+      });
+      
+      // Auto-save to localStorage after a short delay
+      setTimeout(() => {
+        saveLocal();
+        toast.success(`${theme.name} theme applied!`);
+      }, 200);
+    }
   };
 
   const handleCustomColorChange = (type: 'primary' | 'accent', color: string) => {
     console.log('Custom color changed:', type, color);
-    if (type === 'primary') {
+    
+    // Validate color format
+    if (!color || !color.startsWith('#') || color.length !== 7) {
+      return;
+    }
+    
+    if (type === 'primary' && config.colors.primary !== color) {
       setCustomPrimary(color);
       updateConfig({
         colors: {
@@ -165,7 +176,7 @@ export function ThemeConfig() {
           primary: color,
         }
       });
-    } else {
+    } else if (type === 'accent' && config.colors.accent !== color) {
       setCustomAccent(color);
       updateConfig({
         colors: {
@@ -174,12 +185,13 @@ export function ThemeConfig() {
         }
       });
     }
+    
     setIsCustomMode(true);
     
-    // Auto-save custom colors immediately  
+    // Debounced auto-save
     setTimeout(() => {
       saveLocal();
-    }, 100);
+    }, 300);
   };
 
   const resetToDefault = () => {

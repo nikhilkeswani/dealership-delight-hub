@@ -50,79 +50,91 @@ export function DealerSiteThemeProvider({ primary, accent, children }: DealerSit
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (containerRef.current) {
-      const primaryHsl = hexToHsl(primary);
-      const accentHsl = hexToHsl(accent);
+    if (!containerRef.current || !primary || !accent) return;
+
+    const primaryHsl = hexToHsl(primary);
+    const accentHsl = hexToHsl(accent);
+    
+    // Parse HSL to calculate dependent colors
+    const [h, s, l] = primaryHsl.split(' ').map((v, i) => 
+      i === 0 ? parseInt(v) : parseInt(v.replace('%', ''))
+    );
+    
+    // Calculate dependent colors
+    const glowLightness = Math.min(l + 20, 90);
+    const primaryGlow = `${h} ${s}% ${glowLightness}%`;
+    const gradientPrimary = `linear-gradient(135deg, hsl(${primaryHsl}), hsl(${primaryGlow}))`;
+    const shadowElegant = `0 10px 30px -10px hsl(${primaryHsl} / 0.3)`;
+    const shadowGlow = `0 0 40px hsl(${primaryGlow} / 0.4)`;
+    
+    // Create a unique style element ID to avoid conflicts
+    const styleId = 'dealer-theme-override';
+    
+    // Remove any existing theme style
+    const existingStyle = document.getElementById(styleId);
+    if (existingStyle) existingStyle.remove();
+    
+    // Inject CSS at document level to override everything
+    const style = document.createElement('style');
+    style.id = styleId;
+    style.textContent = `
+      /* Override CSS variables at root level for theme container */
+      [data-theme-container] {
+        --primary: ${primaryHsl} !important;
+        --accent: ${accentHsl} !important;
+        --primary-glow: ${primaryGlow} !important;
+        --gradient-primary: ${gradientPrimary} !important;
+        --shadow-elegant: ${shadowElegant} !important;
+        --shadow-glow: ${shadowGlow} !important;
+        --primary-foreground: 210 40% 98% !important;
+        --accent-foreground: 222.2 47.4% 11.2% !important;
+        --brand-foreground: 210 40% 98% !important;
+      }
       
-      // Parse HSL to calculate dependent colors
-      const [h, s, l] = primaryHsl.split(' ').map((v, i) => 
-        i === 0 ? parseInt(v) : parseInt(v.replace('%', ''))
-      );
+      /* Force button styles with highest specificity */
+      [data-theme-container] .bg-primary { 
+        background-color: hsl(${primaryHsl}) !important; 
+      }
+      [data-theme-container] .bg-primary:hover { 
+        background-color: hsl(${primaryHsl} / 0.9) !important; 
+      }
+      [data-theme-container] .text-primary { 
+        color: hsl(${primaryHsl}) !important; 
+      }
+      [data-theme-container] .border-primary { 
+        border-color: hsl(${primaryHsl}) !important; 
+      }
+      [data-theme-container] .bg-accent { 
+        background-color: hsl(${accentHsl}) !important; 
+      }
       
-      // Calculate primary-glow (lighter version of primary)
-      const glowLightness = Math.min(l + 20, 90);
-      const primaryGlow = `${h} ${s}% ${glowLightness}%`;
+      /* Hero button variants - target all gradient classes */
+      [data-theme-container] button[class*="hero"] {
+        background: ${gradientPrimary} !important;
+        background-image: ${gradientPrimary} !important;
+      }
+      [data-theme-container] .bg-gradient-to-br,
+      [data-theme-container] .from-primary,
+      [data-theme-container] .to-primary-glow,
+      [data-theme-container] [style*="gradient"] {
+        background: ${gradientPrimary} !important;
+        background-image: ${gradientPrimary} !important;
+      }
       
-      // Calculate gradient using primary and primary-glow
-      const gradientPrimary = `linear-gradient(135deg, hsl(${primaryHsl}), hsl(${primaryGlow}))`;
-      
-      // Calculate shadow with primary color
-      const shadowElegant = `0 10px 30px -10px hsl(${primaryHsl} / 0.3)`;
-      const shadowGlow = `0 0 40px hsl(${primaryGlow} / 0.4)`;
-      
-      // Force override CSS variables on ALL child elements using !important
-      const style = document.createElement('style');
-      style.textContent = `
-        [data-theme-container],
-        [data-theme-container] * {
-          --primary: ${primaryHsl} !important;
-          --accent: ${accentHsl} !important;
-          --primary-foreground: 210 40% 98% !important;
-          --accent-foreground: 222.2 47.4% 11.2% !important;
-          --primary-glow: ${primaryGlow} !important;
-          --gradient-primary: ${gradientPrimary} !important;
-          --shadow-elegant: ${shadowElegant} !important;
-          --shadow-glow: ${shadowGlow} !important;
-          --brand-foreground: 210 40% 98% !important;
-        }
-        
-        /* Force specific button and component styles */
-        [data-theme-container] .bg-primary,
-        [data-theme-container] .bg-primary * { 
-          background-color: hsl(${primaryHsl}) !important; 
-        }
-        [data-theme-container] .bg-primary:hover,
-        [data-theme-container] .bg-primary:hover * { 
-          background-color: hsl(${primaryHsl} / 0.9) !important; 
-        }
-        [data-theme-container] .text-primary,
-        [data-theme-container] .text-primary * { 
-          color: hsl(${primaryHsl}) !important; 
-        }
-        [data-theme-container] .border-primary,
-        [data-theme-container] .border-primary * { 
-          border-color: hsl(${primaryHsl}) !important; 
-        }
-        [data-theme-container] .bg-accent,
-        [data-theme-container] .bg-accent * { 
-          background-color: hsl(${accentHsl}) !important; 
-        }
-        
-        /* Force hero button variant styles */
-        [data-theme-container] .bg-gradient-to-br,
-        [data-theme-container] .from-primary,
-        [data-theme-container] .to-primary-glow {
-          background: ${gradientPrimary} !important;
-        }
-      `;
-      
-      // Remove old style if exists
-      const oldStyle = containerRef.current.querySelector('[data-theme-style]');
-      if (oldStyle) oldStyle.remove();
-      
-      style.setAttribute('data-theme-style', 'true');
-      containerRef.current.appendChild(style);
-    }
+      /* Override any inline gradient styles */
+      [data-theme-container] [style*="--gradient-primary"] {
+        background: ${gradientPrimary} !important;
+      }
+    `;
+    
+    // Append to document head for maximum override power
+    document.head.appendChild(style);
+    
+    // Cleanup on unmount
+    return () => {
+      const el = document.getElementById(styleId);
+      if (el) el.remove();
+    };
   }, [primary, accent]);
 
   return (
