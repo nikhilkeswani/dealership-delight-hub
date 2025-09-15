@@ -113,6 +113,59 @@ export function useDealerSiteConfig(slug: string | undefined, defaults: DealerSi
     return defaults;
   });
 
+  // Listen for localStorage changes from other hook instances
+  useEffect(() => {
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === storageKey && e.newValue) {
+        try {
+          const parsed = JSON.parse(e.newValue);
+          const updatedConfig = { 
+            ...defaults, 
+            ...parsed, 
+            brand: { ...defaults.brand, ...parsed.brand }, 
+            hero: { ...defaults.hero, ...parsed.hero }, 
+            contact: { ...defaults.contact, ...parsed.contact }, 
+            colors: { ...defaults.colors, ...parsed.colors },
+            content: { ...defaults.content, ...parsed.content }
+          } as DealerSiteConfig;
+          setConfig(updatedConfig);
+          console.log('Config updated from localStorage:', updatedConfig.colors);
+        } catch {}
+      }
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
+  }, [storageKey, defaults]);
+
+  // Custom event for same-page updates (storage event doesn't fire on same page)
+  useEffect(() => {
+    const handleConfigUpdate = ((e: CustomEvent) => {
+      if (e.detail.storageKey === storageKey) {
+        try {
+          const raw = localStorage.getItem(storageKey);
+          if (raw) {
+            const parsed = JSON.parse(raw);
+            const updatedConfig = { 
+              ...defaults, 
+              ...parsed, 
+              brand: { ...defaults.brand, ...parsed.brand }, 
+              hero: { ...defaults.hero, ...parsed.hero }, 
+              contact: { ...defaults.contact, ...parsed.contact }, 
+              colors: { ...defaults.colors, ...parsed.colors },
+              content: { ...defaults.content, ...parsed.content }
+            } as DealerSiteConfig;
+            setConfig(updatedConfig);
+            console.log('Config updated from custom event:', updatedConfig.colors);
+          }
+        } catch {}
+      }
+    }) as EventListener;
+
+    window.addEventListener('dealerConfigUpdate', handleConfigUpdate);
+    return () => window.removeEventListener('dealerConfigUpdate', handleConfigUpdate);
+  }, [storageKey, defaults]);
+
   // Note: CSS variables are NOT applied globally to avoid affecting the main SaaS platform
   // Custom colors are only applied in specific dealer site contexts
 
@@ -133,6 +186,12 @@ export function useDealerSiteConfig(slug: string | undefined, defaults: DealerSi
     try {
       const configWithVersion = { ...config, themeVersion: "1.0.0" };
       localStorage.setItem(storageKey, JSON.stringify(configWithVersion));
+      
+      // Dispatch custom event to notify other hook instances
+      window.dispatchEvent(new CustomEvent('dealerConfigUpdate', {
+        detail: { storageKey }
+      }));
+      console.log('Config saved and event dispatched:', configWithVersion.colors);
     } catch {}
   };
 
