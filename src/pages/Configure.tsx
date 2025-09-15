@@ -90,12 +90,12 @@ export default function Configure() {
         </div>
 
         <div className="container py-8">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 max-w-7xl mx-auto">
-            {/* Configuration Panel */}
+          <div className="max-w-4xl mx-auto">
+            {/* Configuration Panel - Full Width */}
             <div className="rounded-xl border bg-card/60 backdrop-blur">
               <div className="p-6 border-b">
                 <h2 className="text-xl font-medium">Website Configuration</h2>
-                <p className="text-sm text-muted-foreground mt-1">Customize your dealer website</p>
+                <p className="text-sm text-muted-foreground mt-1">Customize your dealer website settings. Use "Preview Site" to see your changes.</p>
               </div>
               <div className="p-6 space-y-4">
                 {/* Simple Tab Navigation */}
@@ -145,22 +145,6 @@ export default function Configure() {
                     </TabsContent>
                   </div>
                 </Tabs>
-              </div>
-            </div>
-
-            {/* Website Preview Panel */}
-            <div className="rounded-xl border bg-card/60 backdrop-blur">
-              <div className="p-6 border-b">
-                <h2 className="text-xl font-medium">Live Preview</h2>
-                <p className="text-sm text-muted-foreground mt-1">See your changes in real-time</p>
-              </div>
-              <div className="p-6">
-                <DealerSiteThemeProvider 
-                  primary={config.colors.primary} 
-                  accent={config.colors.accent}
-                >
-                  <WebsitePreview device="desktop" />
-                </DealerSiteThemeProvider>
               </div>
             </div>
           </div>
