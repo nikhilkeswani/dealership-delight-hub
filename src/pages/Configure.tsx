@@ -12,8 +12,11 @@ import { SeoConfig } from "@/components/configure/SeoConfig";
 import { DomainConfig } from "@/components/configure/DomainConfig";
 import { ContactConfig } from "@/components/configure/ContactConfig";
 import { WebsitePreview } from "@/components/configure/WebsitePreview";
+import { DealerSiteThemeProvider } from "@/components/DealerSiteThemeProvider";
 import { useDealer } from "@/hooks/useDealer";
 import { useWebsitePublishing } from "@/hooks/useWebsitePublishing";
+import { useDealerSiteConfig } from "@/hooks/useDealerSiteConfig";
+import { DEFAULT_DEALER_SITE_CONFIG } from "@/constants/theme";
 import { toast } from "sonner";
 
 export default function Configure() {
@@ -21,6 +24,20 @@ export default function Configure() {
   const { data: dealer } = useDealer();
   const { publish, isPublishing, isPublished } = useWebsitePublishing();
   const navigate = useNavigate();
+  
+  // Get dealer site config for theme colors
+  const slug = dealer?.business_name?.toLowerCase().replace(/[^a-z0-9]+/g, '-') || 'demo';
+  const defaultConfig = {
+    ...DEFAULT_DEALER_SITE_CONFIG,
+    brand: { ...DEFAULT_DEALER_SITE_CONFIG.brand, name: dealer?.business_name || DEFAULT_DEALER_SITE_CONFIG.brand.name },
+    contact: {
+      ...DEFAULT_DEALER_SITE_CONFIG.contact,
+      phone: dealer?.phone || DEFAULT_DEALER_SITE_CONFIG.contact.phone,
+      email: dealer?.contact_email || DEFAULT_DEALER_SITE_CONFIG.contact.email,
+      address: dealer?.address || DEFAULT_DEALER_SITE_CONFIG.contact.address,
+    },
+  };
+  const { config } = useDealerSiteConfig(slug, defaultConfig);
 
   const handlePublish = async () => {
     if (!dealer?.id) return;
@@ -138,7 +155,12 @@ export default function Configure() {
                 <p className="text-sm text-muted-foreground mt-1">See your changes in real-time</p>
               </div>
               <div className="p-6">
-                <WebsitePreview device="desktop" />
+                <DealerSiteThemeProvider 
+                  primary={config.colors.primary} 
+                  accent={config.colors.accent}
+                >
+                  <WebsitePreview device="desktop" />
+                </DealerSiteThemeProvider>
               </div>
             </div>
           </div>

@@ -32,12 +32,7 @@ export function WebsitePreview({ device }: WebsitePreviewProps) {
   
   const { config } = useDealerSiteConfig(slug, defaultConfig);
   
-  // Get theme colors from config (not global CSS variables)
-  const primaryColor = config.colors.primary;
-  const accentColor = config.colors.accent;
-  
-  // Debug logging
-  console.log('WebsitePreview render - Primary color:', primaryColor, 'Accent:', accentColor);
+  // Colors are now handled by DealerSiteThemeProvider via CSS variables
   
   const businessName = config.brand.name;
   const businessInitials = businessName
@@ -65,7 +60,6 @@ export function WebsitePreview({ device }: WebsitePreviewProps) {
 
   return (
     <div 
-      key={`preview-${primaryColor}-${accentColor}`} 
       className={`${containerClasses} h-full overflow-auto`} 
       style={{ backgroundColor: '#ffffff', color: '#000000', border: '1px solid #e5e7eb', borderRadius: '8px' }}
     >
@@ -85,7 +79,7 @@ export function WebsitePreview({ device }: WebsitePreviewProps) {
           </div>
           <div className="flex gap-2">
             <button style={{ backgroundColor: '#ffffff', border: '1px solid #d1d5db', color: '#111827', padding: '6px 12px', borderRadius: '6px', fontSize: '14px' }}>Contact</button>
-            <button style={{ backgroundColor: primaryColor, color: '#ffffff', padding: '6px 12px', borderRadius: '6px', fontSize: '14px', border: 'none' }}>Test Drive</button>
+            <button className="bg-primary text-primary-foreground hover:bg-primary/90" style={{ padding: '6px 12px', borderRadius: '6px', fontSize: '14px', border: 'none' }}>Test Drive</button>
           </div>
         </div>
       </header>
@@ -134,7 +128,7 @@ export function WebsitePreview({ device }: WebsitePreviewProps) {
                 ))}
               </div>
               <div className="flex flex-col sm:flex-row gap-2">
-                <button style={{ width: '100%', backgroundColor: primaryColor, color: '#ffffff', padding: '10px 16px', borderRadius: '6px', fontSize: '14px', border: 'none', fontWeight: '500' }}>
+                <button className="bg-primary text-primary-foreground hover:bg-primary/90" style={{ width: '100%', padding: '10px 16px', borderRadius: '6px', fontSize: '14px', border: 'none', fontWeight: '500' }}>
                   Search Now
                 </button>
                 <button
@@ -244,7 +238,7 @@ export function WebsitePreview({ device }: WebsitePreviewProps) {
             </div>
           </div>
           
-          <button style={{ width: '100%', marginTop: '16px', backgroundColor: primaryColor, color: '#ffffff', padding: '10px 16px', borderRadius: '6px', fontSize: '14px', border: 'none', fontWeight: '500' }}>Get Directions</button>
+          <button className="bg-primary text-primary-foreground hover:bg-primary/90" style={{ width: '100%', marginTop: '16px', padding: '10px 16px', borderRadius: '6px', fontSize: '14px', border: 'none', fontWeight: '500' }}>Get Directions</button>
         </div>
       </section>
 
