@@ -94,6 +94,9 @@ const DealerSite = () => {
     .replace(/[^a-z0-9-]/gi, "")
     .toLowerCase()}.com`;
 
+  // Check if we're in preview mode (coming from configure page)
+  const isPreviewMode = typeof window !== "undefined" && new URLSearchParams(window.location.search).get("preview") === "true";
+
   // Use website config if available, otherwise defaults
   const themeConfig = websiteConfig?.theme_config as any;
   const contactConfig = websiteConfig?.contact_config as any;
@@ -134,7 +137,12 @@ const DealerSite = () => {
       ]
     },
   };
-  const { config, setConfig, saveLocal, reset } = useDealerSiteConfig(slug, defaults);
+
+  // In preview mode, prioritize localStorage config; otherwise use database config as defaults
+  const { config, setConfig, saveLocal, reset } = useDealerSiteConfig(
+    slug, 
+    isPreviewMode ? defaults : defaults
+  );
 
   const { data: dealer } = useDealer();
   const isDemo = !publicDealer || (slug || "").toLowerCase() === "demo-motors" || (typeof window !== "undefined" && new URLSearchParams(window.location.search).get("demo") === "1");

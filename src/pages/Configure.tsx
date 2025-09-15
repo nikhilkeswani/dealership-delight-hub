@@ -47,9 +47,9 @@ export default function Configure() {
   const handlePreview = () => {
     if (dealer?.business_name) {
       const slug = dealer.business_name.toLowerCase().replace(/[^a-z0-9]+/g, '-');
-      window.open(`/dealer/${slug}`, '_blank');
+      window.open(`/dealer/${slug}?preview=true`, '_blank');
     } else {
-      window.open('/dealer/demo-motors', '_blank');
+      window.open('/dealer/demo-motors?preview=true', '_blank');
     }
   };
 
