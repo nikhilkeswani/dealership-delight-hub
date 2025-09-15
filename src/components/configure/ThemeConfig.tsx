@@ -10,6 +10,7 @@ import { toast } from "sonner";
 import { useDealer } from "@/hooks/useDealer";
 import { useDealerSiteConfig } from "@/hooks/useDealerSiteConfig";
 import { DEFAULT_DEALER_SITE_CONFIG } from "@/constants/theme";
+import { ThemeDebugPanel } from "./ThemeDebugPanel";
 
 const presetThemes = [
   {
@@ -74,7 +75,7 @@ export function ThemeConfig() {
     },
   };
   
-  const { config, setConfig: updateConfig, saveLocal } = useDealerSiteConfig(slug, defaultConfig);
+  const { config, setConfig: updateConfig, saveLocal, clearThemeData } = useDealerSiteConfig(slug, defaultConfig);
   
   const [selectedTheme, setSelectedTheme] = useState(() => {
     // Find matching preset theme based on current config colors
@@ -94,24 +95,46 @@ export function ThemeConfig() {
     );
   });
 
-  // Update local state when config changes
+  // Sync state when config changes with improved detection
   useEffect(() => {
-    setCustomPrimary(config.colors.primary);
-    setCustomAccent(config.colors.accent);
+    console.log('[ThemeConfig] Config colors changed:', config.colors);
     
-    const matchingTheme = presetThemes.find(theme => 
-      theme.primary === config.colors.primary && theme.accent === config.colors.accent
+    // Find matching preset theme with exact match
+    const matchingPreset = presetThemes.find(theme => 
+      theme.primary.toLowerCase() === config.colors.primary.toLowerCase() && 
+      theme.accent.toLowerCase() === config.colors.accent.toLowerCase()
     );
-    if (matchingTheme) {
-      setSelectedTheme(matchingTheme);
-      setIsCustomMode(false);
+
+    if (matchingPreset) {
+      console.log('[ThemeConfig] Found matching preset:', matchingPreset.name);
+      if (selectedTheme.name !== matchingPreset.name) {
+        setSelectedTheme(matchingPreset);
+        setIsCustomMode(false);
+      }
     } else {
-      setIsCustomMode(true);
+      console.log('[ThemeConfig] No matching preset, using custom mode');
+      if (!isCustomMode) {
+        setIsCustomMode(true);
+      }
+      // Only update custom colors if they're different (prevent loops)
+      if (customPrimary !== config.colors.primary) {
+        setCustomPrimary(config.colors.primary);
+      }
+      if (customAccent !== config.colors.accent) {
+        setCustomAccent(config.colors.accent);
+      }
     }
-  }, [config.colors.primary, config.colors.accent]);
+  }, [config.colors]);
 
   const handlePresetSelect = (theme: typeof presetThemes[0]) => {
-    console.log('Theme selected:', theme.name, theme.primary, theme.accent);
+    console.log('[ThemeConfig] Theme selected:', theme.name, theme.primary, theme.accent);
+    
+    // Prevent selection if already selected (avoid infinite loops)
+    if (selectedTheme.name === theme.name && !isCustomMode) {
+      console.log('[ThemeConfig] Theme already selected, skipping');
+      return;
+    }
+    
     setSelectedTheme(theme);
     setCustomPrimary(theme.primary);
     setCustomAccent(theme.accent);
@@ -204,6 +227,13 @@ export function ThemeConfig() {
       </CardHeader>
       
       <CardContent className="space-y-6">
+        {/* Debug Panel */}
+        <ThemeDebugPanel 
+          config={config} 
+          storageKey={`dealerSite:config:${slug}`}
+          onClearData={clearThemeData}
+        />
+        
         {/* Preset Themes */}
         <div className="space-y-4">
           <div className="flex items-center justify-between">

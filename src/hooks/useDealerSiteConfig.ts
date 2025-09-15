@@ -81,124 +81,142 @@ export function useDealerSiteConfig(slug: string | undefined, defaults: DealerSi
   const [config, setConfig] = useState<DealerSiteConfig>(() => {
     try {
       const raw = localStorage.getItem(storageKey);
+      console.log('[Theme Debug] Loading config from localStorage:', { storageKey, raw: raw ? 'exists' : 'null' });
+      
       if (raw) {
         const parsed = JSON.parse(raw);
-        // Check if this is an old config without theme version - if so, reset colors to defaults
-        if (!parsed.themeVersion || parsed.themeVersion !== "1.0.0") {
+        console.log('[Theme Debug] Parsed config:', { colors: parsed.colors, themeVersion: parsed.themeVersion });
+        
+        // Only migrate if the config is truly corrupted (missing required fields)
+        const isCorrupted = !parsed.colors || !parsed.colors.primary || !parsed.colors.accent;
+        
+        if (isCorrupted) {
+          console.log('[Theme Debug] Config corrupted, using defaults');
           const cleanedConfig = { 
             ...defaults, 
             ...parsed, 
-            brand: { ...defaults.brand, ...parsed.brand }, 
-            hero: { ...defaults.hero, ...parsed.hero }, 
-            contact: { ...defaults.contact, ...parsed.contact }, 
-            colors: defaults.colors, // Always use default colors for old configs
-            content: { ...defaults.content, ...parsed.content },
+            brand: { ...defaults.brand, ...(parsed.brand || {}) }, 
+            hero: { ...defaults.hero, ...(parsed.hero || {}) }, 
+            contact: { ...defaults.contact, ...(parsed.contact || {}) }, 
+            colors: defaults.colors, // Use default colors only if corrupted
+            content: { ...defaults.content, ...(parsed.content || {}) },
             themeVersion: "1.0.0"
           } as DealerSiteConfig & { themeVersion: string };
-          // Save the cleaned config back
-          localStorage.setItem(storageKey, JSON.stringify(cleanedConfig));
           return cleanedConfig;
         }
-        return { 
+        
+        // Use existing config without aggressive migration
+        const validConfig = { 
           ...defaults, 
           ...parsed, 
-          brand: { ...defaults.brand, ...parsed.brand }, 
-          hero: { ...defaults.hero, ...parsed.hero }, 
-          contact: { ...defaults.contact, ...parsed.contact }, 
-          colors: { ...defaults.colors, ...parsed.colors },
-          content: { ...defaults.content, ...parsed.content }
+          brand: { ...defaults.brand, ...(parsed.brand || {}) }, 
+          hero: { ...defaults.hero, ...(parsed.hero || {}) }, 
+          contact: { ...defaults.contact, ...(parsed.contact || {}) }, 
+          colors: { ...defaults.colors, ...(parsed.colors || {}) }, // Preserve user colors
+          content: { ...defaults.content, ...(parsed.content || {}) }
         } as DealerSiteConfig;
+        
+        console.log('[Theme Debug] Using existing config:', { colors: validConfig.colors });
+        return validConfig;
       }
-    } catch {}
+    } catch (error) {
+      console.error('[Theme Debug] Error loading config:', error);
+    }
+    console.log('[Theme Debug] Using defaults:', { colors: defaults.colors });
     return defaults;
   });
 
-  // Listen for localStorage changes from other hook instances
+  // Debounced update tracking to prevent infinite loops
+  const [isUpdating, setIsUpdating] = useState(false);
+
+  // Listen for localStorage changes from other hook instances with debouncing
   useEffect(() => {
     const handleStorageChange = (e: StorageEvent) => {
-      if (e.key === storageKey && e.newValue) {
+      if (e.key === storageKey && e.newValue && !isUpdating) {
         try {
           const parsed = JSON.parse(e.newValue);
+          console.log('[Theme Debug] Storage change detected:', { colors: parsed.colors });
+          
           const updatedConfig = { 
             ...defaults, 
             ...parsed, 
-            brand: { ...defaults.brand, ...parsed.brand }, 
-            hero: { ...defaults.hero, ...parsed.hero }, 
-            contact: { ...defaults.contact, ...parsed.contact }, 
-            colors: { ...defaults.colors, ...parsed.colors },
-            content: { ...defaults.content, ...parsed.content }
+            brand: { ...defaults.brand, ...(parsed.brand || {}) }, 
+            hero: { ...defaults.hero, ...(parsed.hero || {}) }, 
+            contact: { ...defaults.contact, ...(parsed.contact || {}) }, 
+            colors: { ...defaults.colors, ...(parsed.colors || {}) },
+            content: { ...defaults.content, ...(parsed.content || {}) }
           } as DealerSiteConfig;
           setConfig(updatedConfig);
-          console.log('Config updated from localStorage:', updatedConfig.colors);
-        } catch {}
+        } catch (error) {
+          console.error('[Theme Debug] Error in storage change:', error);
+        }
       }
     };
 
     window.addEventListener('storage', handleStorageChange);
     return () => window.removeEventListener('storage', handleStorageChange);
-  }, [storageKey, defaults]);
-
-  // Custom event for same-page updates (storage event doesn't fire on same page)
-  useEffect(() => {
-    const handleConfigUpdate = ((e: CustomEvent) => {
-      if (e.detail.storageKey === storageKey) {
-        try {
-          const raw = localStorage.getItem(storageKey);
-          if (raw) {
-            const parsed = JSON.parse(raw);
-            const updatedConfig = { 
-              ...defaults, 
-              ...parsed, 
-              brand: { ...defaults.brand, ...parsed.brand }, 
-              hero: { ...defaults.hero, ...parsed.hero }, 
-              contact: { ...defaults.contact, ...parsed.contact }, 
-              colors: { ...defaults.colors, ...parsed.colors },
-              content: { ...defaults.content, ...parsed.content }
-            } as DealerSiteConfig;
-            setConfig(updatedConfig);
-            console.log('Config updated from custom event:', updatedConfig.colors);
-          }
-        } catch {}
-      }
-    }) as EventListener;
-
-    window.addEventListener('dealerConfigUpdate', handleConfigUpdate);
-    return () => window.removeEventListener('dealerConfigUpdate', handleConfigUpdate);
-  }, [storageKey, defaults]);
+  }, [storageKey, defaults, isUpdating]);
 
   // Note: CSS variables are NOT applied globally to avoid affecting the main SaaS platform
   // Custom colors are only applied in specific dealer site contexts
 
   const update = (partial: Partial<DealerSiteConfig>) => {
-    setConfig((prev) => ({
-      ...prev,
-      ...partial,
-      brand: { ...prev.brand, ...(partial.brand || {}) },
-      hero: { ...prev.hero, ...(partial.hero || {}) },
-      contact: { ...prev.contact, ...(partial.contact || {}) },
-      colors: { ...prev.colors, ...(partial.colors || {}) },
-      content: { ...prev.content, ...(partial.content || {}) },
-      themeVersion: "1.0.0"
-    }));
+    console.log('[Theme Debug] Updating config:', { colors: partial.colors });
+    
+    setConfig((prev) => {
+      const newConfig = {
+        ...prev,
+        ...partial,
+        brand: { ...prev.brand, ...(partial.brand || {}) },
+        hero: { ...prev.hero, ...(partial.hero || {}) },
+        contact: { ...prev.contact, ...(partial.contact || {}) },
+        colors: { ...prev.colors, ...(partial.colors || {}) },
+        content: { ...prev.content, ...(partial.content || {}) },
+        themeVersion: "1.0.0"
+      };
+      
+      console.log('[Theme Debug] New config created:', { colors: newConfig.colors });
+      return newConfig;
+    });
   };
 
   const saveLocal = () => {
     try {
+      setIsUpdating(true);
       const configWithVersion = { ...config, themeVersion: "1.0.0" };
-      localStorage.setItem(storageKey, JSON.stringify(configWithVersion));
       
-      // Dispatch custom event to notify other hook instances
-      window.dispatchEvent(new CustomEvent('dealerConfigUpdate', {
-        detail: { storageKey }
-      }));
-      console.log('Config saved and event dispatched:', configWithVersion.colors);
-    } catch {}
+      // Validate colors before saving
+      if (!configWithVersion.colors?.primary || !configWithVersion.colors?.accent) {
+        console.error('[Theme Debug] Invalid colors, not saving:', configWithVersion.colors);
+        return;
+      }
+      
+      localStorage.setItem(storageKey, JSON.stringify(configWithVersion));
+      console.log('[Theme Debug] Config saved successfully:', configWithVersion.colors);
+      
+      setTimeout(() => setIsUpdating(false), 100); // Debounce to prevent loops
+    } catch (error) {
+      console.error('[Theme Debug] Error saving config:', error);
+      setIsUpdating(false);
+    }
+  };
+
+  // Emergency reset function for debugging
+  const clearThemeData = () => {
+    try {
+      localStorage.removeItem(storageKey);
+      setConfig(defaults);
+      console.log('[Theme Debug] Theme data cleared, reset to defaults');
+    } catch (error) {
+      console.error('[Theme Debug] Error clearing theme data:', error);
+    }
   };
 
   const reset = () => {
     try { localStorage.removeItem(storageKey); } catch {}
     setConfig(defaults);
+    console.log('[Theme Debug] Config reset to defaults');
   };
 
-  return { config, setConfig: update, saveLocal, reset } as const;
+  return { config, setConfig: update, saveLocal, reset, clearThemeData } as const;
 }
