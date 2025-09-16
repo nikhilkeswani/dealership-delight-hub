@@ -22,7 +22,8 @@ export const useLeads = () => {
   const { data: dealer } = useDealer();
   
   return useQuery<Lead[]>({
-    queryKey: ["leads"],
+    queryKey: ["leads", dealer?.id],
+    staleTime: 5 * 60 * 1000, // 5 minutes
     queryFn: async () => {
       if (!dealer?.id) throw new Error("No dealer found");
       
@@ -60,7 +61,7 @@ export const useCreateLead = () => {
       return data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["leads"] });
+      queryClient.invalidateQueries({ queryKey: ["leads", dealer?.id] });
       toast.success("Lead created successfully");
     },
     onError: (error: any) => {
@@ -71,6 +72,7 @@ export const useCreateLead = () => {
 
 export const useUpdateLead = () => {
   const queryClient = useQueryClient();
+  const { data: dealer } = useDealer();
 
   return useMutation({
     mutationFn: async ({ id, values }: { id: string; values: Partial<LeadFormValues> }) => {
@@ -85,7 +87,7 @@ export const useUpdateLead = () => {
       return data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["leads"] });
+      queryClient.invalidateQueries({ queryKey: ["leads", dealer?.id] });
       toast.success("Lead updated successfully");
     },
     onError: (error: any) => {
@@ -96,6 +98,7 @@ export const useUpdateLead = () => {
 
 export const useDeleteLead = () => {
   const queryClient = useQueryClient();
+  const { data: dealer } = useDealer();
 
   return useMutation({
     mutationFn: async (id: string) => {
@@ -107,7 +110,7 @@ export const useDeleteLead = () => {
       if (error) throw error;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["leads"] });
+      queryClient.invalidateQueries({ queryKey: ["leads", dealer?.id] });
       toast.success("Lead deleted successfully");
     },
     onError: (error: any) => {

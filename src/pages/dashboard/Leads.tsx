@@ -45,13 +45,10 @@ const Leads: React.FC = () => {
 
   // Helper function to handle quick status update
   const handleQuickStatusUpdate = (leadId: string, newStatus: string) => {
-    const lead = data?.find(l => l.id === leadId);
-    if (lead) {
-      updateLeadMutation.mutate({ 
-        id: leadId, 
-        values: { ...lead, status: newStatus as "new" | "contacted" | "qualified" | "converted" | "lost" } 
-      });
-    }
+    updateLeadMutation.mutate({ 
+      id: leadId, 
+      values: { status: newStatus as "new" | "contacted" | "qualified" | "converted" | "lost" } 
+    });
   };
 
   const handleCreateLead = (values: LeadFormValues) => {
@@ -214,8 +211,8 @@ const kpis = React.useMemo(() => {
                               <TableCell>
                                 <div className="flex items-center gap-3">
                                   <div>
-                                    <div className="font-medium flex items-center gap-2">
-                                      {l.first_name} {l.last_name}
+                                     <div className="font-medium flex items-center gap-2">
+                                       {l.first_name || "Unknown"} {l.last_name || "User"}
                                       {/* RECENT Banner for leads created within last 3 days */}
                                       {isRecent && (
                                         <span className="bg-gradient-to-r from-primary to-primary-glow text-primary-foreground text-xs font-bold px-2 py-0.5 rounded-full animate-pulse">
