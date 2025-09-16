@@ -18,7 +18,7 @@ export const useCustomers = () => {
   const { data: dealer } = useDealer();
   
   return useQuery<Customer[]>({
-    queryKey: ["customers"],
+    queryKey: ["customers", dealer?.id],
     queryFn: async () => {
       if (!dealer?.id) throw new Error("No dealer found");
       
@@ -30,16 +30,24 @@ export const useCustomers = () => {
       
       if (error) throw error;
       
-      // Debug logging in development
+      // Debug logging and data validation in development
       if (import.meta.env.DEV) {
-        console.log("useCustomers data:", { 
+        console.log("useCustomers data received:", { 
           count: data?.length || 0,
           firstCustomer: data?.[0] ? {
             id: data[0].id,
             firstName: data[0].first_name,
-            lastName: data[0].last_name
-          } : null
+            lastName: data[0].last_name,
+            email: data[0].email
+          } : null,
+          allCustomersValid: data?.every(c => c.first_name && c.last_name) || false
         });
+        
+        // Check for data corruption
+        const corruptedCustomers = data?.filter(c => !c.first_name || !c.last_name);
+        if (corruptedCustomers && corruptedCustomers.length > 0) {
+          console.error("Detected corrupted customer data:", corruptedCustomers);
+        }
       }
       
       return data || [];
@@ -69,13 +77,14 @@ export const useCreateCustomer = () => {
       return data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["customers"] });
+      queryClient.invalidateQueries({ queryKey: ["customers", dealer?.id] });
     },
   });
 };
 
 export const useUpdateCustomer = () => {
   const queryClient = useQueryClient();
+  const { data: dealer } = useDealer();
 
   return useMutation({
     mutationFn: async ({ id, values }: { id: string; values: Partial<CustomerFormValues> }) => {
@@ -90,13 +99,14 @@ export const useUpdateCustomer = () => {
       return data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["customers"] });
+      queryClient.invalidateQueries({ queryKey: ["customers", dealer?.id] });
     },
   });
 };
 
 export const useDeleteCustomer = () => {
   const queryClient = useQueryClient();
+  const { data: dealer } = useDealer();
 
   return useMutation({
     mutationFn: async (id: string) => {
@@ -108,7 +118,7 @@ export const useDeleteCustomer = () => {
       if (error) throw error;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["customers"] });
+      queryClient.invalidateQueries({ queryKey: ["customers", dealer?.id] });
     },
   });
 };
