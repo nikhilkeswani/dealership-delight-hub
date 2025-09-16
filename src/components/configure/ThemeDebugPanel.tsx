@@ -2,15 +2,21 @@ import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { DealerSiteConfig } from '@/types/theme';
 
 interface ThemeDebugPanelProps {
-  config: any;
+  config: DealerSiteConfig;
   storageKey: string;
   onClearData: () => void;
 }
 
 export function ThemeDebugPanel({ config, storageKey, onClearData }: ThemeDebugPanelProps) {
   const [showDebug, setShowDebug] = React.useState(false);
+  
+  // Hide debug panel in production
+  if (import.meta.env.PROD) {
+    return null;
+  }
   
   const getStorageData = () => {
     try {

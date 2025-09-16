@@ -109,7 +109,9 @@ export function ThemeConfig() {
 
   // Sync state when config changes with improved detection
   useEffect(() => {
-    console.log('[ThemeConfig] Config colors changed:', config.colors);
+    if (import.meta.env.DEV) {
+      console.log('[ThemeConfig] Config colors changed:', config.colors);
+    }
     
     // Find matching preset theme with exact match
     const matchingPreset = presetThemes.find(theme => 
@@ -118,13 +120,17 @@ export function ThemeConfig() {
     );
 
     if (matchingPreset) {
-      console.log('[ThemeConfig] Found matching preset:', matchingPreset.name);
+      if (import.meta.env.DEV) {
+        console.log('[ThemeConfig] Found matching preset:', matchingPreset.name);
+      }
       if (selectedTheme.name !== matchingPreset.name) {
         setSelectedTheme(matchingPreset);
         setIsCustomMode(false);
       }
     } else {
-      console.log('[ThemeConfig] No matching preset, using custom mode');
+      if (import.meta.env.DEV) {
+        console.log('[ThemeConfig] No matching preset, using custom mode');
+      }
       if (!isCustomMode) {
         setIsCustomMode(true);
       }
@@ -136,17 +142,21 @@ export function ThemeConfig() {
         setCustomAccent(config.colors.accent);
       }
     }
-  }, [config.colors]);
+  }, [config.colors, selectedTheme.name, isCustomMode, customPrimary, customAccent]);
 
   const handlePresetSelect = (theme: typeof presetThemes[0]) => {
-    console.log('[ThemeConfig] Theme selected:', theme.name, theme.primary, theme.accent);
+    if (import.meta.env.DEV) {
+      console.log('[ThemeConfig] Theme selected:', theme.name, theme.primary, theme.accent);
+    }
     
     // Prevent selection if already selected (avoid infinite loops)
     if (selectedTheme.name === theme.name && 
         config.colors.primary === theme.primary && 
         config.colors.accent === theme.accent && 
         !isCustomMode) {
-      console.log('[ThemeConfig] Theme already selected, skipping');
+      if (import.meta.env.DEV) {
+        console.log('[ThemeConfig] Theme already selected, skipping');
+      }
       return;
     }
     
@@ -173,7 +183,9 @@ export function ThemeConfig() {
   };
 
   const handleCustomColorChange = (type: 'primary' | 'accent', color: string) => {
-    console.log('Custom color changed:', type, color);
+    if (import.meta.env.DEV) {
+      console.log('Custom color changed:', type, color);
+    }
     
     // Validate color format
     if (!color || !color.startsWith('#') || color.length !== 7) {

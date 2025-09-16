@@ -14,12 +14,14 @@ interface CustomerKPIsProps {
 const CustomerKPIs: React.FC<CustomerKPIsProps> = ({ data, isLoading, error }) => {
   // Add debugging
   React.useEffect(() => {
-    console.log("CustomerKPIs render:", { 
-      hasData: !!data, 
-      dataLength: data?.length, 
-      isLoading, 
-      hasError: !!error 
-    });
+    if (import.meta.env.DEV) {
+      console.log("CustomerKPIs render:", { 
+        hasData: !!data, 
+        dataLength: data?.length, 
+        isLoading, 
+        hasError: !!error 
+      });
+    }
   }, [data, isLoading, error]);
 
   // Calculate KPIs safely
@@ -51,7 +53,9 @@ const CustomerKPIs: React.FC<CustomerKPIsProps> = ({ data, isLoading, error }) =
         newThisMonth
       };
     } catch (err) {
-      console.error("Error calculating KPIs:", err);
+      if (import.meta.env.DEV) {
+        console.error("Error calculating KPIs:", err);
+      }
       return {
         totalCustomers: 0,
         totalSpent: 0,

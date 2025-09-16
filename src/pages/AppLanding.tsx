@@ -11,11 +11,13 @@ const AppLanding: React.FC = () => {
 
   // Debug logging to track when this component renders
   useEffect(() => {
-    console.log('AppLanding rendered:', { 
-      path: window.location.pathname, 
-      dealer: dealer?.business_name || 'No dealer',
-      isLoading 
-    });
+    if (import.meta.env.DEV) {
+      console.log('AppLanding rendered:', { 
+        path: window.location.pathname, 
+        dealer: dealer?.business_name || 'No dealer',
+        isLoading 
+      });
+    }
   }, [dealer, isLoading]);
 
   return (

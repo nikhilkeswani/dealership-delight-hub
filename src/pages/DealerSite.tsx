@@ -236,7 +236,9 @@ const DealerSite = () => {
       });
       form.reset();
     } catch (error) {
-      console.error('Error submitting lead:', error);
+      if (import.meta.env.DEV) {
+        console.error('Error submitting lead:', error);
+      }
       toast({
         title: "Error",
         description: "Unable to submit request. Please try again later.",

@@ -17,12 +17,16 @@ type StatCardProps = {
 const StatCard: React.FC<StatCardProps> = ({ title, value, icon: Icon, helperText, isLoading, delta, trend }) => {
   // Add defensive checks and debugging
   React.useEffect(() => {
-    console.log("StatCard render:", { title, value, isLoading, hasIcon: !!Icon });
+    if (import.meta.env.DEV) {
+      console.log("StatCard render:", { title, value, isLoading, hasIcon: !!Icon });
+    }
   }, [title, value, isLoading, Icon]);
 
   // Defensive checks
   if (!title || !Icon) {
-    console.warn("StatCard missing required props:", { title, hasIcon: !!Icon });
+    if (import.meta.env.DEV) {
+      console.warn("StatCard missing required props:", { title, hasIcon: !!Icon });
+    }
     return null;
   }
 

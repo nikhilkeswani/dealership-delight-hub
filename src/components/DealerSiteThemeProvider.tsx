@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useMemo, useCallback } from 'react';
 
 interface DealerSiteThemeProviderProps {
   primary: string;
@@ -49,8 +49,9 @@ function hexToHsl(hex: string): string {
 export function DealerSiteThemeProvider({ primary, accent, children }: DealerSiteThemeProviderProps) {
   const containerRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    if (!containerRef.current || !primary || !accent) return;
+  // Memoize the theme styles to prevent recalculation on every render
+  const themeStyles = useMemo(() => {
+    if (!primary || !accent) return null;
 
     const primaryHsl = hexToHsl(primary);
     const accentHsl = hexToHsl(accent);
@@ -67,12 +68,33 @@ export function DealerSiteThemeProvider({ primary, accent, children }: DealerSit
     const shadowElegant = `0 10px 30px -10px hsl(${primaryHsl} / 0.3)`;
     const shadowGlow = `0 0 40px hsl(${primaryGlow} / 0.4)`;
     
+    return {
+      primaryHsl,
+      accentHsl,
+      primaryGlow,
+      gradientPrimary,
+      shadowElegant,
+      shadowGlow
+    };
+  }, [primary, accent]);
+
+  // Create a stable cleanup function
+  const cleanup = useCallback(() => {
+    const styleId = 'dealer-theme-override';
+    const existingStyle = document.getElementById(styleId);
+    if (existingStyle) existingStyle.remove();
+  }, []);
+
+  useEffect(() => {
+    if (!containerRef.current || !themeStyles) return;
+
+    const { primaryHsl, accentHsl, primaryGlow, gradientPrimary, shadowElegant, shadowGlow } = themeStyles;
+    
     // Create a unique style element ID to avoid conflicts
     const styleId = 'dealer-theme-override';
     
-    // Remove any existing theme style
-    const existingStyle = document.getElementById(styleId);
-    if (existingStyle) existingStyle.remove();
+    // Remove any existing theme style first
+    cleanup();
     
     // Inject CSS at document level to override everything
     const style = document.createElement('style');
@@ -130,12 +152,9 @@ export function DealerSiteThemeProvider({ primary, accent, children }: DealerSit
     // Append to document head for maximum override power
     document.head.appendChild(style);
     
-    // Cleanup on unmount
-    return () => {
-      const el = document.getElementById(styleId);
-      if (el) el.remove();
-    };
-  }, [primary, accent]);
+    // Cleanup on unmount or dependency change
+    return cleanup;
+  }, [themeStyles, cleanup]);
 
   return (
     <div ref={containerRef} data-theme-container className="w-full h-full">

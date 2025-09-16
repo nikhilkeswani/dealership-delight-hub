@@ -57,18 +57,20 @@ const Customers: React.FC = () => {
 
   // Add debugging
   React.useEffect(() => {
-    console.log("Customers component render:", { 
-      dealer: !!dealer, 
-      dealerLoading, 
-      dealerError: !!dealerError,
-      hasData: !!data, 
-      dataLength: data?.length, 
-      customersLoading, 
-      customersError: !!customersError,
-      shouldLoadCustomers,
-      isCustomersReady,
-      hasError: !!hasError
-    });
+    if (import.meta.env.DEV) {
+      console.log("Customers component render:", { 
+        dealer: !!dealer, 
+        dealerLoading, 
+        dealerError: !!dealerError,
+        hasData: !!data, 
+        dataLength: data?.length, 
+        customersLoading, 
+        customersError: !!customersError,
+        shouldLoadCustomers,
+        isCustomersReady,
+        hasError: !!hasError
+      });
+    }
   }, [dealer, dealerLoading, dealerError, data, customersLoading, customersError, shouldLoadCustomers, isCustomersReady, hasError]);
 
   // UI state
