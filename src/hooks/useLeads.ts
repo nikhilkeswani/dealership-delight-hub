@@ -86,6 +86,7 @@ export const useUpdateLead = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["leads"] });
+      queryClient.invalidateQueries({ queryKey: ["customers"] });
       toast.success("Lead updated successfully");
     },
     onError: (error: any) => {

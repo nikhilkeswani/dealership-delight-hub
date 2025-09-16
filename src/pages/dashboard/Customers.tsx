@@ -311,15 +311,15 @@ const Customers: React.FC = () => {
                             <TableRow key={c.id}>
                               <TableCell>
                                 <div className="flex items-center space-x-3">
-                                  <Avatar className="h-8 w-8">
+                                   <Avatar className="h-8 w-8">
                                      <AvatarFallback className="text-xs">
-                                       {(c.first_name?.[0] || "?").toUpperCase()}{(c.last_name?.[0] || "?").toUpperCase()}
+                                       {(c.first_name?.[0] || "U").toUpperCase()}{(c.last_name?.[0] || "U").toUpperCase()}
                                      </AvatarFallback>
                                   </Avatar>
                                   <div>
                                     <div className="flex items-center space-x-2">
                                       <div className="font-medium">
-                                        {c.first_name} {c.last_name}
+                                        {c.first_name || "Unknown"} {c.last_name || "User"}
                                       </div>
                                       {isRecent && (
                                         <span className="inline-flex items-center px-2 py-1 text-xs font-medium bg-primary/10 text-primary rounded-full">

@@ -29,6 +29,19 @@ export const useCustomers = () => {
         .order("created_at", { ascending: false });
       
       if (error) throw error;
+      
+      // Debug logging in development
+      if (import.meta.env.DEV) {
+        console.log("useCustomers data:", { 
+          count: data?.length || 0,
+          firstCustomer: data?.[0] ? {
+            id: data[0].id,
+            firstName: data[0].first_name,
+            lastName: data[0].last_name
+          } : null
+        });
+      }
+      
       return data || [];
     },
     enabled: !!dealer?.id,
