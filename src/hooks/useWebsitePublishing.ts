@@ -1,6 +1,9 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import type { WebsiteConfigParams } from "@/types/website";
+import type { ApiError } from "@/types/api";
+import type { Tables, Json } from "@/integrations/supabase/types";
 
 export const useWebsitePublishing = () => {
   const queryClient = useQueryClient();
@@ -34,12 +37,7 @@ export const useWebsitePublishing = () => {
 
   // Publish website mutation
   const publishMutation = useMutation({
-    mutationFn: async (websiteConfig?: {
-      theme_config?: any;
-      seo_config?: any;
-      contact_config?: any;
-      domain_name?: string;
-    }) => {
+    mutationFn: async (websiteConfig?: WebsiteConfigParams) => {
       const { data: sessionData } = await supabase.auth.getSession();
       const uid = sessionData.session?.user?.id;
       if (!uid) throw new Error("Not authenticated");
@@ -59,9 +57,9 @@ export const useWebsitePublishing = () => {
         logo_url: dealer.logo_url,
         city: dealer.city,
         state: dealer.state,
-        theme_config: websiteConfig?.theme_config || {},
-        seo_config: websiteConfig?.seo_config || {},
-        contact_config: websiteConfig?.contact_config || {},
+        theme_config: (websiteConfig?.theme_config || {}) as Json,
+        seo_config: (websiteConfig?.seo_config || {}) as Json,
+        contact_config: (websiteConfig?.contact_config || {}) as Json,
         domain_name: websiteConfig?.domain_name,
       };
 
@@ -78,7 +76,7 @@ export const useWebsitePublishing = () => {
       queryClient.invalidateQueries({ queryKey: ["dealer-website"] });
       toast.success("Website published successfully!");
     },
-    onError: (error: any) => {
+    onError: (error: ApiError) => {
       toast.error(error.message || "Failed to publish website");
     },
   });
@@ -112,7 +110,7 @@ export const useWebsitePublishing = () => {
       queryClient.invalidateQueries({ queryKey: ["dealer-website"] });
       toast.success("Website unpublished successfully");
     },
-    onError: (error: any) => {
+    onError: (error: ApiError) => {
       toast.error(error.message || "Failed to unpublish website");
     },
   });

@@ -2,6 +2,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import type { TablesUpdate } from "@/integrations/supabase/types";
 import { toast } from "sonner";
+import type { ApiError } from "@/types/api";
 
 export const useDealerProfile = () => {
   const queryClient = useQueryClient();
@@ -26,7 +27,7 @@ export const useDealerProfile = () => {
       queryClient.invalidateQueries({ queryKey: ["dealer"] });
       toast.success("Profile updated successfully");
     },
-    onError: (error: any) => {
+    onError: (error: ApiError) => {
       const msg = error?.message || "Failed to update profile";
       toast.error(msg);
     },

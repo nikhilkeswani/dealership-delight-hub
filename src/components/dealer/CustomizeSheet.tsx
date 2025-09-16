@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { DealerSiteConfig } from "@/hooks/useDealerSiteConfig";
+import type { DealerWebsiteThemeConfig } from "@/types/website";
 
 type CustomizeSheetProps = {
   open: boolean;
@@ -33,15 +34,15 @@ export default function CustomizeSheet({ open, onOpenChange, config, onChange, o
             <div className="grid gap-3">
               <div className="grid gap-1.5">
                 <Label htmlFor="brand-name">Dealer name</Label>
-                <Input id="brand-name" value={config.brand.name} onChange={(e) => onChange({ brand: { name: e.target.value } as any })} />
+                <Input id="brand-name" value={config.brand.name} onChange={(e) => onChange({ brand: { ...config.brand, name: e.target.value } })} />
               </div>
               <div className="grid gap-1.5">
                 <Label htmlFor="brand-tagline">Tagline</Label>
-                <Input id="brand-tagline" value={config.brand.tagline} onChange={(e) => onChange({ brand: { tagline: e.target.value } as any })} />
+                <Input id="brand-tagline" value={config.brand.tagline} onChange={(e) => onChange({ brand: { ...config.brand, tagline: e.target.value } })} />
               </div>
               <div className="grid gap-1.5">
                 <Label htmlFor="brand-logo">Logo URL</Label>
-                <Input id="brand-logo" placeholder="https://.../logo.png" value={config.brand.logoUrl || ""} onChange={(e) => onChange({ brand: { logoUrl: e.target.value } as any })} />
+                <Input id="brand-logo" placeholder="https://.../logo.png" value={config.brand.logoUrl || ""} onChange={(e) => onChange({ brand: { ...config.brand, logoUrl: e.target.value } })} />
               </div>
             </div>
           </section>
@@ -52,11 +53,11 @@ export default function CustomizeSheet({ open, onOpenChange, config, onChange, o
             <div className="grid gap-3">
               <div className="grid gap-1.5">
                 <Label htmlFor="hero-headline">Main headline</Label>
-                <Input id="hero-headline" value={config.hero.headline} onChange={(e) => onChange({ hero: { headline: e.target.value } as any })} />
+                <Input id="hero-headline" value={config.hero.headline} onChange={(e) => onChange({ hero: { ...config.hero, headline: e.target.value } })} />
               </div>
               <div className="grid gap-1.5">
                 <Label htmlFor="hero-subtitle">Subtitle</Label>
-                <Textarea id="hero-subtitle" value={config.hero.subtitle} onChange={(e) => onChange({ hero: { subtitle: e.target.value } as any })} />
+                <Textarea id="hero-subtitle" value={config.hero.subtitle} onChange={(e) => onChange({ hero: { ...config.hero, subtitle: e.target.value } })} />
               </div>
             </div>
           </section>
@@ -67,15 +68,15 @@ export default function CustomizeSheet({ open, onOpenChange, config, onChange, o
             <div className="grid gap-3">
               <div className="grid gap-1.5">
                 <Label htmlFor="contact-phone">Call number</Label>
-                <Input id="contact-phone" value={config.contact.phone} onChange={(e) => onChange({ contact: { phone: e.target.value } as any })} />
+                <Input id="contact-phone" value={config.contact.phone} onChange={(e) => onChange({ contact: { ...config.contact, phone: e.target.value } })} />
               </div>
               <div className="grid gap-1.5">
                 <Label htmlFor="contact-email">Email</Label>
-                <Input id="contact-email" type="email" value={config.contact.email} onChange={(e) => onChange({ contact: { email: e.target.value } as any })} />
+                <Input id="contact-email" type="email" value={config.contact.email} onChange={(e) => onChange({ contact: { ...config.contact, email: e.target.value } })} />
               </div>
               <div className="grid gap-1.5">
                 <Label htmlFor="contact-address">Address</Label>
-                <Textarea id="contact-address" value={config.contact.address} onChange={(e) => onChange({ contact: { address: e.target.value } as any })} />
+                <Textarea id="contact-address" value={config.contact.address} onChange={(e) => onChange({ contact: { ...config.contact, address: e.target.value } })} />
               </div>
             </div>
           </section>
@@ -88,20 +89,20 @@ export default function CustomizeSheet({ open, onOpenChange, config, onChange, o
                 <Label htmlFor="color-primary">Primary</Label>
                 <div className="flex items-center gap-3">
                   <input id="color-primary" type="color" className="h-10 w-10 rounded-md border" value={config.colors.primary}
-                    onChange={(e) => onChange({ colors: { primary: e.target.value } as any })}
+                    onChange={(e) => onChange({ colors: { ...config.colors, primary: e.target.value } })}
                     aria-label="Pick primary color"
                   />
-                  <Input value={config.colors.primary} onChange={(e) => onChange({ colors: { primary: e.target.value } as any })} />
+                  <Input value={config.colors.primary} onChange={(e) => onChange({ colors: { ...config.colors, primary: e.target.value } })} />
                 </div>
               </div>
               <div className="grid gap-1.5">
                 <Label htmlFor="color-accent">Accent</Label>
                 <div className="flex items-center gap-3">
                   <input id="color-accent" type="color" className="h-10 w-10 rounded-md border" value={config.colors.accent}
-                    onChange={(e) => onChange({ colors: { accent: e.target.value } as any })}
+                    onChange={(e) => onChange({ colors: { ...config.colors, accent: e.target.value } })}
                     aria-label="Pick accent color"
                   />
-                  <Input value={config.colors.accent} onChange={(e) => onChange({ colors: { accent: e.target.value } as any })} />
+                  <Input value={config.colors.accent} onChange={(e) => onChange({ colors: { ...config.colors, accent: e.target.value } })} />
                 </div>
               </div>
             </div>

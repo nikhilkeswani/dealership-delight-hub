@@ -14,11 +14,12 @@ import { usePublicDealer } from "@/hooks/usePublicDealer";
 import { usePublicVehicles } from "@/hooks/usePublicVehicles";
 import { formatCurrency } from "@/lib/format";
 import sedan from "@/assets/cars/sedan.jpg";
+import type { DisplayVehicle, VehicleSearchParams } from "@/types/vehicle";
 
 const DealerInventory = () => {
   const { slug } = useParams();
   const [query, setQuery] = useState("");
-  const [sort, setSort] = useState<"relevance" | "price-asc" | "price-desc" | "year-desc" | "mileage-asc" | "recently-added">("relevance");
+  const [sort, setSort] = useState<VehicleSearchParams["sort"]>("relevance");
   const [currentPage, setCurrentPage] = useState(1);
   const [makeFilter, setMakeFilter] = useState<string>("");
   const [bodyTypeFilter, setBodyTypeFilter] = useState<string>("");
@@ -42,34 +43,34 @@ const DealerInventory = () => {
 
   // Get unique makes for filter
   const availableMakes = useMemo(() => {
-    const makes = [...new Set((publicVehicles || []).map((v: any) => v.make))].sort();
+    const makes = [...new Set((publicVehicles || []).map((v: DisplayVehicle) => v.make))].sort();
     return makes;
   }, [publicVehicles]);
 
   // Get unique filter options
   const availableBodyTypes = useMemo(() => {
-    const types = [...new Set((publicVehicles || []).map((v: any) => v.body_type).filter(Boolean))].sort();
+    const types = [...new Set((publicVehicles || []).map((v: DisplayVehicle) => v.body_type).filter(Boolean))].sort();
     return types;
   }, [publicVehicles]);
 
   const availableFuelTypes = useMemo(() => {
-    const types = [...new Set((publicVehicles || []).map((v: any) => v.fuel_type).filter(Boolean))].sort();
+    const types = [...new Set((publicVehicles || []).map((v: DisplayVehicle) => v.fuel_type).filter(Boolean))].sort();
     return types;
   }, [publicVehicles]);
 
   const availableTransmissions = useMemo(() => {
-    const types = [...new Set((publicVehicles || []).map((v: any) => v.transmission).filter(Boolean))].sort();
+    const types = [...new Set((publicVehicles || []).map((v: DisplayVehicle) => v.transmission).filter(Boolean))].sort();
     return types;
   }, [publicVehicles]);
 
   const availableConditions = useMemo(() => {
-    const types = [...new Set((publicVehicles || []).map((v: any) => v.condition).filter(Boolean))].sort();
+    const types = [...new Set((publicVehicles || []).map((v: DisplayVehicle) => v.condition).filter(Boolean))].sort();
     return types;
   }, [publicVehicles]);
 
   // Filter and sort vehicles
   const filteredVehicles = useMemo(() => {
-    return (publicVehicles || []).filter((v: any) => {
+    return (publicVehicles || []).filter((v: DisplayVehicle) => {
       const q = query.trim().toLowerCase();
       const vehicleTitle = `${v.year} ${v.make} ${v.model}`;
       const vin = v.vin || '';
@@ -100,7 +101,7 @@ const DealerInventory = () => {
     });
   }, [publicVehicles, query, makeFilter, bodyTypeFilter, fuelTypeFilter, transmissionFilter, conditionFilter, priceRange, mileageRange, yearRange]);
 
-  const parsePrice = (price: any) => {
+  const parsePrice = (price: number | null | undefined): number => {
     if (typeof price === 'number') return price;
     const n = Number(String(price ?? "").replace(/[^0-9.]/g, ""));
     return isNaN(n) ? 0 : n;
@@ -185,7 +186,7 @@ const DealerInventory = () => {
               />
             </div>
             <div className="flex flex-col sm:flex-row gap-2">
-              <Select value={sort} onValueChange={(v) => setSort(v as any)}>
+              <Select value={sort} onValueChange={(v) => setSort(v as VehicleSearchParams["sort"])}>
                 <SelectTrigger className="w-full sm:w-48">
                   <SelectValue placeholder="Sort by" />
                 </SelectTrigger>
@@ -397,7 +398,7 @@ const DealerInventory = () => {
         ) : (
           <>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-              {paginatedVehicles.map((vehicle: any) => {
+              {paginatedVehicles.map((vehicle: DisplayVehicle) => {
                 const vehicleData: VehicleData = {
                   id: vehicle.id,
                   title: `${vehicle.year} ${vehicle.make} ${vehicle.model}`,

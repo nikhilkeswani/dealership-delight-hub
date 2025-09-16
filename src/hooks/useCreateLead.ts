@@ -1,19 +1,11 @@
 import { useMutation } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-
-export type CreateLeadData = {
-  first_name: string;
-  last_name: string;
-  email: string;
-  phone?: string;
-  message?: string;
-  dealer_id: string;
-  source?: string;
-};
+import type { LeadFormData } from "@/types/form";
+import type { ApiError } from "@/types/api";
 
 export const useCreateLead = () => {
   return useMutation({
-    mutationFn: async (leadData: CreateLeadData) => {
+    mutationFn: async (leadData: LeadFormData) => {
       const { data, error } = await supabase
         .from("leads")
         .insert({
@@ -23,7 +15,7 @@ export const useCreateLead = () => {
           phone: leadData.phone || null,
           notes: leadData.message || null,
           dealer_id: leadData.dealer_id,
-          source: (leadData.source as any) || 'website',
+          source: (leadData.source as "website" | "phone" | "email" | "referral" | "walk_in" | "social_media") || 'website',
           status: 'new',
         })
         .select()
