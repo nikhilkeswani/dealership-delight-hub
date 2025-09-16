@@ -172,7 +172,9 @@ export function parseSupabaseError(error: any): AppError {
 
 // Enhanced error handler with user-friendly messaging
 export function handleError(error: unknown, context?: string): AppError {
-  console.error(`Error in ${context || 'application'}:`, error);
+  if (import.meta.env.DEV) {
+    console.error(`Error in ${context || 'application'}:`, error);
+  }
   
   let appError: AppError;
   

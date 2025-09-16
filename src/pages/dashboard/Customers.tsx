@@ -58,7 +58,7 @@ const Customers: React.FC = () => {
   // Add debugging
   React.useEffect(() => {
     if (import.meta.env.DEV) {
-      console.log("Customers component render:", { 
+      console.log("Customers component render:", {
         dealer: !!dealer, 
         dealerLoading, 
         dealerError: !!dealerError,

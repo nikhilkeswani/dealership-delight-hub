@@ -15,7 +15,7 @@ const CustomerKPIs: React.FC<CustomerKPIsProps> = ({ data, isLoading, error }) =
   // Add debugging
   React.useEffect(() => {
     if (import.meta.env.DEV) {
-      console.log("CustomerKPIs render:", { 
+      console.log("CustomerKPIs render:", {
         hasData: !!data, 
         dataLength: data?.length, 
         isLoading, 

@@ -81,17 +81,23 @@ export function useDealerSiteConfig(slug: string | undefined, defaults: DealerSi
   const [config, setConfig] = useState<DealerSiteConfig>(() => {
     try {
       const raw = localStorage.getItem(storageKey);
-      console.log('[Theme Debug] Loading config from localStorage:', { storageKey, raw: raw ? 'exists' : 'null' });
+      if (import.meta.env.DEV) {
+        console.log('[Theme Debug] Loading config from localStorage:', { storageKey, raw: raw ? 'exists' : 'null' });
+      }
       
       if (raw) {
         const parsed = JSON.parse(raw);
-        console.log('[Theme Debug] Parsed config:', { colors: parsed.colors, themeVersion: parsed.themeVersion });
+        if (import.meta.env.DEV) {
+          console.log('[Theme Debug] Parsed config:', { colors: parsed.colors, themeVersion: parsed.themeVersion });
+        }
         
         // Only migrate if the config is truly corrupted (missing required fields)
         const isCorrupted = !parsed.colors || !parsed.colors.primary || !parsed.colors.accent;
         
         if (isCorrupted) {
-          console.log('[Theme Debug] Config corrupted, using defaults');
+          if (import.meta.env.DEV) {
+            console.log('[Theme Debug] Config corrupted, using defaults');
+          }
           const cleanedConfig = { 
             ...defaults, 
             ...parsed, 
@@ -116,13 +122,19 @@ export function useDealerSiteConfig(slug: string | undefined, defaults: DealerSi
           content: { ...defaults.content, ...(parsed.content || {}) }
         } as DealerSiteConfig;
         
-        console.log('[Theme Debug] Using existing config:', { colors: validConfig.colors });
+        if (import.meta.env.DEV) {
+          console.log('[Theme Debug] Using existing config:', { colors: validConfig.colors });
+        }
         return validConfig;
       }
     } catch (error) {
-      console.error('[Theme Debug] Error loading config:', error);
+      if (import.meta.env.DEV) {
+        console.error('[Theme Debug] Error loading config:', error);
+      }
     }
-    console.log('[Theme Debug] Using defaults:', { colors: defaults.colors });
+    if (import.meta.env.DEV) {
+      console.log('[Theme Debug] Using defaults:', { colors: defaults.colors });
+    }
     return defaults;
   });
 
@@ -135,7 +147,9 @@ export function useDealerSiteConfig(slug: string | undefined, defaults: DealerSi
       if (e.key === storageKey && e.newValue && !isUpdating) {
         try {
           const parsed = JSON.parse(e.newValue);
-          console.log('[Theme Debug] Storage change detected:', { colors: parsed.colors });
+          if (import.meta.env.DEV) {
+            console.log('[Theme Debug] Storage change detected:', { colors: parsed.colors });
+          }
           
           const updatedConfig = { 
             ...defaults, 
@@ -148,7 +162,9 @@ export function useDealerSiteConfig(slug: string | undefined, defaults: DealerSi
           } as DealerSiteConfig;
           setConfig(updatedConfig);
         } catch (error) {
-          console.error('[Theme Debug] Error in storage change:', error);
+          if (import.meta.env.DEV) {
+            console.error('[Theme Debug] Error in storage change:', error);
+          }
         }
       }
     };
@@ -161,7 +177,9 @@ export function useDealerSiteConfig(slug: string | undefined, defaults: DealerSi
   // Custom colors are only applied in specific dealer site contexts
 
   const update = (partial: Partial<DealerSiteConfig>) => {
-    console.log('[Theme Debug] Updating config:', { colors: partial.colors });
+    if (import.meta.env.DEV) {
+      console.log('[Theme Debug] Updating config:', { colors: partial.colors });
+    }
     
     setConfig((prev) => {
       const newConfig = {
@@ -175,7 +193,9 @@ export function useDealerSiteConfig(slug: string | undefined, defaults: DealerSi
         themeVersion: "1.0.0"
       };
       
-      console.log('[Theme Debug] New config created:', { colors: newConfig.colors });
+      if (import.meta.env.DEV) {
+        console.log('[Theme Debug] New config created:', { colors: newConfig.colors });
+      }
       return newConfig;
     });
   };
@@ -187,16 +207,22 @@ export function useDealerSiteConfig(slug: string | undefined, defaults: DealerSi
       
       // Validate colors before saving
       if (!configWithVersion.colors?.primary || !configWithVersion.colors?.accent) {
-        console.error('[Theme Debug] Invalid colors, not saving:', configWithVersion.colors);
+        if (import.meta.env.DEV) {
+          console.error('[Theme Debug] Invalid colors, not saving:', configWithVersion.colors);
+        }
         return;
       }
       
       localStorage.setItem(storageKey, JSON.stringify(configWithVersion));
-      console.log('[Theme Debug] Config saved successfully:', configWithVersion.colors);
+      if (import.meta.env.DEV) {
+        console.log('[Theme Debug] Config saved successfully:', configWithVersion.colors);
+      }
       
       setTimeout(() => setIsUpdating(false), 100); // Debounce to prevent loops
     } catch (error) {
-      console.error('[Theme Debug] Error saving config:', error);
+      if (import.meta.env.DEV) {
+        console.error('[Theme Debug] Error saving config:', error);
+      }
       setIsUpdating(false);
     }
   };
@@ -206,16 +232,22 @@ export function useDealerSiteConfig(slug: string | undefined, defaults: DealerSi
     try {
       localStorage.removeItem(storageKey);
       setConfig(defaults);
-      console.log('[Theme Debug] Theme data cleared, reset to defaults');
+      if (import.meta.env.DEV) {
+        console.log('[Theme Debug] Theme data cleared, reset to defaults');
+      }
     } catch (error) {
-      console.error('[Theme Debug] Error clearing theme data:', error);
+      if (import.meta.env.DEV) {
+        console.error('[Theme Debug] Error clearing theme data:', error);
+      }
     }
   };
 
   const reset = () => {
     try { localStorage.removeItem(storageKey); } catch {}
     setConfig(defaults);
-    console.log('[Theme Debug] Config reset to defaults');
+    if (import.meta.env.DEV) {
+      console.log('[Theme Debug] Config reset to defaults');
+    }
   };
 
   return { config, setConfig: update, saveLocal, reset, clearThemeData } as const;

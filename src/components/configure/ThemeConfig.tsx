@@ -110,7 +110,9 @@ export function ThemeConfig() {
   // Sync state when config changes with improved detection
   useEffect(() => {
     if (import.meta.env.DEV) {
-      console.log('[ThemeConfig] Config colors changed:', config.colors);
+      if (import.meta.env.DEV) {
+        console.log('[ThemeConfig] Config colors changed:', config.colors);
+      }
     }
     
     // Find matching preset theme with exact match
@@ -121,7 +123,9 @@ export function ThemeConfig() {
 
     if (matchingPreset) {
       if (import.meta.env.DEV) {
-        console.log('[ThemeConfig] Found matching preset:', matchingPreset.name);
+        if (import.meta.env.DEV) {
+          console.log('[ThemeConfig] Found matching preset:', matchingPreset.name);
+        }
       }
       if (selectedTheme.name !== matchingPreset.name) {
         setSelectedTheme(matchingPreset);
@@ -129,7 +133,9 @@ export function ThemeConfig() {
       }
     } else {
       if (import.meta.env.DEV) {
-        console.log('[ThemeConfig] No matching preset, using custom mode');
+        if (import.meta.env.DEV) {
+          console.log('[ThemeConfig] No matching preset, using custom mode');
+        }
       }
       if (!isCustomMode) {
         setIsCustomMode(true);
@@ -146,7 +152,9 @@ export function ThemeConfig() {
 
   const handlePresetSelect = (theme: typeof presetThemes[0]) => {
     if (import.meta.env.DEV) {
-      console.log('[ThemeConfig] Theme selected:', theme.name, theme.primary, theme.accent);
+      if (import.meta.env.DEV) {
+        console.log('[ThemeConfig] Theme selected:', theme.name, theme.primary, theme.accent);
+      }
     }
     
     // Prevent selection if already selected (avoid infinite loops)
@@ -155,7 +163,9 @@ export function ThemeConfig() {
         config.colors.accent === theme.accent && 
         !isCustomMode) {
       if (import.meta.env.DEV) {
-        console.log('[ThemeConfig] Theme already selected, skipping');
+        if (import.meta.env.DEV) {
+          console.log('[ThemeConfig] Theme already selected, skipping');
+        }
       }
       return;
     }
@@ -184,7 +194,9 @@ export function ThemeConfig() {
 
   const handleCustomColorChange = (type: 'primary' | 'accent', color: string) => {
     if (import.meta.env.DEV) {
-      console.log('Custom color changed:', type, color);
+      if (import.meta.env.DEV) {
+        console.log('Custom color changed:', type, color);
+      }
     }
     
     // Validate color format

@@ -116,7 +116,9 @@ export function ContactConfig() {
     } catch (error) {
       toast.error("Failed to update contact information");
       if (import.meta.env.DEV) {
-        console.error("Error updating contact info:", error);
+        if (import.meta.env.DEV) {
+          console.error("Error updating contact info:", error);
+        }
       }
     }
   };

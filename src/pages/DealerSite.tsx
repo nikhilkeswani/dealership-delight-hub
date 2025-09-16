@@ -237,7 +237,9 @@ const DealerSite = () => {
       form.reset();
     } catch (error) {
       if (import.meta.env.DEV) {
-        console.error('Error submitting lead:', error);
+        if (import.meta.env.DEV) {
+          console.error('Error submitting lead:', error);
+        }
       }
       toast({
         title: "Error",
