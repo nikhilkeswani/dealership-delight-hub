@@ -5,6 +5,9 @@ import MainActionCards from "@/components/dashboard/MainActionCards";
 import { useDealer } from "@/hooks/useDealer";
 import LoadingState from "@/components/common/LoadingState";
 import CacheBuster from "@/components/common/CacheBuster";
+import { Button } from "@/components/ui/button";
+import { LogOut } from "lucide-react";
+import { robustSignOut } from "@/lib/auth";
 
 const AppLanding: React.FC = () => {
   const { data: dealer, isLoading } = useDealer();
@@ -27,6 +30,19 @@ const AppLanding: React.FC = () => {
         title="Dashboard – DealerDelight"
         description="Your dealer management hub. Configure your website, access CRM tools, and manage your account."
       />
+      
+      {/* Header with logout button */}
+      <header className="flex justify-end p-4">
+        <Button 
+          variant="outline" 
+          size="sm" 
+          onClick={robustSignOut}
+          className="flex items-center gap-2"
+        >
+          <LogOut className="h-4 w-4" />
+          Logout
+        </Button>
+      </header>
       
       <main className="space-y-8 animate-fade-in" key="app-landing">
         {/* Welcome Section */}
