@@ -2,7 +2,6 @@ import React from "react";
 import { Outlet, NavLink, useLocation } from "react-router-dom";
 import { User, Users, CreditCard } from "lucide-react";
 import BackToHubButton from "@/components/common/BackToHubButton";
-import { robustSignOut } from "@/lib/auth";
 import { useDealer } from "@/hooks/useDealer";
 import {
   SidebarProvider,
@@ -19,8 +18,6 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 import { Breadcrumb, BreadcrumbList, BreadcrumbItem, BreadcrumbLink, BreadcrumbSeparator, BreadcrumbPage } from "@/components/ui/breadcrumb";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuItem } from "@/components/ui/dropdown-menu";
 
 const settingsNavItems = [
   { title: "Profile & Account", url: "/app/settings/profile", icon: User },
@@ -108,29 +105,6 @@ const SettingsLayout: React.FC = () => {
                 )}
               </BreadcrumbList>
             </Breadcrumb>
-            <div className="ml-auto">
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <button aria-label="Open user menu" className="rounded-full focus:outline-none focus:ring-2 focus:ring-ring/50 hover-scale">
-                    <Avatar className="h-9 w-9">
-                      <AvatarFallback className="bg-primary/10 text-primary font-semibold">
-                        {dealer?.business_name?.charAt(0)?.toUpperCase() || "DC"}
-                      </AvatarFallback>
-                    </Avatar>
-                  </button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-48 glass-card">
-                  <DropdownMenuLabel>My Account</DropdownMenuLabel>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem asChild>
-                    <NavLink to="/app">Back to Hub</NavLink>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem asChild>
-                    <NavLink to="/app/dashboard">Back to Dashboard</NavLink>
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </div>
           </div>
         </header>
         
