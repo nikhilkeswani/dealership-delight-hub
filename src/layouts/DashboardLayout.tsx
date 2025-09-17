@@ -154,13 +154,14 @@ const DashboardLayout: React.FC = () => {
                   <DropdownMenuLabel>My Account</DropdownMenuLabel>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem asChild>
+                    <NavLink to="/app">Back to Hub</NavLink>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
                     <NavLink to="/app/settings/dealers">Dealers & Teams</NavLink>
                   </DropdownMenuItem>
                   <DropdownMenuItem asChild>
                     <NavLink to="/app/settings/billing">Billing</NavLink>
                   </DropdownMenuItem>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={robustSignOut}>Sign out</DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
             </div>

@@ -123,10 +123,11 @@ const SettingsLayout: React.FC = () => {
                   <DropdownMenuLabel>My Account</DropdownMenuLabel>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem asChild>
+                    <NavLink to="/app">Back to Hub</NavLink>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
                     <NavLink to="/app/dashboard">Back to Dashboard</NavLink>
                   </DropdownMenuItem>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={robustSignOut}>Sign out</DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
             </div>
