@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from "react";
 import { useVehicles, useCreateVehicle, useUpdateVehicle, useDeleteVehicle } from "@/hooks/useVehicles";
 import VehicleFormDialog from "@/components/vehicles/VehicleFormDialog";
-import type { VehicleFormValues } from "@/components/vehicles/VehicleFormDialog";
+import type { VehicleFormSubmitData } from "@/components/vehicles/VehicleFormDialog";
 import ConfirmDialog from "@/components/common/ConfirmDialog";
 import { SEO } from "@/components/SEO";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -26,13 +26,15 @@ const Inventory: React.FC = () => {
   const updateVehicleMutation = useUpdateVehicle();
   const deleteVehicleMutation = useDeleteVehicle();
 
-  const handleCreateVehicle = (values: VehicleFormValues) => {
+  const handleCreateVehicle = (values: VehicleFormSubmitData) => {
     createVehicleMutation.mutate(values);
   };
 
-  const handleUpdateVehicle = (values: VehicleFormValues) => {
+  const handleUpdateVehicle = (values: VehicleFormSubmitData) => {
     if (editingVehicle) {
-      updateVehicleMutation.mutate({ id: editingVehicle.id, values });
+      // For updates, we don't use staged images, so we can safely cast to VehicleFormValues
+      const { stagedImages, ...vehicleValues } = values;
+      updateVehicleMutation.mutate({ id: editingVehicle.id, values: vehicleValues });
       setEditingVehicle(null);
     }
   };

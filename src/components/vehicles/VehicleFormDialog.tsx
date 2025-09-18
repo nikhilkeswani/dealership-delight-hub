@@ -6,6 +6,9 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { ImageUploader } from "@/components/ui/image-uploader";
+import { ImageStaging, type StagedImage } from "@/components/ui/image-staging";
+import { useOptimizedImageUpload } from "@/hooks/useOptimizedImageUpload";
+import { toast } from "sonner";
 
 export type VehicleFormValues = {
   id?: string;
@@ -20,11 +23,15 @@ export type VehicleFormValues = {
   images?: string[];
 };
 
+export type VehicleFormSubmitData = VehicleFormValues & {
+  stagedImages?: StagedImage[];
+};
+
 type Props = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   initialValues?: Partial<VehicleFormValues>;
-  onSubmit?: (values: VehicleFormValues) => void;
+  onSubmit?: (values: VehicleFormSubmitData) => void;
 };
 
 const emptyValues: VehicleFormValues = {
@@ -41,9 +48,15 @@ const emptyValues: VehicleFormValues = {
 
 const VehicleFormDialog: React.FC<Props> = ({ open, onOpenChange, initialValues, onSubmit }) => {
   const [values, setValues] = React.useState<VehicleFormValues>({ ...emptyValues, ...(initialValues ?? {}) });
+  const [stagedImages, setStagedImages] = React.useState<StagedImage[]>([]);
+  const [isSubmitting, setIsSubmitting] = React.useState(false);
+  const { uploadOptimizedImages } = useOptimizedImageUpload();
+
+  const isNewVehicle = !initialValues?.id || initialValues.id.startsWith('temp-');
 
   React.useEffect(() => {
     setValues({ ...emptyValues, ...(initialValues ?? {}) });
+    setStagedImages([]); // Clear staged images when dialog opens/closes
   }, [initialValues, open]);
 
   const update = (key: keyof VehicleFormValues) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -63,10 +76,28 @@ const VehicleFormDialog: React.FC<Props> = ({ open, onOpenChange, initialValues,
     setValues((v) => ({ ...v, images }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    onSubmit?.(values);
-    onOpenChange(false);
+    
+    if (isSubmitting) return;
+    
+    setIsSubmitting(true);
+    
+    try {
+      // For new vehicles, include staged images for two-phase upload
+      const submitData: VehicleFormSubmitData = {
+        ...values,
+        ...(isNewVehicle && stagedImages.length > 0 ? { stagedImages } : {})
+      };
+      
+      await onSubmit?.(submitData);
+      onOpenChange(false);
+    } catch (error) {
+      console.error('Error submitting vehicle:', error);
+      toast.error('Failed to save vehicle. Please try again.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -143,23 +174,46 @@ const VehicleFormDialog: React.FC<Props> = ({ open, onOpenChange, initialValues,
             </div>
             <div className="sm:col-span-2">
               <Label>Vehicle Images</Label>
-              <ImageUploader 
-                images={values.images || []} 
-                onImagesChange={updateImages}
-                maxImages={8}
-                vehicleId={initialValues?.id && !initialValues.id.startsWith('temp-') ? initialValues.id : undefined}
-                vehicleData={{
-                  make: values.make,
-                  model: values.model,
-                  year: values.year,
-                  condition: values.status === 'available' ? 'used' : values.status,
-                }}
-              />
+              {isNewVehicle ? (
+                <ImageStaging
+                  images={stagedImages}
+                  onImagesChange={setStagedImages}
+                  maxImages={8}
+                  vehicleData={{
+                    make: values.make,
+                    model: values.model,
+                    year: values.year,
+                    condition: values.status === 'available' ? 'used' : values.status,
+                  }}
+                />
+              ) : (
+                <ImageUploader 
+                  images={values.images || []} 
+                  onImagesChange={updateImages}
+                  maxImages={8}
+                  vehicleId={initialValues?.id}
+                  vehicleData={{
+                    make: values.make,
+                    model: values.model,
+                    year: values.year,
+                    condition: values.status === 'available' ? 'used' : values.status,
+                  }}
+                />
+              )}
             </div>
           </div>
           <DialogFooter>
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>
-            <Button type="submit">Save</Button>
+            <Button type="submit" disabled={isSubmitting}>
+              {isSubmitting ? (
+                <>
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2" />
+                  {isNewVehicle && stagedImages.length > 0 ? 'Saving & Uploading...' : 'Saving...'}
+                </>
+              ) : (
+                'Save'
+              )}
+            </Button>
           </DialogFooter>
         </form>
       </DialogContent>
