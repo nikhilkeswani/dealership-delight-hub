@@ -15,7 +15,7 @@ export interface LeadFormData {
   phone?: string;
   message?: string;
   dealer_id: string;
-  source?: string;
+  source?: 'website' | 'phone' | 'email' | 'referral' | 'walk_in' | 'social_media' | 'website_testdrive' | 'website_inquiry';
 }
 
 // Generic form field type

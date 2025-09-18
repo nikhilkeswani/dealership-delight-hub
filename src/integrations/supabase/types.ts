@@ -812,6 +812,8 @@ export type Database = {
         | "referral"
         | "walk_in"
         | "social_media"
+        | "website_testdrive"
+        | "website_inquiry"
       lead_status: "new" | "contacted" | "qualified" | "converted" | "lost"
       subscription_status: "active" | "inactive" | "cancelled" | "past_due"
       vehicle_status: "available" | "sold" | "pending" | "service"
@@ -951,6 +953,8 @@ export const Constants = {
         "referral",
         "walk_in",
         "social_media",
+        "website_testdrive",
+        "website_inquiry",
       ],
       lead_status: ["new", "contacted", "qualified", "converted", "lost"],
       subscription_status: ["active", "inactive", "cancelled", "past_due"],
