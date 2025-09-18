@@ -41,17 +41,26 @@ export const OptimizedImage: React.FC<OptimizedImageProps> = ({
 
   // Generate srcset for different sizes using actual optimized image paths
   const generateSrcSet = (baseSrc: string): string => {
-    if (!vehicleId) return baseSrc;
+    if (!vehicleId || !baseSrc.includes('/vehicles/')) return baseSrc;
     
-    // Generate srcset using actual optimized image paths
-    const thumbnailUrl = baseSrc.replace(/\/(thumbnail|medium|large|original)\//, '/thumbnail/');
-    const mediumUrl = baseSrc.replace(/\/(thumbnail|medium|large|original)\//, '/medium/');
-    const largeUrl = baseSrc.replace(/\/(thumbnail|medium|large|original)\//, '/large/');
+    // Extract the base URL structure: .../vehicles/{vehicleId}/{currentSize}/{filename}
+    const urlParts = baseSrc.split('/vehicles/');
+    if (urlParts.length !== 2) return baseSrc;
     
+    const [baseUrl, pathPart] = urlParts;
+    const pathSegments = pathPart.split('/');
+    
+    if (pathSegments.length < 3) return baseSrc;
+    
+    const [vehicleIdFromUrl, currentSize, ...filenameParts] = pathSegments;
+    const filename = filenameParts.join('/');
+    
+    // Generate URLs for different sizes
+    const baseStorageUrl = `${baseUrl}/vehicles/${vehicleIdFromUrl}`;
     const srcSet = [
-      `${thumbnailUrl} 400w`,
-      `${mediumUrl} 800w`,
-      `${largeUrl} 1200w`,
+      `${baseStorageUrl}/thumbnail/${filename} 400w`,
+      `${baseStorageUrl}/medium/${filename} 800w`,
+      `${baseStorageUrl}/large/${filename} 1200w`,
     ];
     
     return srcSet.join(', ');
@@ -91,6 +100,17 @@ export const OptimizedImage: React.FC<OptimizedImageProps> = ({
     onError?.();
   };
 
+  // Fallback to original image if optimized version fails
+  const getFallbackSrc = (originalSrc: string): string => {
+    if (!vehicleId || !originalSrc.includes('/vehicles/')) return originalSrc;
+    
+    // If we're already showing the original size, no fallback needed
+    if (originalSrc.includes('/original/')) return originalSrc;
+    
+    // Convert to original size path
+    return originalSrc.replace(/\/(thumbnail|medium|large)\//, '/original/');
+  };
+
   // Don't render image until it's in view (unless priority)
   const shouldLoad = priority || isInView;
 
@@ -105,8 +125,8 @@ export const OptimizedImage: React.FC<OptimizedImageProps> = ({
       <img
         ref={imgRef}
         src={shouldLoad ? src : undefined}
-        srcSet={shouldLoad ? generateSrcSet(src) : undefined}
-        sizes={shouldLoad ? sizes : undefined}
+        srcSet={shouldLoad && vehicleId ? generateSrcSet(src) : undefined}
+        sizes={shouldLoad && vehicleId ? sizes : undefined}
         alt={alt}
         className={cn(
           'transition-opacity duration-300',
@@ -120,8 +140,24 @@ export const OptimizedImage: React.FC<OptimizedImageProps> = ({
         {...imgProps}
       />
       
+      {/* Fallback image for when optimized version fails */}
+      {hasError && vehicleId && (
+        <img
+          src={getFallbackSrc(src)}
+          alt={alt}
+          className="transition-opacity duration-300 opacity-100"
+          onLoad={() => {
+            setHasError(false);
+            setIsLoaded(true);
+          }}
+          loading={priority ? 'eager' : 'lazy'}
+          decoding="async"
+          {...imgProps}
+        />
+      )}
+      
       {/* Error fallback */}
-      {hasError && (
+      {hasError && !vehicleId && (
         <div className="absolute inset-0 bg-muted flex items-center justify-center">
           <div className="text-muted-foreground text-sm text-center">
             <div className="w-8 h-8 mx-auto mb-2 opacity-50">

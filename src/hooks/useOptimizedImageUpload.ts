@@ -188,8 +188,22 @@ export const useOptimizedImageUpload = () => {
     baseUrl: string, 
     size: 'thumbnail' | 'medium' | 'large' | 'original' = 'medium'
   ): string => {
-    // Replace the size in the URL path
-    return baseUrl.replace(/\/(thumbnail|medium|large|original)\//, `/${size}/`);
+    if (!baseUrl.includes('/vehicles/')) return baseUrl;
+    
+    // Parse the URL structure: .../vehicles/{vehicleId}/{currentSize}/{filename}
+    const urlParts = baseUrl.split('/vehicles/');
+    if (urlParts.length !== 2) return baseUrl;
+    
+    const [basePart, pathPart] = urlParts;
+    const pathSegments = pathPart.split('/');
+    
+    if (pathSegments.length < 3) return baseUrl;
+    
+    const [vehicleId, currentSize, ...filenameParts] = pathSegments;
+    const filename = filenameParts.join('/');
+    
+    // Construct new URL with desired size
+    return `${basePart}/vehicles/${vehicleId}/${size}/${filename}`;
   };
 
   /**
