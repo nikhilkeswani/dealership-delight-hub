@@ -39,15 +39,19 @@ export const OptimizedImage: React.FC<OptimizedImageProps> = ({
   const imgRef = useRef<HTMLImageElement>(null);
   const observerRef = useRef<IntersectionObserver>();
 
-  // Generate srcset for different sizes
+  // Generate srcset for different sizes using actual optimized image paths
   const generateSrcSet = (baseSrc: string): string => {
     if (!vehicleId) return baseSrc;
     
-    const baseUrl = baseSrc.split('?')[0]; // Remove query params
+    // Generate srcset using actual optimized image paths
+    const thumbnailUrl = baseSrc.replace(/\/(thumbnail|medium|large|original)\//, '/thumbnail/');
+    const mediumUrl = baseSrc.replace(/\/(thumbnail|medium|large|original)\//, '/medium/');
+    const largeUrl = baseSrc.replace(/\/(thumbnail|medium|large|original)\//, '/large/');
+    
     const srcSet = [
-      `${baseUrl}?width=400&quality=75 400w`,
-      `${baseUrl}?width=800&quality=${quality} 800w`,
-      `${baseUrl}?width=1200&quality=${quality} 1200w`,
+      `${thumbnailUrl} 400w`,
+      `${mediumUrl} 800w`,
+      `${largeUrl} 1200w`,
     ];
     
     return srcSet.join(', ');

@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input';
 import { useOptimizedImageUpload } from '@/hooks/useOptimizedImageUpload';
 import { toast } from 'sonner';
 import OptimizedImage from '@/components/ui/OptimizedImage';
+import { useVehicleImageMetadata } from '@/hooks/useVehicleImageMetadata';
 
 interface ImageUploaderProps {
   images: string[];
@@ -29,7 +30,8 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({
   vehicleId,
   vehicleData,
 }) => {
-  const { uploadOptimizedImages, deleteOptimizedImage, isUploading, uploadProgress } = useOptimizedImageUpload();
+  const { uploadOptimizedImages, deleteOptimizedImage, updateImageMetadata, isUploading, uploadProgress } = useOptimizedImageUpload();
+  const { getAltText, updateAltText } = useVehicleImageMetadata(vehicleId);
   const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
   const [editingAltText, setEditingAltText] = useState<{ [key: string]: string }>({});
   const [showAltTextEditor, setShowAltTextEditor] = useState<string | null>(null);
@@ -151,7 +153,7 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({
             >
               <OptimizedImage
                 src={imageUrl}
-                alt={editingAltText[imageUrl] || `${vehicleData?.year || ''} ${vehicleData?.make || ''} ${vehicleData?.model || ''} - image ${index + 1}`.trim()}
+                alt={getAltText(imageUrl) || editingAltText[imageUrl] || `${vehicleData?.year || ''} ${vehicleData?.make || ''} ${vehicleData?.model || ''} - image ${index + 1}`.trim()}
                 className="w-full h-full object-cover"
                 vehicleId={vehicleId}
                 imageType="medium"
@@ -202,13 +204,23 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({
                 <div className="absolute bottom-2 left-2 right-2 bg-background/95 p-2 rounded border">
                   <Input
                     placeholder="Alt text for accessibility..."
-                    value={editingAltText[imageUrl] || ''}
+                    value={editingAltText[imageUrl] || getAltText(imageUrl) || ''}
                     onChange={(e) => setEditingAltText(prev => ({ ...prev, [imageUrl]: e.target.value }))}
                     className="text-xs h-6"
-                    onKeyDown={(e) => {
+                    onKeyDown={async (e) => {
                       if (e.key === 'Enter') {
+                        const altText = editingAltText[imageUrl];
+                        if (vehicleId && altText) {
+                          const success = await updateAltText(imageUrl, altText);
+                          if (success) {
+                            setEditingAltText(prev => {
+                              const updated = { ...prev };
+                              delete updated[imageUrl];
+                              return updated;
+                            });
+                          }
+                        }
                         setShowAltTextEditor(null);
-                        toast.success('Alt text updated');
                       } else if (e.key === 'Escape') {
                         setShowAltTextEditor(null);
                       }

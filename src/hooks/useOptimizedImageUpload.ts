@@ -193,16 +193,53 @@ export const useOptimizedImageUpload = () => {
   };
 
   /**
-   * Update image metadata (alt text, description)
+   * Update image metadata (alt text, description) in database
    */
   const updateImageMetadata = async (
+    vehicleId: string,
     imageUrl: string,
     metadata: Partial<ImageMetadata>
   ): Promise<boolean> => {
     try {
-      // This would typically update database records
-      // For now, we'll just return success
-      // In a full implementation, you'd store metadata in your vehicles table
+      // Get current vehicle data
+      const { data: vehicle, error: fetchError } = await supabase
+        .from('vehicles')
+        .select('image_metadata')
+        .eq('id', vehicleId)
+        .single();
+
+      if (fetchError) {
+        console.error('Failed to fetch vehicle:', fetchError);
+        return false;
+      }
+
+      // Update the metadata for this specific image
+      const currentMetadata = Array.isArray(vehicle.image_metadata) ? vehicle.image_metadata : [];
+      const updatedMetadata = currentMetadata.map((img: any) => 
+        img.url === imageUrl ? { ...img, ...metadata } : img
+      );
+
+      // If image not found in metadata, add it
+      if (!currentMetadata.find((img: any) => img.url === imageUrl)) {
+        updatedMetadata.push({
+          url: imageUrl,
+          alt: metadata.alt || '',
+          description: metadata.description || '',
+          isPrimary: updatedMetadata.length === 0
+        });
+      }
+
+      // Update vehicle with new metadata
+      const { error: updateError } = await supabase
+        .from('vehicles')
+        .update({ image_metadata: updatedMetadata as any })
+        .eq('id', vehicleId);
+
+      if (updateError) {
+        console.error('Failed to update metadata:', updateError);
+        return false;
+      }
+
       toast.success('Image metadata updated');
       return true;
     } catch (error) {

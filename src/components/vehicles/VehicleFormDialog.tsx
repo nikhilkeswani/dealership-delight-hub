@@ -147,7 +147,7 @@ const VehicleFormDialog: React.FC<Props> = ({ open, onOpenChange, initialValues,
                 images={values.images || []} 
                 onImagesChange={updateImages}
                 maxImages={8}
-                vehicleId={initialValues?.id || 'temp-' + Date.now()}
+                vehicleId={initialValues?.id && !initialValues.id.startsWith('temp-') ? initialValues.id : undefined}
                 vehicleData={{
                   make: values.make,
                   model: values.model,
