@@ -33,6 +33,8 @@ import { Phone, Mail, Clock, Star, Award, ShieldCheck, Tag, Search, Settings } f
 import { Badge } from "@/components/ui/badge";
 import { useState } from "react";
 import CustomizeSheet from "@/components/dealer/CustomizeSheet";
+
+type ContactIntent = "inquiry" | "testdrive";
 import { useDealerSiteConfig, type DealerSiteConfig } from "@/hooks/useDealerSiteConfig";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useDealer } from "@/hooks/useDealer";
@@ -147,6 +149,7 @@ const DealerSite = () => {
   const { data: dealer } = useDealer();
   const isDemo = !publicDealer || (slug || "").toLowerCase() === "demo-motors" || (typeof window !== "undefined" && new URLSearchParams(window.location.search).get("demo") === "1");
   const [customizeOpen, setCustomizeOpen] = useState(false);
+  const [contactIntent, setContactIntent] = useState<ContactIntent>("inquiry");
   const brandInitials = (config.brand.name || "").split(" ").slice(0,2).map(w=>w[0]).join("").toUpperCase() || "DL";
 
   const saveToWebsite = async () => {
@@ -227,7 +230,7 @@ const DealerSite = () => {
         phone: values.phone || undefined,
         message: values.message,
         dealer_id: publicDealer.id,
-        source: 'website',
+        source: contactIntent === 'testdrive' ? 'website_testdrive' : 'website_inquiry',
       });
 
       toast({
@@ -350,10 +353,26 @@ const DealerSite = () => {
             </div>
           </div>
           <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 w-full md:w-auto">
-            <Button variant="outline" size="xl" className="w-full sm:w-auto" onClick={() => document.getElementById("contact")?.scrollIntoView({ behavior: "smooth" })}>
+            <Button 
+              variant="outline" 
+              size="xl" 
+              className="w-full sm:w-auto" 
+              onClick={() => {
+                setContactIntent("inquiry");
+                document.getElementById("contact")?.scrollIntoView({ behavior: "smooth" });
+              }}
+            >
               Contact Dealer
             </Button>
-            <Button variant="hero" size="xl" className="w-full sm:w-auto" onClick={() => document.getElementById("contact")?.scrollIntoView({ behavior: "smooth" })}>
+            <Button 
+              variant="hero" 
+              size="xl" 
+              className="w-full sm:w-auto" 
+              onClick={() => {
+                setContactIntent("testdrive");
+                document.getElementById("contact")?.scrollIntoView({ behavior: "smooth" });
+              }}
+            >
               Book Test Drive
             </Button>
           </div>
@@ -589,7 +608,9 @@ const DealerSite = () => {
                 <p className="mt-3 text-sm text-muted-foreground">{config.contact.address}</p>
               </div>
               <div id="contact" className="space-y-4">
-                <h4 className="text-lg font-medium">Book a test drive</h4>
+                <h4 className="text-lg font-medium">
+                  {contactIntent === "testdrive" ? "Book a test drive" : "Get more information"}
+                </h4>
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-sm">
                   <div className="flex items-center gap-2">
                     <Phone className="h-4 w-4 text-primary" />
@@ -675,7 +696,9 @@ const DealerSite = () => {
                       name="date"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Preferred date</FormLabel>
+                          <FormLabel>
+                            {contactIntent === "testdrive" ? "Preferred date" : "Best time to contact"}
+                          </FormLabel>
                           <FormControl>
                             <Input type="date" {...field} />
                           </FormControl>
@@ -690,7 +713,15 @@ const DealerSite = () => {
                         <FormItem className="sm:col-span-2">
                           <FormLabel>Message</FormLabel>
                           <FormControl>
-                            <Textarea rows={4} placeholder="Tell us when you'd like to come by..." {...field} />
+                            <Textarea 
+                              rows={4} 
+                              placeholder={
+                                contactIntent === "testdrive" 
+                                  ? "Tell us when you'd like to come by for a test drive..." 
+                                  : "Tell us what information you're looking for..."
+                              } 
+                              {...field} 
+                            />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -698,7 +729,7 @@ const DealerSite = () => {
                     />
                     <div className="sm:col-span-2">
                       <Button type="submit" variant="hero" size="lg" className="w-full sm:w-auto">
-                        Request test drive
+                        {contactIntent === "testdrive" ? "Request test drive" : "Send inquiry"}
                       </Button>
                     </div>
                   </form>
