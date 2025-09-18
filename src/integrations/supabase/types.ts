@@ -680,6 +680,7 @@ export type Database = {
           features: Json | null
           fuel_type: string | null
           id: string
+          image_metadata: Json | null
           images: string[] | null
           make: string
           mileage: number | null
@@ -700,6 +701,7 @@ export type Database = {
           features?: Json | null
           fuel_type?: string | null
           id?: string
+          image_metadata?: Json | null
           images?: string[] | null
           make: string
           mileage?: number | null
@@ -720,6 +722,7 @@ export type Database = {
           features?: Json | null
           fuel_type?: string | null
           id?: string
+          image_metadata?: Json | null
           images?: string[] | null
           make?: string
           mileage?: number | null

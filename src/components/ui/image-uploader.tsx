@@ -1,15 +1,24 @@
 import React, { useCallback, useState } from 'react';
 import { useDropzone } from 'react-dropzone';
-import { X, Upload, Image, Loader2 } from 'lucide-react';
+import { X, Upload, Image, Loader2, Edit3 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { useImageUpload } from '@/hooks/useImageUpload';
+import { Input } from '@/components/ui/input';
+import { useOptimizedImageUpload } from '@/hooks/useOptimizedImageUpload';
 import { toast } from 'sonner';
+import OptimizedImage from '@/components/ui/OptimizedImage';
 
 interface ImageUploaderProps {
   images: string[];
   onImagesChange: (images: string[]) => void;
   maxImages?: number;
   className?: string;
+  vehicleId?: string;
+  vehicleData?: {
+    make?: string;
+    model?: string;
+    year?: number;
+    condition?: string;
+  };
 }
 
 export const ImageUploader: React.FC<ImageUploaderProps> = ({
@@ -17,9 +26,13 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({
   onImagesChange,
   maxImages = 10,
   className = '',
+  vehicleId,
+  vehicleData,
 }) => {
-  const { uploadImage, deleteImage, isUploading } = useImageUpload();
+  const { uploadOptimizedImages, deleteOptimizedImage, isUploading, uploadProgress } = useOptimizedImageUpload();
   const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
+  const [editingAltText, setEditingAltText] = useState<{ [key: string]: string }>({});
+  const [showAltTextEditor, setShowAltTextEditor] = useState<string | null>(null);
 
   const onDrop = useCallback(async (acceptedFiles: File[]) => {
     if (images.length + acceptedFiles.length > maxImages) {
@@ -27,14 +40,23 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({
       return;
     }
 
-    const uploadPromises = acceptedFiles.map(file => uploadImage(file, 'vehicles'));
-    const uploadedUrls = await Promise.all(uploadPromises);
-    const validUrls = uploadedUrls.filter(url => url !== null) as string[];
-    
-    if (validUrls.length > 0) {
-      onImagesChange([...images, ...validUrls]);
+    if (!vehicleId) {
+      toast.error("Vehicle ID is required for optimized uploads");
+      return;
     }
-  }, [images, maxImages, uploadImage, onImagesChange]);
+
+    const uploadedImages = await uploadOptimizedImages(
+      acceptedFiles,
+      vehicleId,
+      vehicleData,
+      'vehicles'
+    );
+    
+    if (uploadedImages.length > 0) {
+      const newUrls = uploadedImages.map(img => img.url);
+      onImagesChange([...images, ...newUrls]);
+    }
+  }, [images, maxImages, uploadOptimizedImages, onImagesChange, vehicleId, vehicleData]);
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
@@ -47,10 +69,13 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({
 
   const removeImage = async (index: number) => {
     const imageUrl = images[index];
-    const deleted = await deleteImage(imageUrl);
+    const deleted = await deleteOptimizedImage(imageUrl, vehicleId);
     if (deleted) {
       const newImages = images.filter((_, i) => i !== index);
       onImagesChange(newImages);
+      toast.success('Image deleted successfully');
+    } else {
+      toast.error('Failed to delete image');
     }
   };
 
@@ -124,11 +149,23 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({
                 ${index === 0 ? 'ring-2 ring-primary ring-offset-2' : ''}
               `}
             >
-              <img
+              <OptimizedImage
                 src={imageUrl}
-                alt={`Vehicle image ${index + 1}`}
+                alt={editingAltText[imageUrl] || `${vehicleData?.year || ''} ${vehicleData?.make || ''} ${vehicleData?.model || ''} - image ${index + 1}`.trim()}
                 className="w-full h-full object-cover"
+                vehicleId={vehicleId}
+                imageType="medium"
+                priority={index === 0}
               />
+              
+              {/* Upload Progress */}
+              {Object.keys(uploadProgress).length > 0 && (
+                <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
+                  <div className="text-white text-sm">
+                    {Math.round(Object.values(uploadProgress)[0] || 0)}%
+                  </div>
+                </div>
+              )}
               
               {/* Primary badge */}
               {index === 0 && (
@@ -137,15 +174,51 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({
                 </div>
               )}
               
-              {/* Remove button */}
-              <Button
-                variant="destructive"
-                size="sm"
-                className="absolute top-2 right-2 h-6 w-6 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
-                onClick={() => removeImage(index)}
-              >
-                <X className="h-3 w-3" />
-              </Button>
+              {/* Action buttons */}
+              <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                {/* Edit Alt Text button */}
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  className="h-6 w-6 p-0"
+                  onClick={() => setShowAltTextEditor(showAltTextEditor === imageUrl ? null : imageUrl)}
+                >
+                  <Edit3 className="h-3 w-3" />
+                </Button>
+                
+                {/* Remove button */}
+                <Button
+                  variant="destructive"
+                  size="sm"
+                  className="h-6 w-6 p-0"
+                  onClick={() => removeImage(index)}
+                >
+                  <X className="h-3 w-3" />
+                </Button>
+              </div>
+              
+              {/* Alt Text Editor */}
+              {showAltTextEditor === imageUrl && (
+                <div className="absolute bottom-2 left-2 right-2 bg-background/95 p-2 rounded border">
+                  <Input
+                    placeholder="Alt text for accessibility..."
+                    value={editingAltText[imageUrl] || ''}
+                    onChange={(e) => setEditingAltText(prev => ({ ...prev, [imageUrl]: e.target.value }))}
+                    className="text-xs h-6"
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        setShowAltTextEditor(null);
+                        toast.success('Alt text updated');
+                      } else if (e.key === 'Escape') {
+                        setShowAltTextEditor(null);
+                      }
+                    }}
+                  />
+                  <div className="text-xs text-muted-foreground mt-1">
+                    Press Enter to save, Esc to cancel
+                  </div>
+                </div>
+              )}
               
               {/* Drag handle */}
               <div className="absolute bottom-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -159,9 +232,14 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({
       )}
 
       {images.length > 0 && (
-        <p className="text-xs text-muted-foreground">
-          {images.length}/{maxImages} images • First image will be the primary image • Drag to reorder
-        </p>
+        <div className="space-y-2">
+          <p className="text-xs text-muted-foreground">
+            {images.length}/{maxImages} images • First image will be the primary image • Drag to reorder
+          </p>
+          <p className="text-xs text-muted-foreground">
+            Images are automatically optimized with compression, WebP conversion, and multiple sizes for better performance
+          </p>
+        </div>
       )}
     </div>
   );

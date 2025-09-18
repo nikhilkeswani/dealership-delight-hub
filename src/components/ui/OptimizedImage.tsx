@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { cn } from '@/lib/utils';
 
-interface OptimizedImageProps {
+interface OptimizedImageProps extends React.ImgHTMLAttributes<HTMLImageElement> {
   src: string;
   alt: string;
   className?: string;
@@ -31,6 +31,7 @@ export const OptimizedImage: React.FC<OptimizedImageProps> = ({
   onError,
   vehicleId,
   imageType = 'medium',
+  ...imgProps
 }) => {
   const [isLoaded, setIsLoaded] = useState(false);
   const [isInView, setIsInView] = useState(priority);
@@ -112,6 +113,7 @@ export const OptimizedImage: React.FC<OptimizedImageProps> = ({
         onError={handleError}
         loading={priority ? 'eager' : 'lazy'}
         decoding="async"
+        {...imgProps}
       />
       
       {/* Error fallback */}

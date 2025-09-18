@@ -8,6 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { ImageUploader } from "@/components/ui/image-uploader";
 
 export type VehicleFormValues = {
+  id?: string;
   make: string;
   model: string;
   year: number;
@@ -146,6 +147,13 @@ const VehicleFormDialog: React.FC<Props> = ({ open, onOpenChange, initialValues,
                 images={values.images || []} 
                 onImagesChange={updateImages}
                 maxImages={8}
+                vehicleId={initialValues?.id || 'temp-' + Date.now()}
+                vehicleData={{
+                  make: values.make,
+                  model: values.model,
+                  year: values.year,
+                  condition: values.status === 'available' ? 'used' : values.status,
+                }}
               />
             </div>
           </div>

@@ -7,6 +7,7 @@ import {
   CarouselPrevious,
 } from "@/components/ui/carousel";
 import { ImageGallery } from "@/components/ui/image-gallery";
+import OptimizedImage from "@/components/ui/OptimizedImage";
 import React from "react";
 
 export interface VehicleData {
@@ -38,12 +39,15 @@ const VehicleCard = ({ vehicle }: { vehicle: VehicleData }) => {
             <CarouselContent>
               {displayImages.map((src, idx) => (
                 <CarouselItem key={idx}>
-                  <img
+                  <OptimizedImage
                     itemProp="image"
                     src={src}
                     alt={`${vehicle.title} photo ${idx + 1}`}
                     className="w-full h-56 md:h-64 object-cover cursor-pointer hover:scale-105 transition-transform"
-                    loading="lazy"
+                    vehicleId={vehicle.id}
+                    imageType="large"
+                    priority={idx === 0}
+                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                     onClick={() => handleImageClick(idx)}
                   />
                 </CarouselItem>
