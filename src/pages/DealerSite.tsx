@@ -76,11 +76,22 @@ const sampleVehicles: VehicleData[] = [
 const DealerSite = () => {
   const { slug } = useParams();
   
+  console.log('DealerSite: Starting render with slug:', slug);
+  
   // Fetch real dealer data
-  const { data: publicDealer, isLoading: dealerLoading } = usePublicDealer(slug);
-  const { data: publicVehicles, isLoading: vehiclesLoading } = usePublicVehicles(publicDealer?.id);
-  const { data: websiteConfig, isLoading: websiteLoading } = usePublicDealerWebsite(publicDealer?.id);
+  const { data: publicDealer, isLoading: dealerLoading, error: dealerError } = usePublicDealer(slug);
+  const { data: publicVehicles, isLoading: vehiclesLoading, error: vehiclesError } = usePublicVehicles(publicDealer?.id);
+  const { data: websiteConfig, isLoading: websiteLoading, error: websiteError } = usePublicDealerWebsite(publicDealer?.id);
   const createLead = useCreateLead();
+
+  console.log('DealerSite: Data states', {
+    publicDealer,
+    publicVehicles,
+    websiteConfig,
+    dealerError,
+    vehiclesError,
+    websiteError
+  });
 
   // Demo fallback data
   const dealerName = publicDealer?.business_name || (slug || "demo-motors")
@@ -195,17 +206,39 @@ const DealerSite = () => {
   });
   const { toast } = useToast();
   
+  // Watch form intent once to avoid multiple re-renders
+  const currentIntent = form.watch("intent");
+  const currentVehicleId = form.watch("vehicleId");
+  
   // Use real vehicles or fallback to sample data with enhanced options
   const displayVehicles = publicVehicles?.length ? publicVehicles : sampleVehicles;
+  console.log('DealerSite: Display vehicles:', displayVehicles);
+  
   const vehicleOptions = [
     { id: "", title: "No specific vehicle - General inquiry" },
     { id: "general", title: "General inquiry about your dealership" },
-    ...displayVehicles.slice(0, 15).map((v) => ({ 
-      id: v.id, 
-      title: 'title' in v ? v.title : `${(v as any).year || ''} ${(v as any).make || ''} ${(v as any).model || ''}`.trim() || 'Vehicle'
-    })),
+    ...displayVehicles.slice(0, 15).map((v) => {
+      console.log('DealerSite: Processing vehicle for options:', v);
+      try {
+        const title = 'title' in v && v.title 
+          ? v.title 
+          : `${(v as any)?.year || ''} ${(v as any)?.make || ''} ${(v as any)?.model || ''}`.replace(/\s+/g, ' ').trim() || 'Vehicle';
+        return {
+          id: v.id || 'unknown', 
+          title
+        };
+      } catch (error) {
+        console.error('Error processing vehicle:', v, error);
+        return {
+          id: v.id || 'unknown',
+          title: 'Vehicle'
+        };
+      }
+    }),
     ...(displayVehicles.length > 15 ? [{ id: "other", title: "Other vehicle not listed" }] : [])
   ];
+  
+  console.log('DealerSite: Vehicle options:', vehicleOptions);
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     if (isDemo) {
@@ -272,26 +305,33 @@ const DealerSite = () => {
   const [query, setQuery] = useState("");
   const [type, setType] = useState<string | null>(null);
   const filteredVehicles = displayVehicles.filter((v) => {
-    const q = query.trim().toLowerCase();
-    const vehicleTitle = 'title' in v ? v.title : `${(v as any).year || ''} ${(v as any).make || ''} ${(v as any).model || ''}`.trim() || 'Vehicle';
-    const vehicleDescription = 'description' in v ? v.description : (v as any).description;
-    const vehicleFeatures = 'features' in v ? v.features : ((v as any).features ? Object.keys((v as any).features) : []);
-    
-    const matchesQuery = !q
-      ? true
-      : [vehicleTitle, vehicleDescription, ...(Array.isArray(vehicleFeatures) ? vehicleFeatures : [])]
-          .filter(Boolean)
-          .some((t) => String(t).toLowerCase().includes(q));
-    const matchesType = !type
-      ? true
-      : type === "SUVs"
-      ? vehicleTitle.toLowerCase().includes("suv")
-      : type === "Sedans"
-      ? vehicleTitle.toLowerCase().includes("sedan")
-      : type === "Electric"
-      ? (Array.isArray(vehicleFeatures) ? vehicleFeatures : []).some((f) => String(f).toLowerCase().includes("electric"))
-      : true;
-    return matchesQuery && matchesType;
+    try {
+      const q = query.trim().toLowerCase();
+      const vehicleTitle = 'title' in v && v.title 
+        ? v.title 
+        : `${(v as any)?.year || ''} ${(v as any)?.make || ''} ${(v as any)?.model || ''}`.replace(/\s+/g, ' ').trim() || 'Vehicle';
+      const vehicleDescription = ('description' in v ? v.description : (v as any)?.description) || '';
+      const vehicleFeatures = 'features' in v ? v.features : ((v as any)?.features ? Object.keys((v as any).features) : []);
+      
+      const matchesQuery = !q
+        ? true
+        : [vehicleTitle, vehicleDescription, ...(Array.isArray(vehicleFeatures) ? vehicleFeatures : [])]
+            .filter(Boolean)
+            .some((t) => String(t).toLowerCase().includes(q));
+      const matchesType = !type
+        ? true
+        : type === "SUVs"
+        ? vehicleTitle.toLowerCase().includes("suv")
+        : type === "Sedans"
+        ? vehicleTitle.toLowerCase().includes("sedan")
+        : type === "Electric"
+        ? (Array.isArray(vehicleFeatures) ? vehicleFeatures : []).some((f) => String(f).toLowerCase().includes("electric"))
+        : true;
+      return matchesQuery && matchesType;
+    } catch (error) {
+      console.error('Error filtering vehicle:', v, error);
+      return false;
+    }
   });
 
   // Sorting
@@ -631,7 +671,7 @@ const DealerSite = () => {
               </div>
                 <div id="contact" className="space-y-4">
                 <h4 className="text-lg font-medium">
-                  {form.watch("intent") === "testdrive" ? "Book a test drive" : "Get more information"}
+                  {currentIntent === "testdrive" ? "Book a test drive" : "Get more information"}
                 </h4>
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-sm">
                   <div className="flex items-center gap-2">
@@ -714,7 +754,7 @@ const DealerSite = () => {
                       )}
                     />
                     {/* Other vehicle text input - shown when "other" is selected */}
-                    {form.watch("vehicleId") === "other" && (
+                    {currentVehicleId === "other" && (
                       <FormField
                         control={form.control}
                         name="vehicleOther"
@@ -738,7 +778,7 @@ const DealerSite = () => {
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>
-                            {form.watch("intent") === "testdrive" ? "Preferred date" : "Best time to contact"}
+                            {currentIntent === "testdrive" ? "Preferred date" : "Best time to contact"}
                           </FormLabel>
                           <FormControl>
                             <Input type="date" {...field} />
@@ -757,7 +797,7 @@ const DealerSite = () => {
                             <Textarea 
                               rows={4} 
                               placeholder={
-                                form.watch("intent") === "testdrive" 
+                                currentIntent === "testdrive" 
                                   ? "Tell us when you'd like to come by for a test drive..." 
                                   : "Tell us what information you're looking for..."
                               } 
@@ -778,7 +818,7 @@ const DealerSite = () => {
                     />
                     <div className="sm:col-span-2">
                       <Button type="submit" variant="hero" size="lg" className="w-full sm:w-auto">
-                        {form.watch("intent") === "testdrive" ? "Request test drive" : "Send inquiry"}
+                        {currentIntent === "testdrive" ? "Request test drive" : "Send inquiry"}
                       </Button>
                     </div>
                   </form>
