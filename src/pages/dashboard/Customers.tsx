@@ -24,7 +24,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { formatCurrency, formatDate } from "@/lib/format";
 import { useToast } from "@/hooks/use-toast";
-import { useCustomers, useDeleteCustomer, type Customer } from "@/hooks/useCustomers";
+import { useCustomers, useDeleteCustomer, useConvertLeadToCustomer, type CustomerOrLead } from "@/hooks/useCustomers";
 import { useDealer } from "@/hooks/useDealer";
 import CustomerFormDialog from "@/components/customers/CustomerFormDialog";
 import CustomerDrawer from "@/components/customers/CustomerDrawer";
@@ -38,7 +38,8 @@ import {
   Trash2, 
   MoreHorizontal,
   Phone,
-  Mail
+  Mail,
+  UserPlus
 } from "lucide-react";
 
 const Customers: React.FC = () => {
@@ -46,6 +47,7 @@ const Customers: React.FC = () => {
   const { data: dealer, isLoading: dealerLoading, error: dealerError } = useDealer();
   const { data, isLoading: customersLoading, error: customersError } = useCustomers();
   const deleteCustomer = useDeleteCustomer();
+  const convertLead = useConvertLeadToCustomer();
 
   // Ensure customers are only loaded when dealer exists
   // Handle loading states separately for better error isolation
@@ -78,9 +80,9 @@ const Customers: React.FC = () => {
   const [stateFilter, setStateFilter] = React.useState<string>("all");
   const [dateFilter, setDateFilter] = React.useState<string>("all");
   const [drawerOpen, setDrawerOpen] = React.useState(false);
-  const [selected, setSelected] = React.useState<Customer | null>(null);
+  const [selected, setSelected] = React.useState<CustomerOrLead | null>(null);
   const [formOpen, setFormOpen] = React.useState(false);
-  const [editValues, setEditValues] = React.useState<Partial<Customer> | undefined>(undefined);
+  const [editValues, setEditValues] = React.useState<Partial<CustomerOrLead> | undefined>(undefined);
 
   const uniqueStates = React.useMemo(() => {
     const s = new Set<string>();
@@ -191,15 +193,17 @@ const Customers: React.FC = () => {
     setEditValues(undefined);
     setFormOpen(true);
   };
-  const onEdit = (c: Customer) => {
+  const onEdit = (c: CustomerOrLead) => {
+    if (c.isLead) return; // Can't edit leads directly
     setEditValues(c);
     setFormOpen(true);
   };
-  const onView = (c: Customer) => {
+  const onView = (c: CustomerOrLead) => {
     setSelected(c);
     setDrawerOpen(true);
   };
-  const handleDelete = async (c: Customer) => {
+  const handleDelete = async (c: CustomerOrLead) => {
+    if (c.isLead) return; // Can't delete leads from customer view
     try {
       await deleteCustomer.mutateAsync(c.id);
       toast({ title: "Customer deleted", description: `${c.first_name} ${c.last_name} has been removed.` });
@@ -207,6 +211,22 @@ const Customers: React.FC = () => {
       toast({ 
         title: "Error", 
         description: "Failed to delete customer",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const handleConvertLead = async (leadId: string) => {
+    try {
+      await convertLead.mutateAsync(leadId);
+      toast({ 
+        title: "Lead converted", 
+        description: "Lead has been successfully converted to a customer." 
+      });
+    } catch (error) {
+      toast({ 
+        title: "Error", 
+        description: "Failed to convert lead to customer",
         variant: "destructive"
       });
     }
@@ -237,7 +257,7 @@ const Customers: React.FC = () => {
         </div>
 
         <CustomerKPIs 
-          data={data} 
+          data={data?.filter(item => !item.isLead) as any} 
           isLoading={customersLoading} 
           error={customersError} 
         />
@@ -331,12 +351,12 @@ const Customers: React.FC = () => {
                                 </div>
                               </TableCell>
                               <TableCell>
-                                <div className="space-y-1">
-                                  <div className="text-sm">{c.email}</div>
-                                  {c.phone && (
-                                    <div className="text-sm text-muted-foreground">{c.phone}</div>
-                                  )}
-                                </div>
+                                 <div className="space-y-1">
+                                   <div className="text-sm">{c.email}</div>
+                                   {c.phone && (
+                                     <div className="text-sm text-muted-foreground">{c.phone}</div>
+                                   )}
+                                 </div>
                               </TableCell>
                               <TableCell>
                                 {c.city && c.state ? (
@@ -347,9 +367,11 @@ const Customers: React.FC = () => {
                                   <div className="text-sm text-muted-foreground">—</div>
                                 )}
                               </TableCell>
-                              <TableCell>
-                                <div className="font-medium">{formatCurrency(c.total_spent || 0)}</div>
-                              </TableCell>
+                               <TableCell>
+                                 <div className="font-medium">
+                                   {c.isLead ? "—" : formatCurrency(c.total_spent || 0)}
+                                 </div>
+                               </TableCell>
                               <TableCell>
                                 <div className="text-sm text-muted-foreground">
                                   {formatDate(c.created_at)}
@@ -371,42 +393,51 @@ const Customers: React.FC = () => {
                                         <MoreHorizontal className="h-4 w-4" />
                                       </Button>
                                     </DropdownMenuTrigger>
-                                    <DropdownMenuContent align="end" className="glass-card">
-                                      <DropdownMenuItem onClick={() => onView(c)}>
-                                        <Eye className="h-4 w-4 mr-2" />
-                                        View Details
-                                      </DropdownMenuItem>
-                                      <DropdownMenuItem onClick={() => onEdit(c)}>
-                                        <Edit className="h-4 w-4 mr-2" />
-                                        Edit Customer
-                                      </DropdownMenuItem>
-                                      <DropdownMenuSeparator />
-                                      <AlertDialog>
-                                        <AlertDialogTrigger asChild>
-                                          <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
-                                            <Trash2 className="h-4 w-4 mr-2" />
-                                            Delete
-                                          </DropdownMenuItem>
-                                        </AlertDialogTrigger>
-                                        <AlertDialogContent className="glass-card">
-                                          <AlertDialogHeader>
-                                            <AlertDialogTitle>Delete Customer</AlertDialogTitle>
-                                            <AlertDialogDescription>
-                                              Are you sure you want to delete {c.first_name} {c.last_name}? This action cannot be undone.
-                                            </AlertDialogDescription>
-                                          </AlertDialogHeader>
-                                          <AlertDialogFooter>
-                                            <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                            <AlertDialogAction 
-                                              onClick={() => handleDelete(c)}
-                                              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                                            >
-                                              Delete
-                                            </AlertDialogAction>
-                                          </AlertDialogFooter>
-                                        </AlertDialogContent>
-                                      </AlertDialog>
-                                    </DropdownMenuContent>
+                                     <DropdownMenuContent align="end" className="glass-card">
+                                       {c.isLead ? (
+                                         <DropdownMenuItem onClick={() => handleConvertLead(c.id)}>
+                                           <UserPlus className="h-4 w-4 mr-2" />
+                                           Convert to Customer
+                                         </DropdownMenuItem>
+                                       ) : (
+                                         <>
+                                           <DropdownMenuItem onClick={() => onView(c)}>
+                                             <Eye className="h-4 w-4 mr-2" />
+                                             View Details
+                                           </DropdownMenuItem>
+                                           <DropdownMenuItem onClick={() => onEdit(c)}>
+                                             <Edit className="h-4 w-4 mr-2" />
+                                             Edit Customer
+                                           </DropdownMenuItem>
+                                           <DropdownMenuSeparator />
+                                           <AlertDialog>
+                                             <AlertDialogTrigger asChild>
+                                               <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+                                                 <Trash2 className="h-4 w-4 mr-2" />
+                                                 Delete
+                                               </DropdownMenuItem>
+                                             </AlertDialogTrigger>
+                                             <AlertDialogContent className="glass-card">
+                                               <AlertDialogHeader>
+                                                 <AlertDialogTitle>Delete Customer</AlertDialogTitle>
+                                                 <AlertDialogDescription>
+                                                   Are you sure you want to delete {c.first_name} {c.last_name}? This action cannot be undone.
+                                                 </AlertDialogDescription>
+                                               </AlertDialogHeader>
+                                               <AlertDialogFooter>
+                                                 <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                                 <AlertDialogAction 
+                                                   onClick={() => handleDelete(c)}
+                                                   className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                                                 >
+                                                   Delete
+                                                 </AlertDialogAction>
+                                               </AlertDialogFooter>
+                                             </AlertDialogContent>
+                                           </AlertDialog>
+                                         </>
+                                       )}
+                                     </DropdownMenuContent>
                                   </DropdownMenu>
                                 </div>
                               </TableCell>
