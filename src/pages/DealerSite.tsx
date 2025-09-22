@@ -31,7 +31,7 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import { Phone, Mail, Clock, Star, Award, ShieldCheck, Tag, Search, Settings } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import CustomizeSheet from "@/components/dealer/CustomizeSheet";
 
 import { useDealerSiteConfig, type DealerSiteConfig } from "@/hooks/useDealerSiteConfig";
@@ -43,6 +43,62 @@ import { usePublicVehicles } from "@/hooks/usePublicVehicles";
 import { usePublicDealerWebsite } from "@/hooks/usePublicDealerWebsite";
 import { useCreateLead } from "@/hooks/useCreateLead";
 import { formatCurrency } from "@/lib/format";
+
+// Safe transformation function for PublicVehicle to VehicleData
+const transformPublicVehicleToVehicleData = (vehicle: any): VehicleData => {
+  try {
+    // Build safe title
+    const title = vehicle.title || 
+      `${vehicle.year || ''} ${vehicle.make || ''} ${vehicle.model || ''}`.replace(/\s+/g, ' ').trim() || 
+      'Vehicle';
+    
+    // Build safe price string
+    const price = typeof vehicle.price === 'number' 
+      ? formatCurrency(vehicle.price)
+      : vehicle.price || 'Contact for Price';
+    
+    // Safe condition
+    const condition = vehicle.condition || 'Used';
+    
+    // Safe description
+    const description = vehicle.description || `${title} - Contact us for more details.`;
+    
+    // Safe features array - PublicVehicle doesn't have features, so we'll create basic ones
+    const features = [];
+    if (vehicle.fuel_type) features.push(vehicle.fuel_type);
+    if (vehicle.transmission) features.push(vehicle.transmission);
+    if (vehicle.body_type) features.push(vehicle.body_type);
+    if (vehicle.mileage) features.push(`${vehicle.mileage.toLocaleString()} mi`);
+    
+    // Safe images array
+    const images = Array.isArray(vehicle.images) && vehicle.images.length > 0 
+      ? vehicle.images 
+      : [sedan]; // Fallback to sample image
+    
+    return {
+      id: vehicle.id || `vehicle_${Date.now()}_${Math.random()}`,
+      title,
+      price,
+      condition,
+      description,
+      features,
+      images
+    };
+  } catch (error) {
+    console.error('Error transforming vehicle:', vehicle, error);
+    // Return safe fallback vehicle
+    return {
+      id: vehicle?.id || `fallback_${Date.now()}`,
+      title: 'Vehicle',
+      price: 'Contact for Price',
+      condition: 'Used',
+      description: 'Contact us for more details about this vehicle.',
+      features: [],
+      images: [sedan]
+    };
+  }
+};
+
 const sampleVehicles: VehicleData[] = [
   {
     id: "1",
@@ -210,33 +266,31 @@ const DealerSite = () => {
   const currentIntent = form.watch("intent");
   const currentVehicleId = form.watch("vehicleId");
   
-  // Use real vehicles or fallback to sample data with enhanced options
-  const displayVehicles = publicVehicles?.length ? publicVehicles : sampleVehicles;
-  console.log('DealerSite: Display vehicles:', displayVehicles);
+  // Transform real vehicles to VehicleData format safely, with memoization for performance
+  const transformedVehicles = useMemo(() => {
+    if (!publicVehicles?.length) return sampleVehicles;
+    
+    try {
+      return publicVehicles.map(transformPublicVehicleToVehicleData);
+    } catch (error) {
+      console.error('Error transforming vehicles batch:', error);
+      return sampleVehicles;
+    }
+  }, [publicVehicles]);
   
-  const vehicleOptions = [
+  const displayVehicles = transformedVehicles;
+  console.log('DealerSite: Display vehicles after transformation:', displayVehicles);
+  
+  // Vehicle options with safe property access - memoized for performance
+  const vehicleOptions = useMemo(() => [
     { id: "", title: "No specific vehicle - General inquiry" },
     { id: "general", title: "General inquiry about your dealership" },
-    ...displayVehicles.slice(0, 15).map((v) => {
-      console.log('DealerSite: Processing vehicle for options:', v);
-      try {
-        const title = 'title' in v && v.title 
-          ? v.title 
-          : `${(v as any)?.year || ''} ${(v as any)?.make || ''} ${(v as any)?.model || ''}`.replace(/\s+/g, ' ').trim() || 'Vehicle';
-        return {
-          id: v.id || 'unknown', 
-          title
-        };
-      } catch (error) {
-        console.error('Error processing vehicle:', v, error);
-        return {
-          id: v.id || 'unknown',
-          title: 'Vehicle'
-        };
-      }
-    }),
+    ...displayVehicles.slice(0, 15).map((v) => ({
+      id: v.id || 'unknown',
+      title: v.title || 'Vehicle'
+    })),
     ...(displayVehicles.length > 15 ? [{ id: "other", title: "Other vehicle not listed" }] : [])
-  ];
+  ], [displayVehicles]);
   
   console.log('DealerSite: Vehicle options:', vehicleOptions);
 
@@ -301,73 +355,74 @@ const DealerSite = () => {
     }
   };
 
-  // Client-side search/filter
+  // Client-side search/filter with safe property access
   const [query, setQuery] = useState("");
   const [type, setType] = useState<string | null>(null);
-  const filteredVehicles = displayVehicles.filter((v) => {
-    try {
-      const q = query.trim().toLowerCase();
-      const vehicleTitle = 'title' in v && v.title 
-        ? v.title 
-        : `${(v as any)?.year || ''} ${(v as any)?.make || ''} ${(v as any)?.model || ''}`.replace(/\s+/g, ' ').trim() || 'Vehicle';
-      const vehicleDescription = ('description' in v ? v.description : (v as any)?.description) || '';
-      const vehicleFeatures = 'features' in v ? v.features : ((v as any)?.features ? Object.keys((v as any).features) : []);
-      
-      const matchesQuery = !q
-        ? true
-        : [vehicleTitle, vehicleDescription, ...(Array.isArray(vehicleFeatures) ? vehicleFeatures : [])]
-            .filter(Boolean)
-            .some((t) => String(t).toLowerCase().includes(q));
-      const matchesType = !type
-        ? true
-        : type === "SUVs"
-        ? vehicleTitle.toLowerCase().includes("suv")
-        : type === "Sedans"
-        ? vehicleTitle.toLowerCase().includes("sedan")
-        : type === "Electric"
-        ? (Array.isArray(vehicleFeatures) ? vehicleFeatures : []).some((f) => String(f).toLowerCase().includes("electric"))
-        : true;
-      return matchesQuery && matchesType;
-    } catch (error) {
-      console.error('Error filtering vehicle:', v, error);
-      return false;
-    }
-  });
+  const filteredVehicles = useMemo(() => {
+    return displayVehicles.filter((v) => {
+      try {
+        const q = query.trim().toLowerCase();
+        
+        // Safe property access since vehicles are already transformed
+        const vehicleTitle = v.title || 'Vehicle';
+        const vehicleDescription = v.description || '';
+        const vehicleFeatures = Array.isArray(v.features) ? v.features : [];
+        
+        const matchesQuery = !q || [vehicleTitle, vehicleDescription, ...vehicleFeatures]
+          .filter(Boolean)
+          .some((t) => String(t).toLowerCase().includes(q));
+          
+        const matchesType = !type || (
+          type === "SUVs" ? vehicleTitle.toLowerCase().includes("suv") :
+          type === "Sedans" ? vehicleTitle.toLowerCase().includes("sedan") :
+          type === "Electric" ? vehicleFeatures.some((f) => String(f).toLowerCase().includes("electric")) :
+          true
+        );
+        
+        return matchesQuery && matchesType;
+      } catch (error) {
+        console.error('Error filtering vehicle:', v, error);
+        return false;
+      }
+    });
+  }, [displayVehicles, query, type]);
 
-  // Sorting
+  // Sorting with memoization
   const [sort, setSort] = useState<"relevance" | "price-asc" | "price-desc">("relevance");
-  const parsePrice = (vehicle: any) => {
-    const price = 'price' in vehicle ? vehicle.price : vehicle.price;
+  const parsePrice = (vehicle: VehicleData) => {
+    const price = vehicle.price;
     if (typeof price === 'number') return price;
-    const n = Number(String(price ?? "").replace(/[^0-9.]/g, ""));
+    const n = Number(String(price || "").replace(/[^0-9.]/g, ""));
     return isNaN(n) ? 0 : n;
   };
-  const sortedVehicles = [...filteredVehicles].sort((a, b) => {
-    if (sort === "price-asc") return parsePrice(a) - parsePrice(b);
-    if (sort === "price-desc") return parsePrice(b) - parsePrice(a);
-    return 0;
-  });
+  
+  const sortedVehicles = useMemo(() => {
+    return [...filteredVehicles].sort((a, b) => {
+      if (sort === "price-asc") return parsePrice(a) - parsePrice(b);
+      if (sort === "price-desc") return parsePrice(b) - parsePrice(a);
+      return 0;
+    });
+  }, [filteredVehicles, sort]);
 
-  const vehiclesStructured = displayVehicles.map((v) => {
-    const vehicleTitle = 'title' in v ? v.title : `${(v as any).year || ''} ${(v as any).make || ''} ${(v as any).model || ''}`.trim() || 'Vehicle';
-    const vehicleDescription = 'description' in v ? v.description : (v as any).description;
-    const vehicleImages = 'images' in v ? v.images : (v as any).images;
-    const vehiclePrice = 'price' in v ? v.price : (v as any).price;
-    
-    return {
-      "@type": "Vehicle",
-      name: vehicleTitle,
-      description: vehicleDescription,
-      image: vehicleImages?.[0],
-      offers: {
-        "@type": "Offer",
-        priceCurrency: "USD",
-        price: typeof vehiclePrice === 'number' ? vehiclePrice : String((vehiclePrice || "").replace(/[^0-9.]/g, "")) || undefined,
-        availability: "https://schema.org/InStock",
-        url: currentUrl,
-      },
-    };
-  });
+  const vehiclesStructured = useMemo(() => {
+    return displayVehicles.map((v) => {
+      const vehiclePrice = typeof v.price === 'number' ? v.price : parseFloat(String(v.price || "").replace(/[^0-9.]/g, "")) || undefined;
+      
+      return {
+        "@type": "Vehicle",
+        name: v.title,
+        description: v.description,
+        image: v.images?.[0],
+        offers: {
+          "@type": "Offer",
+          priceCurrency: "USD",
+          price: vehiclePrice,
+          availability: "https://schema.org/InStock",
+          url: currentUrl,
+        },
+      };
+    });
+  }, [displayVehicles, currentUrl]);
   const structuredData = {
     "@context": "https://schema.org",
     "@type": "AutoDealer",
