@@ -198,6 +198,7 @@ const DealerSite = () => {
   // Use real vehicles or fallback to sample data with enhanced options
   const displayVehicles = publicVehicles?.length ? publicVehicles : sampleVehicles;
   const vehicleOptions = [
+    { id: "", title: "No specific vehicle - General inquiry" },
     { id: "general", title: "General inquiry about your dealership" },
     ...displayVehicles.slice(0, 15).map((v) => ({ 
       id: v.id, 
@@ -236,7 +237,7 @@ const DealerSite = () => {
         ? "General inquiry" 
         : values.vehicleId;
       
-      const messageWithVehicle = values.vehicleId && values.vehicleId !== "general" 
+      const messageWithVehicle = values.vehicleId && values.vehicleId !== "general" && values.vehicleId !== "" 
         ? `${values.message}${vehicleInfo ? `\n\nInterested vehicle: ${vehicleInfo}` : ""}`
         : values.message;
 
@@ -695,9 +696,9 @@ const DealerSite = () => {
                         <FormItem>
                           <FormLabel>Vehicle Interest (Optional)</FormLabel>
                           <FormControl>
-                            <Select onValueChange={field.onChange} defaultValue={field.value}>
+                            <Select onValueChange={field.onChange} value={field.value}>
                               <SelectTrigger>
-                                <SelectValue placeholder="Select a vehicle or leave blank for general inquiry" />
+                                <SelectValue placeholder="No specific vehicle selected" />
                               </SelectTrigger>
                               <SelectContent>
                                 {vehicleOptions.map((v) => (
