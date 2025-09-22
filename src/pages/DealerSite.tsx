@@ -202,7 +202,7 @@ const DealerSite = () => {
     { id: "general", title: "General inquiry about your dealership" },
     ...displayVehicles.slice(0, 15).map((v) => ({ 
       id: v.id, 
-      title: 'title' in v ? v.title : `${v.year} ${v.make} ${v.model}` 
+      title: 'title' in v ? v.title : `${(v as any).year || ''} ${(v as any).make || ''} ${(v as any).model || ''}`.trim() || 'Vehicle'
     })),
     ...(displayVehicles.length > 15 ? [{ id: "other", title: "Other vehicle not listed" }] : [])
   ];
@@ -273,7 +273,7 @@ const DealerSite = () => {
   const [type, setType] = useState<string | null>(null);
   const filteredVehicles = displayVehicles.filter((v) => {
     const q = query.trim().toLowerCase();
-    const vehicleTitle = 'title' in v ? v.title : `${(v as any).year} ${(v as any).make} ${(v as any).model}`;
+    const vehicleTitle = 'title' in v ? v.title : `${(v as any).year || ''} ${(v as any).make || ''} ${(v as any).model || ''}`.trim() || 'Vehicle';
     const vehicleDescription = 'description' in v ? v.description : (v as any).description;
     const vehicleFeatures = 'features' in v ? v.features : ((v as any).features ? Object.keys((v as any).features) : []);
     
@@ -309,7 +309,7 @@ const DealerSite = () => {
   });
 
   const vehiclesStructured = displayVehicles.map((v) => {
-    const vehicleTitle = 'title' in v ? v.title : `${(v as any).year} ${(v as any).make} ${(v as any).model}`;
+    const vehicleTitle = 'title' in v ? v.title : `${(v as any).year || ''} ${(v as any).make || ''} ${(v as any).model || ''}`.trim() || 'Vehicle';
     const vehicleDescription = 'description' in v ? v.description : (v as any).description;
     const vehicleImages = 'images' in v ? v.images : (v as any).images;
     const vehiclePrice = 'price' in v ? v.price : (v as any).price;
@@ -514,10 +514,10 @@ const DealerSite = () => {
                       // Convert database vehicle to VehicleCard format
                       const vehicleData: VehicleData = 'title' in v ? v : {
                         id: (v as any).id,
-                        title: `${(v as any).year} ${(v as any).make} ${(v as any).model}`,
+                        title: `${(v as any).year || ''} ${(v as any).make || ''} ${(v as any).model || ''}`.trim() || 'Vehicle',
                         price: typeof (v as any).price === 'number' ? formatCurrency((v as any).price) : (v as any).price || 'Contact for price',
                         condition: (v as any).status === 'available' ? 'Available' : (v as any).status,
-                        description: (v as any).description || `${(v as any).year} ${(v as any).make} ${(v as any).model}`,
+                        description: (v as any).description || `${(v as any).year || ''} ${(v as any).make || ''} ${(v as any).model || ''}`.trim() || 'Vehicle',
                         features: (v as any).features ? Object.keys((v as any).features) : [],
                         images: (v as any).images?.length ? (v as any).images : [sedan],
                       };
