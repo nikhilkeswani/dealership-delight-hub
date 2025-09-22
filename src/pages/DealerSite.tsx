@@ -41,6 +41,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { usePublicDealer } from "@/hooks/usePublicDealer";
 import { usePublicVehicles } from "@/hooks/usePublicVehicles";
 import { usePublicDealerWebsite } from "@/hooks/usePublicDealerWebsite";
+import { getSubdomainInfo } from "@/utils/subdomain";
 import { useCreateLead } from "@/hooks/useCreateLead";
 import { formatCurrency } from "@/lib/format";
 
@@ -130,12 +131,22 @@ const sampleVehicles: VehicleData[] = [
 ];
 
 const DealerSite = () => {
+  console.log('=== DealerSite: Component render start ===');
   const { slug } = useParams();
   
   console.log('DealerSite: Starting render with slug:', slug);
   
+  // Add debugging for subdomain info
+  const subdomainInfo = typeof window !== 'undefined' ? getSubdomainInfo() : null;
+  console.log('DealerSite: Subdomain info:', subdomainInfo);
+  
+  // Add debugging for current URL
+  const debugCurrentUrl = typeof window !== 'undefined' ? window.location.href : 'no-window';
+  console.log('DealerSite: Current URL:', debugCurrentUrl);
+  
   // Fetch real dealer data
   const { data: publicDealer, isLoading: dealerLoading, error: dealerError } = usePublicDealer(slug);
+  console.log('DealerSite: PublicDealer hook result:', { data: publicDealer, isLoading: dealerLoading, error: dealerError });
   const { data: publicVehicles, isLoading: vehiclesLoading, error: vehiclesError } = usePublicVehicles(publicDealer?.id);
   const { data: websiteConfig, isLoading: websiteLoading, error: websiteError } = usePublicDealerWebsite(publicDealer?.id);
   const createLead = useCreateLead();
