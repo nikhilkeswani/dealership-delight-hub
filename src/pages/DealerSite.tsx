@@ -34,7 +34,6 @@ import { Badge } from "@/components/ui/badge";
 import { useState } from "react";
 import CustomizeSheet from "@/components/dealer/CustomizeSheet";
 
-type ContactIntent = "inquiry" | "testdrive";
 import { useDealerSiteConfig, type DealerSiteConfig } from "@/hooks/useDealerSiteConfig";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useDealer } from "@/hooks/useDealer";
@@ -149,7 +148,7 @@ const DealerSite = () => {
   const { data: dealer } = useDealer();
   const isDemo = !publicDealer || (slug || "").toLowerCase() === "demo-motors" || (typeof window !== "undefined" && new URLSearchParams(window.location.search).get("demo") === "1");
   const [customizeOpen, setCustomizeOpen] = useState(false);
-  const [contactIntent, setContactIntent] = useState<ContactIntent>("inquiry");
+  // Removed contactIntent state - now using form field
   const brandInitials = (config.brand.name || "").split(" ").slice(0,2).map(w=>w[0]).join("").toUpperCase() || "DL";
 
   const saveToWebsite = async () => {
@@ -166,7 +165,7 @@ const DealerSite = () => {
     }
   };
 
-  // Form schema and setup
+  // Form schema and setup - with intent and optional vehicle selection
   const formSchema = z.object({
     name: z.string().min(2, "Please enter your full name"),
     email: z.string().email("Enter a valid email"),
@@ -175,9 +174,11 @@ const DealerSite = () => {
       .min(7, "Enter a valid phone number")
       .optional()
       .or(z.literal("")),
-    vehicleId: z.string().min(1, "Select a vehicle"),
+    vehicleId: z.string().optional(), // Made optional
+    vehicleOther: z.string().optional(), // For "Other vehicle" text input
     date: z.string().optional(),
     message: z.string().min(5, "Please add a short message"),
+    intent: z.string().default("inquiry"), // Hidden field for intent
   });
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -186,18 +187,24 @@ const DealerSite = () => {
       email: "",
       phone: "",
       vehicleId: "",
+      vehicleOther: "",
       date: "",
       message: "",
+      intent: "inquiry",
     },
   });
   const { toast } = useToast();
   
-  // Use real vehicles or fallback to sample data
+  // Use real vehicles or fallback to sample data with enhanced options
   const displayVehicles = publicVehicles?.length ? publicVehicles : sampleVehicles;
-  const vehicleOptions = displayVehicles.map((v) => ({ 
-    id: v.id, 
-    title: 'title' in v ? v.title : `${v.year} ${v.make} ${v.model}` 
-  }));
+  const vehicleOptions = [
+    { id: "general", title: "General inquiry about your dealership" },
+    ...displayVehicles.slice(0, 15).map((v) => ({ 
+      id: v.id, 
+      title: 'title' in v ? v.title : `${v.year} ${v.make} ${v.model}` 
+    })),
+    ...(displayVehicles.length > 15 ? [{ id: "other", title: "Other vehicle not listed" }] : [])
+  ];
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     if (isDemo) {
@@ -223,14 +230,24 @@ const DealerSite = () => {
 
     try {
       const [firstName, ...lastNameParts] = values.name.split(' ');
+      const vehicleInfo = values.vehicleId === "other" && values.vehicleOther 
+        ? `Other vehicle: ${values.vehicleOther}` 
+        : values.vehicleId === "general" 
+        ? "General inquiry" 
+        : values.vehicleId;
+      
+      const messageWithVehicle = values.vehicleId && values.vehicleId !== "general" 
+        ? `${values.message}${vehicleInfo ? `\n\nInterested vehicle: ${vehicleInfo}` : ""}`
+        : values.message;
+
       await createLead.mutateAsync({
         first_name: firstName,
         last_name: lastNameParts.join(' ') || firstName,
         email: values.email,
         phone: values.phone || undefined,
-        message: values.message,
+        message: messageWithVehicle,
         dealer_id: publicDealer.id,
-        source: contactIntent === 'testdrive' ? 'website_testdrive' : 'website_inquiry',
+        source: values.intent === 'testdrive' ? 'website_testdrive' : 'website_inquiry',
       });
 
       toast({
@@ -240,9 +257,7 @@ const DealerSite = () => {
       form.reset();
     } catch (error) {
       if (import.meta.env.DEV) {
-        if (import.meta.env.DEV) {
-          console.error('Error submitting lead:', error);
-        }
+        console.error('Error submitting lead:', error);
       }
       toast({
         title: "Error",
@@ -358,7 +373,7 @@ const DealerSite = () => {
               size="xl" 
               className="w-full sm:w-auto" 
               onClick={() => {
-                setContactIntent("inquiry");
+                form.setValue("intent", "inquiry");
                 document.getElementById("contact")?.scrollIntoView({ behavior: "smooth" });
               }}
             >
@@ -369,7 +384,7 @@ const DealerSite = () => {
               size="xl" 
               className="w-full sm:w-auto" 
               onClick={() => {
-                setContactIntent("testdrive");
+                form.setValue("intent", "testdrive");
                 document.getElementById("contact")?.scrollIntoView({ behavior: "smooth" });
               }}
             >
@@ -510,10 +525,16 @@ const DealerSite = () => {
                         <div key={(v as any).id} className="space-y-3 hover-scale animate-fade-in">
                           <VehicleCard vehicle={vehicleData} />
                           <div className="flex flex-col sm:flex-row gap-2">
-                            <Button variant="hero" size="sm" className="w-full sm:w-auto" onClick={() => document.getElementById("contact")?.scrollIntoView({ behavior: "smooth" })}>
+                            <Button variant="hero" size="sm" className="w-full sm:w-auto" onClick={() => {
+                              form.setValue("intent", "testdrive");
+                              document.getElementById("contact")?.scrollIntoView({ behavior: "smooth" });
+                            }}>
                               Test Drive
                             </Button>
-                            <Button variant="outline" size="sm" className="w-full sm:w-auto" onClick={() => document.getElementById("contact")?.scrollIntoView({ behavior: "smooth" })}>
+                            <Button variant="outline" size="sm" className="w-full sm:w-auto" onClick={() => {
+                              form.setValue("intent", "inquiry");
+                              document.getElementById("contact")?.scrollIntoView({ behavior: "smooth" });
+                            }}>
                               Inquire
                             </Button>
                           </div>
@@ -607,9 +628,9 @@ const DealerSite = () => {
                 </div>
                 <p className="mt-3 text-sm text-muted-foreground">{config.contact.address}</p>
               </div>
-              <div id="contact" className="space-y-4">
+                <div id="contact" className="space-y-4">
                 <h4 className="text-lg font-medium">
-                  {contactIntent === "testdrive" ? "Book a test drive" : "Get more information"}
+                  {form.watch("intent") === "testdrive" ? "Book a test drive" : "Get more information"}
                 </h4>
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-sm">
                   <div className="flex items-center gap-2">
@@ -672,11 +693,11 @@ const DealerSite = () => {
                       name="vehicleId"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Vehicle</FormLabel>
+                          <FormLabel>Vehicle Interest (Optional)</FormLabel>
                           <FormControl>
                             <Select onValueChange={field.onChange} defaultValue={field.value}>
                               <SelectTrigger>
-                                <SelectValue placeholder="Select a vehicle" />
+                                <SelectValue placeholder="Select a vehicle or leave blank for general inquiry" />
                               </SelectTrigger>
                               <SelectContent>
                                 {vehicleOptions.map((v) => (
@@ -691,13 +712,32 @@ const DealerSite = () => {
                         </FormItem>
                       )}
                     />
+                    {/* Other vehicle text input - shown when "other" is selected */}
+                    {form.watch("vehicleId") === "other" && (
+                      <FormField
+                        control={form.control}
+                        name="vehicleOther"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Please specify the vehicle</FormLabel>
+                            <FormControl>
+                              <Input 
+                                placeholder="e.g. 2021 Toyota Camry, Blue Honda Civic, etc." 
+                                {...field} 
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    )}
                     <FormField
                       control={form.control}
                       name="date"
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>
-                            {contactIntent === "testdrive" ? "Preferred date" : "Best time to contact"}
+                            {form.watch("intent") === "testdrive" ? "Preferred date" : "Best time to contact"}
                           </FormLabel>
                           <FormControl>
                             <Input type="date" {...field} />
@@ -716,7 +756,7 @@ const DealerSite = () => {
                             <Textarea 
                               rows={4} 
                               placeholder={
-                                contactIntent === "testdrive" 
+                                form.watch("intent") === "testdrive" 
                                   ? "Tell us when you'd like to come by for a test drive..." 
                                   : "Tell us what information you're looking for..."
                               } 
@@ -727,9 +767,17 @@ const DealerSite = () => {
                         </FormItem>
                       )}
                     />
+                    {/* Hidden intent field */}
+                    <FormField
+                      control={form.control}
+                      name="intent"
+                      render={({ field }) => (
+                        <input type="hidden" {...field} />
+                      )}
+                    />
                     <div className="sm:col-span-2">
                       <Button type="submit" variant="hero" size="lg" className="w-full sm:w-auto">
-                        {contactIntent === "testdrive" ? "Request test drive" : "Send inquiry"}
+                        {form.watch("intent") === "testdrive" ? "Request test drive" : "Send inquiry"}
                       </Button>
                     </div>
                   </form>
