@@ -26,6 +26,7 @@ export const useCustomers = () => {
         .from("customers")
         .select("*")
         .eq("dealer_id", dealer.id)
+        .eq("status", "active")
         .order("created_at", { ascending: false });
       
       if (error) throw error;

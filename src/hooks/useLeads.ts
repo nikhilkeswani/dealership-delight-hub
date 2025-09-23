@@ -87,11 +87,12 @@ export const useUpdateLead = () => {
 
         if (leadError) throw leadError;
 
-        // Check if customer already exists for this lead
+        // Check if customer already exists and is active for this lead
         const { data: existingCustomer } = await supabase
           .from("customers")
           .select("id")
           .eq("lead_id", id)
+          .eq("status", "active")
           .single();
 
         // Only create customer if one doesn't exist
@@ -105,6 +106,7 @@ export const useUpdateLead = () => {
               phone: leadData.phone || null,
               dealer_id: leadData.dealer_id,
               lead_id: leadData.id,
+              status: "active", // Ensure customer is created as active
             });
 
           if (customerError) throw customerError;

@@ -13,11 +13,12 @@ export const useRevertConversion = () => {
     mutationFn: async (lead: Lead) => {
       if (!dealer?.id) throw new Error("No dealer found");
 
-      // First, delete the customer record
+      // First, mark the customer record as reverted
       const { error: customerError } = await supabase
         .from("customers")
-        .delete()
-        .eq("lead_id", lead.id);
+        .update({ status: "reverted" })
+        .eq("lead_id", lead.id)
+        .eq("status", "active");
 
       if (customerError) throw customerError;
 

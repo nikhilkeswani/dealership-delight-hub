@@ -97,6 +97,7 @@ export type Database = {
           phone: string | null
           purchase_history: Json | null
           state: string | null
+          status: string
           total_spent: number | null
           updated_at: string
           zip_code: string | null
@@ -114,6 +115,7 @@ export type Database = {
           phone?: string | null
           purchase_history?: Json | null
           state?: string | null
+          status?: string
           total_spent?: number | null
           updated_at?: string
           zip_code?: string | null
@@ -131,6 +133,7 @@ export type Database = {
           phone?: string | null
           purchase_history?: Json | null
           state?: string | null
+          status?: string
           total_spent?: number | null
           updated_at?: string
           zip_code?: string | null
