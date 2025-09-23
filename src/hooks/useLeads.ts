@@ -76,9 +76,39 @@ export const useUpdateLead = () => {
 
   return useMutation({
     mutationFn: async ({ id, values }: { id: string; values: Partial<LeadFormValues> }) => {
-      // If trying to set status to "converted", show helpful error
+      // If setting status to "converted", first create customer record
       if (values.status === "converted") {
-        throw new Error("Cannot manually set status to 'converted'. Use the 'Convert to Customer' button instead to maintain data integrity.");
+        // Get the current lead data
+        const { data: leadData, error: leadError } = await supabase
+          .from("leads")
+          .select("*")
+          .eq("id", id)
+          .single();
+
+        if (leadError) throw leadError;
+
+        // Check if customer already exists for this lead
+        const { data: existingCustomer } = await supabase
+          .from("customers")
+          .select("id")
+          .eq("lead_id", id)
+          .single();
+
+        // Only create customer if one doesn't exist
+        if (!existingCustomer) {
+          const { error: customerError } = await supabase
+            .from("customers")
+            .insert({
+              first_name: leadData.first_name,
+              last_name: leadData.last_name,
+              email: leadData.email,
+              phone: leadData.phone || null,
+              dealer_id: leadData.dealer_id,
+              lead_id: leadData.id,
+            });
+
+          if (customerError) throw customerError;
+        }
       }
 
       const { data, error } = await supabase
@@ -88,16 +118,7 @@ export const useUpdateLead = () => {
         .select()
         .single();
 
-      if (error) {
-        // Handle specific database trigger errors
-        if (error.message?.includes("Cannot set lead status to converted")) {
-          throw new Error("Cannot set status to 'converted' without creating a customer record. Use the 'Convert to Customer' button instead.");
-        }
-        if (error.message?.includes("Cannot change status of converted lead")) {
-          throw new Error("Cannot change status of a converted lead that has an existing customer. Use the revert conversion option if needed.");
-        }
-        throw error;
-      }
+      if (error) throw error;
       return data;
     },
     onSuccess: () => {
