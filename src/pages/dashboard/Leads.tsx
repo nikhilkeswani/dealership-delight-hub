@@ -1,7 +1,8 @@
 import React from "react";
 import { useLeads, useCreateLead, useUpdateLead, useDeleteLead } from "@/hooks/useLeads";
 import { useConvertLeadToCustomer } from "@/hooks/useConvertLeadToCustomer";
-import { useDataCleanup, useValidateLeadCustomerConsistency, useRevertLeadConversion } from "@/hooks/useLeadDataIntegrity";
+import { useDataCleanup } from "@/hooks/useDataCleanup";
+import { useRevertConversion } from "@/hooks/useRevertConversion";
 import LeadFormDialog from "@/components/leads/LeadFormDialog";
 import type { LeadFormValues } from "@/components/leads/LeadFormDialog";
 import ConfirmDialog from "@/components/common/ConfirmDialog";
@@ -31,8 +32,7 @@ const Leads: React.FC = () => {
   const deleteLeadMutation = useDeleteLead();
   const convertLeadMutation = useConvertLeadToCustomer();
   const dataCleanupMutation = useDataCleanup();
-  const revertConversionMutation = useRevertLeadConversion();
-  const { data: consistencyData } = useValidateLeadCustomerConsistency();
+  const revertConversionMutation = useRevertConversion();
 
   // Helper function to check if lead is recent (created within last 3 days)
   const isRecentLead = (createdAt: string) => {
@@ -49,8 +49,13 @@ const Leads: React.FC = () => {
     return Math.max(0, daysDiff);
   };
 
-  // Helper function to handle quick status update
+  // Helper function to handle quick status update - prevents manual "converted" status
   const handleQuickStatusUpdate = (leadId: string, newStatus: string) => {
+    // Prevent manual conversion to "converted" status
+    if (newStatus === "converted") {
+      return; // This should be prevented by UI, but double-check here
+    }
+    
     updateLeadMutation.mutate({ 
       id: leadId, 
       values: { status: newStatus as "new" | "contacted" | "qualified" | "converted" | "lost" } 
@@ -80,7 +85,7 @@ const Leads: React.FC = () => {
   };
 
   const handleRevertConversion = (leadId: string) => {
-    revertConversionMutation.mutate(leadId);
+    revertConversionMutation.mutate({ id: leadId } as any);
   };
 
   const handleDataCleanup = () => {
@@ -148,23 +153,22 @@ const kpis = React.useMemo(() => {
           <div className="space-y-2">
             <h1 className="text-3xl font-semibold tracking-tight flex items-center gap-3">
               Leads
-              {consistencyData?.hasIssues && (
-                <Button 
-                  size="sm" 
-                  variant="outline" 
-                  onClick={handleDataCleanup}
-                  className="text-xs bg-orange-50 border-orange-200 text-orange-700 hover:bg-orange-100"
-                  disabled={dataCleanupMutation.isPending}
-                >
-                  {dataCleanupMutation.isPending ? "Fixing..." : "Fix Data Issues"}
-                </Button>
-              )}
             </h1>
             <p className="text-muted-foreground">Track and manage sales leads for your dealership.</p>
           </div>
-          <Button size="sm" onClick={() => setLeadDialogOpen(true)} className="w-fit">
-            Add Lead
-          </Button>
+          <div className="flex gap-2">
+            <Button 
+              size="sm"
+              variant="outline" 
+              onClick={handleDataCleanup}
+              disabled={dataCleanupMutation.isPending}
+            >
+              {dataCleanupMutation.isPending ? "Fixing..." : "Fix Data Issues"}
+            </Button>
+            <Button size="sm" onClick={() => setLeadDialogOpen(true)} className="w-fit">
+              Add Lead
+            </Button>
+          </div>
         </div>
         
         <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-4">
