@@ -42,7 +42,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { usePublicDealer } from "@/hooks/usePublicDealer";
 import { usePublicVehicles } from "@/hooks/usePublicVehicles";
 import { usePublicDealerWebsite } from "@/hooks/usePublicDealerWebsite";
-import { useCreateLead } from "@/hooks/useCreateLead";
+import { useCreateLead } from "@/hooks/useLeads";
 import { formatCurrency } from "@/lib/format";
 const sampleVehicles: VehicleData[] = [
   {
@@ -228,9 +228,9 @@ const DealerSite = () => {
         last_name: lastNameParts.join(' ') || firstName,
         email: values.email,
         phone: values.phone || undefined,
-        message: values.message,
-        dealer_id: publicDealer.id,
+        notes: values.message,
         source: contactIntent === 'testdrive' ? 'website_testdrive' : 'website_inquiry',
+        status: 'new',
       });
 
       toast({

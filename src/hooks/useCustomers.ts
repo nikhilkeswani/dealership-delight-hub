@@ -29,27 +29,6 @@ export const useCustomers = () => {
         .order("created_at", { ascending: false });
       
       if (error) throw error;
-      
-      // Debug logging and data validation in development
-      if (import.meta.env.DEV) {
-        console.log("useCustomers data received:", { 
-          count: data?.length || 0,
-          firstCustomer: data?.[0] ? {
-            id: data[0].id,
-            firstName: data[0].first_name,
-            lastName: data[0].last_name,
-            email: data[0].email
-          } : null,
-          allCustomersValid: data?.every(c => c.first_name && c.last_name) || false
-        });
-        
-        // Check for data corruption
-        const corruptedCustomers = data?.filter(c => !c.first_name || !c.last_name);
-        if (corruptedCustomers && corruptedCustomers.length > 0) {
-          console.error("Detected corrupted customer data:", corruptedCustomers);
-        }
-      }
-      
       return data || [];
     },
     enabled: !!dealer?.id,

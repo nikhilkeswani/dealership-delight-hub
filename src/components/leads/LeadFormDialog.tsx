@@ -11,7 +11,7 @@ export type LeadFormValues = {
   last_name: string;
   email: string;
   phone?: string;
-  source: "website" | "phone" | "email" | "referral" | "walk_in" | "social_media";
+  source: "website" | "phone" | "email" | "referral" | "walk_in" | "social_media" | "website_testdrive" | "website_inquiry";
   status: "new" | "contacted" | "qualified" | "converted" | "lost";
   notes?: string;
   follow_up_date?: string;
@@ -87,6 +87,8 @@ const LeadFormDialog: React.FC<Props> = ({ open, onOpenChange, initialValues, on
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="website">Website</SelectItem>
+                  <SelectItem value="website_testdrive">Website Test Drive</SelectItem>
+                  <SelectItem value="website_inquiry">Website Inquiry</SelectItem>
                   <SelectItem value="phone">Phone</SelectItem>
                   <SelectItem value="email">Email</SelectItem>
                   <SelectItem value="referral">Referral</SelectItem>

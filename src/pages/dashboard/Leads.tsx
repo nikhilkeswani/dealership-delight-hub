@@ -1,5 +1,6 @@
 import React from "react";
 import { useLeads, useCreateLead, useUpdateLead, useDeleteLead } from "@/hooks/useLeads";
+import { useConvertLeadToCustomer } from "@/hooks/useConvertLeadToCustomer";
 import LeadFormDialog from "@/components/leads/LeadFormDialog";
 import type { LeadFormValues } from "@/components/leads/LeadFormDialog";
 import ConfirmDialog from "@/components/common/ConfirmDialog";
@@ -27,6 +28,7 @@ const Leads: React.FC = () => {
   const createLeadMutation = useCreateLead();
   const updateLeadMutation = useUpdateLead();
   const deleteLeadMutation = useDeleteLead();
+  const convertLeadMutation = useConvertLeadToCustomer();
 
   // Helper function to check if lead is recent (created within last 3 days)
   const isRecentLead = (createdAt: string) => {
@@ -67,6 +69,10 @@ const Leads: React.FC = () => {
       deleteLeadMutation.mutate(deletingLeadId);
       setDeletingLeadId(null);
     }
+  };
+
+  const handleConvertLead = (lead: any) => {
+    convertLeadMutation.mutate(lead);
   };
 
   const [query, setQuery] = React.useState("");
@@ -291,38 +297,46 @@ const kpis = React.useMemo(() => {
                                         <span className="sr-only">Open menu</span>
                                       </Button>
                                     </DropdownMenuTrigger>
-                                    <DropdownMenuContent align="end" className="w-48">
-                                      {l.status === "new" && (
-                                        <>
-                                          <DropdownMenuItem 
-                                            onClick={() => handleQuickStatusUpdate(l.id, "contacted")}
-                                            className="text-sm"
-                                          >
-                                            Mark as Contacted
-                                          </DropdownMenuItem>
-                                          <DropdownMenuItem 
-                                            onClick={() => handleQuickStatusUpdate(l.id, "qualified")}
-                                            className="text-sm"
-                                          >
-                                            Mark as Qualified
-                                          </DropdownMenuItem>
-                                        </>
-                                      )}
-                                      <DropdownMenuItem 
-                                        onClick={() => setEditingLead(l)}
-                                        className="text-sm"
-                                      >
-                                        <Pencil className="h-3 w-3 mr-2" />
-                                        Edit Lead
-                                      </DropdownMenuItem>
-                                      <DropdownMenuItem 
-                                        onClick={() => setDeletingLeadId(l.id)}
-                                        className="text-sm text-destructive focus:text-destructive"
-                                      >
-                                        <Trash2 className="h-3 w-3 mr-2" />
-                                        Delete Lead
-                                      </DropdownMenuItem>
-                                    </DropdownMenuContent>
+                                     <DropdownMenuContent align="end" className="w-48">
+                                       {l.status === "new" && (
+                                         <>
+                                           <DropdownMenuItem 
+                                             onClick={() => handleQuickStatusUpdate(l.id, "contacted")}
+                                             className="text-sm"
+                                           >
+                                             Mark as Contacted
+                                           </DropdownMenuItem>
+                                           <DropdownMenuItem 
+                                             onClick={() => handleQuickStatusUpdate(l.id, "qualified")}
+                                             className="text-sm"
+                                           >
+                                             Mark as Qualified
+                                           </DropdownMenuItem>
+                                         </>
+                                       )}
+                                       {l.status === "qualified" && (
+                                         <DropdownMenuItem 
+                                           onClick={() => handleConvertLead(l)}
+                                           className="text-sm text-green-600 focus:text-green-600"
+                                         >
+                                           Convert to Customer
+                                         </DropdownMenuItem>
+                                       )}
+                                       <DropdownMenuItem 
+                                         onClick={() => setEditingLead(l)}
+                                         className="text-sm"
+                                       >
+                                         <Pencil className="h-3 w-3 mr-2" />
+                                         Edit Lead
+                                       </DropdownMenuItem>
+                                       <DropdownMenuItem 
+                                         onClick={() => setDeletingLeadId(l.id)}
+                                         className="text-sm text-destructive focus:text-destructive"
+                                       >
+                                         <Trash2 className="h-3 w-3 mr-2" />
+                                         Delete Lead
+                                       </DropdownMenuItem>
+                                     </DropdownMenuContent>
                                   </DropdownMenu>
                                 </div>
                               </TableCell>

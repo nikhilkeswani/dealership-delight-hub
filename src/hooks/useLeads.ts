@@ -12,7 +12,7 @@ export type LeadFormValues = {
   last_name: string;
   email: string;
   phone?: string;
-  source: "website" | "phone" | "email" | "referral" | "walk_in" | "social_media";
+  source: "website" | "phone" | "email" | "referral" | "walk_in" | "social_media" | "website_testdrive" | "website_inquiry";
   status: "new" | "contacted" | "qualified" | "converted" | "lost";
   notes?: string;
   follow_up_date?: string;
