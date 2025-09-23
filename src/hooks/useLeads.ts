@@ -76,6 +76,11 @@ export const useUpdateLead = () => {
 
   return useMutation({
     mutationFn: async ({ id, values }: { id: string; values: Partial<LeadFormValues> }) => {
+      // If trying to set status to "converted", show helpful error
+      if (values.status === "converted") {
+        throw new Error("Cannot manually set status to 'converted'. Use the 'Convert to Customer' button instead to maintain data integrity.");
+      }
+
       const { data, error } = await supabase
         .from("leads")
         .update(values)
@@ -83,15 +88,31 @@ export const useUpdateLead = () => {
         .select()
         .single();
 
-      if (error) throw error;
+      if (error) {
+        // Handle specific database trigger errors
+        if (error.message?.includes("Cannot set lead status to converted")) {
+          throw new Error("Cannot set status to 'converted' without creating a customer record. Use the 'Convert to Customer' button instead.");
+        }
+        if (error.message?.includes("Cannot change status of converted lead")) {
+          throw new Error("Cannot change status of a converted lead that has an existing customer. Use the revert conversion option if needed.");
+        }
+        throw error;
+      }
       return data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["leads", dealer?.id] });
+      queryClient.invalidateQueries({ queryKey: ["customers", dealer?.id] });
+      queryClient.invalidateQueries({ queryKey: ["lead-customer-consistency"] });
       toast.success("Lead updated successfully");
     },
     onError: (error: any) => {
-      errorHandlers.database(error);
+      // Show user-friendly error messages
+      if (error.message?.includes("Convert to Customer")) {
+        toast.error(error.message);
+      } else {
+        errorHandlers.database(error);
+      }
     },
   });
 };

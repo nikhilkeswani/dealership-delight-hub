@@ -42,6 +42,7 @@ export const useConvertLeadToCustomer = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["leads", dealer?.id] });
       queryClient.invalidateQueries({ queryKey: ["customers", dealer?.id] });
+      queryClient.invalidateQueries({ queryKey: ["lead-customer-consistency"] });
       toast.success("Lead converted to customer successfully");
     },
     onError: (error: any) => {

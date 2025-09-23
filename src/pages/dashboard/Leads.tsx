@@ -1,6 +1,7 @@
 import React from "react";
 import { useLeads, useCreateLead, useUpdateLead, useDeleteLead } from "@/hooks/useLeads";
 import { useConvertLeadToCustomer } from "@/hooks/useConvertLeadToCustomer";
+import { useDataCleanup, useValidateLeadCustomerConsistency, useRevertLeadConversion } from "@/hooks/useLeadDataIntegrity";
 import LeadFormDialog from "@/components/leads/LeadFormDialog";
 import type { LeadFormValues } from "@/components/leads/LeadFormDialog";
 import ConfirmDialog from "@/components/common/ConfirmDialog";
@@ -29,6 +30,9 @@ const Leads: React.FC = () => {
   const updateLeadMutation = useUpdateLead();
   const deleteLeadMutation = useDeleteLead();
   const convertLeadMutation = useConvertLeadToCustomer();
+  const dataCleanupMutation = useDataCleanup();
+  const revertConversionMutation = useRevertLeadConversion();
+  const { data: consistencyData } = useValidateLeadCustomerConsistency();
 
   // Helper function to check if lead is recent (created within last 3 days)
   const isRecentLead = (createdAt: string) => {
@@ -73,6 +77,14 @@ const Leads: React.FC = () => {
 
   const handleConvertLead = (lead: any) => {
     convertLeadMutation.mutate(lead);
+  };
+
+  const handleRevertConversion = (leadId: string) => {
+    revertConversionMutation.mutate(leadId);
+  };
+
+  const handleDataCleanup = () => {
+    dataCleanupMutation.mutate();
   };
 
   const [query, setQuery] = React.useState("");
@@ -134,7 +146,20 @@ const kpis = React.useMemo(() => {
       <section className="animate-fade-in space-y-8">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div className="space-y-2">
-            <h1 className="text-3xl font-semibold tracking-tight">Leads</h1>
+            <h1 className="text-3xl font-semibold tracking-tight flex items-center gap-3">
+              Leads
+              {consistencyData?.hasIssues && (
+                <Button 
+                  size="sm" 
+                  variant="outline" 
+                  onClick={handleDataCleanup}
+                  className="text-xs bg-orange-50 border-orange-200 text-orange-700 hover:bg-orange-100"
+                  disabled={dataCleanupMutation.isPending}
+                >
+                  {dataCleanupMutation.isPending ? "Fixing..." : "Fix Data Issues"}
+                </Button>
+              )}
+            </h1>
             <p className="text-muted-foreground">Track and manage sales leads for your dealership.</p>
           </div>
           <Button size="sm" onClick={() => setLeadDialogOpen(true)} className="w-fit">
@@ -244,8 +269,8 @@ const kpis = React.useMemo(() => {
                                     <StatusBadge status={l.status ?? "new"} className="capitalize mr-1" />
                                     <ChevronDown className="h-4 w-4 text-muted-foreground" />
                                   </SelectTrigger>
-                                  <SelectContent className="z-[100] bg-popover border border-border/80 shadow-lg rounded-md min-w-[140px]">
-                                    {["new", "contacted", "qualified", "converted", "lost"].map((status) => (
+                                   <SelectContent className="z-[100] bg-popover border border-border/80 shadow-lg rounded-md min-w-[140px]">
+                                    {["new", "contacted", "qualified", "lost"].map((status) => (
                                       <SelectItem 
                                         key={status} 
                                         value={status} 
@@ -254,6 +279,16 @@ const kpis = React.useMemo(() => {
                                         {status}
                                       </SelectItem>
                                     ))}
+                                    {/* Converted status is disabled - show but make it clear it's not selectable */}
+                                    {l.status === "converted" && (
+                                      <SelectItem 
+                                        value="converted"
+                                        disabled
+                                        className="capitalize text-sm text-muted-foreground opacity-50"
+                                      >
+                                        Converted (Use Revert button to change)
+                                      </SelectItem>
+                                    )}
                                   </SelectContent>
                                 </Select>
                               </TableCell>
@@ -314,14 +349,23 @@ const kpis = React.useMemo(() => {
                                            </DropdownMenuItem>
                                          </>
                                        )}
-                                       {l.status === "qualified" && (
-                                         <DropdownMenuItem 
-                                           onClick={() => handleConvertLead(l)}
-                                           className="text-sm text-green-600 focus:text-green-600"
-                                         >
-                                           Convert to Customer
-                                         </DropdownMenuItem>
-                                       )}
+                                        {l.status === "qualified" && (
+                                          <DropdownMenuItem 
+                                            onClick={() => handleConvertLead(l)}
+                                            className="text-sm text-green-600 focus:text-green-600"
+                                          >
+                                            Convert to Customer
+                                          </DropdownMenuItem>
+                                        )}
+                                        {l.status === "converted" && (
+                                          <DropdownMenuItem 
+                                            onClick={() => handleRevertConversion(l.id)}
+                                            className="text-sm text-orange-600 focus:text-orange-600"
+                                            disabled={revertConversionMutation.isPending}
+                                          >
+                                            {revertConversionMutation.isPending ? "Reverting..." : "Revert Conversion"}
+                                          </DropdownMenuItem>
+                                        )}
                                        <DropdownMenuItem 
                                          onClick={() => setEditingLead(l)}
                                          className="text-sm"

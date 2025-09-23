@@ -757,6 +757,15 @@ export type Database = {
         }
         Returns: boolean
       }
+      cleanup_orphaned_lead_customer_data: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          action_type: string
+          customer_id: string
+          details: string
+          lead_id: string
+        }[]
+      }
       create_public_lead: {
         Args: {
           p_dealer_id: string

@@ -107,7 +107,7 @@ const LeadFormDialog: React.FC<Props> = ({ open, onOpenChange, initialValues, on
                   <SelectItem value="new">New</SelectItem>
                   <SelectItem value="contacted">Contacted</SelectItem>
                   <SelectItem value="qualified">Qualified</SelectItem>
-                  <SelectItem value="converted">Converted</SelectItem>
+                  {/* Converted status removed - use "Convert to Customer" button instead */}
                   <SelectItem value="lost">Lost</SelectItem>
                 </SelectContent>
               </Select>
