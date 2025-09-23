@@ -1,15 +1,10 @@
-import React, { useState, useMemo, useEffect } from "react";
-import { Plus, Search, Download, Eye, Edit2, Trash2, Phone, Mail, MessageSquare } from "lucide-react";
+import React from "react";
+import { SEO } from "@/components/SEO";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import {
   Table,
   TableBody,
@@ -22,406 +17,437 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
+import { formatCurrency, formatDate } from "@/lib/format";
+import { useToast } from "@/hooks/use-toast";
 import { useCustomers, useDeleteCustomer, type Customer } from "@/hooks/useCustomers";
 import { useDealer } from "@/hooks/useDealer";
 import CustomerFormDialog from "@/components/customers/CustomerFormDialog";
-import { CustomerDrawer } from "@/components/customers/CustomerDrawer";
+import CustomerDrawer from "@/components/customers/CustomerDrawer";
 import CustomerKPIs from "@/components/dashboard/CustomerKPIs";
-import { formatCurrency, formatDate } from "@/lib/format";
-import { toast } from "sonner";
 import LoadingState from "@/components/common/LoadingState";
-import ConfirmDialog from "@/components/common/ConfirmDialog";
+import { 
+  Download, 
+  Plus, 
+  Eye, 
+  Edit, 
+  Trash2, 
+  MoreHorizontal,
+  Phone,
+  Mail
+} from "lucide-react";
 
-export default function Customers() {
-  const [searchTerm, setSearchTerm] = useState("");
-  const [currentPage, setCurrentPage] = useState(1);
-  const [selectedState, setSelectedState] = useState<string>("");
-  const [selectedDateRange, setSelectedDateRange] = useState<string>("");
-  const [isFormOpen, setIsFormOpen] = useState(false);
-  const [editingCustomer, setEditingCustomer] = useState<Customer | null>(null);
-  const [viewingCustomer, setViewingCustomer] = useState<Customer | null>(null);
-  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
-  const [deletingCustomer, setDeletingCustomer] = useState<Customer | null>(null);
+const Customers: React.FC = () => {
+  const { toast } = useToast();
+  const { data: dealer, isLoading: dealerLoading, error: dealerError } = useDealer();
+  const { data, isLoading: customersLoading, error: customersError } = useCustomers();
+  const deleteCustomer = useDeleteCustomer();
 
-  const { data: dealer, isLoading: isDealerLoading } = useDealer();
-  const { data: customers, isLoading: isCustomersLoading, error: customersError } = useCustomers();
-  const deleteCustomerMutation = useDeleteCustomer();
+  // Ensure customers are only loaded when dealer exists
+  // Handle loading states separately for better error isolation
+  const shouldLoadCustomers = !!dealer && !dealerLoading;
 
-  const itemsPerPage = 10;
+  // Combined loading and error states
+  const isCustomersReady = shouldLoadCustomers && !customersLoading;
+  const hasError = dealerError || customersError;
 
-  // Debug logging for customer data
-  useEffect(() => {
-    if (customers && import.meta.env.DEV) {
-      console.log("Customers page - received data:", {
-        count: customers.length,
-        firstCustomer: customers[0] ? {
-          id: customers[0].id,
-          firstName: customers[0].first_name,
-          lastName: customers[0].last_name,
-          email: customers[0].email
-        } : null
+  // Add debugging
+  React.useEffect(() => {
+    if (import.meta.env.DEV) {
+      console.log("Customers component render:", {
+        dealer: !!dealer, 
+        dealerLoading, 
+        dealerError: !!dealerError,
+        hasData: !!data, 
+        dataLength: data?.length, 
+        customersLoading, 
+        customersError: !!customersError,
+        shouldLoadCustomers,
+        isCustomersReady,
+        hasError: !!hasError
       });
     }
-  }, [customers]);
+  }, [dealer, dealerLoading, dealerError, data, customersLoading, customersError, shouldLoadCustomers, isCustomersReady, hasError]);
 
-  // Get unique states for filter
-  const uniqueStates = useMemo(() => {
-    if (!customers) return [];
-    const states = customers
-      .map(c => c.state)
-      .filter((state): state is string => !!state && state.trim() !== "");
-    return Array.from(new Set(states)).sort();
-  }, [customers]);
+  // UI state
+  const [search, setSearch] = React.useState("");
+  const [stateFilter, setStateFilter] = React.useState<string>("all");
+  const [dateFilter, setDateFilter] = React.useState<string>("all");
+  const [drawerOpen, setDrawerOpen] = React.useState(false);
+  const [selected, setSelected] = React.useState<Customer | null>(null);
+  const [formOpen, setFormOpen] = React.useState(false);
+  const [editValues, setEditValues] = React.useState<Partial<Customer> | undefined>(undefined);
 
-  // Filter and search customers
-  const filtered = useMemo(() => {
-    if (!customers) return [];
-    
-    return customers.filter(customer => {
-      const matchesSearch = !searchTerm || 
-        customer.first_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        customer.last_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        customer.email.toLowerCase().includes(searchTerm.toLowerCase());
-      
-      const matchesState = !selectedState || customer.state === selectedState;
-      
-      const matchesDateRange = !selectedDateRange || (() => {
-        const createdDate = new Date(customer.created_at);
-        const now = new Date();
-        
-        switch (selectedDateRange) {
-          case "7d":
-            return createdDate >= new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
-          case "30d":
-            return createdDate >= new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
-          case "90d":
-            return createdDate >= new Date(now.getTime() - 90 * 24 * 60 * 60 * 1000);
-          case "1y":
-            return createdDate >= new Date(now.getTime() - 365 * 24 * 60 * 60 * 1000);
-          default:
-            return true;
-        }
-      })();
-      
-      return matchesSearch && matchesState && matchesDateRange;
-    });
-  }, [customers, searchTerm, selectedState, selectedDateRange]);
+  const uniqueStates = React.useMemo(() => {
+    const s = new Set<string>();
+    (data ?? []).forEach((c) => c.state && s.add(c.state));
+    return Array.from(s).sort();
+  }, [data]);
 
-  // Pagination
-  const totalPages = Math.max(1, Math.ceil(filtered.length / itemsPerPage));
-  const paginatedData = useMemo(() => {
-    const startIndex = (currentPage - 1) * itemsPerPage;
-    return filtered.slice(startIndex, startIndex + itemsPerPage);
-  }, [filtered, currentPage]);
+  const filtered = React.useMemo(() => {
+    let rows = [...(data ?? [])];
+    if (search.trim()) {
+      const q = search.toLowerCase();
+      rows = rows.filter((c) =>
+        [c.first_name, c.last_name, c.email, c.phone, c.city, c.state]
+          .filter(Boolean)
+          .some((v) => String(v).toLowerCase().includes(q))
+      );
+    }
+    if (stateFilter !== "all") rows = rows.filter((c) => c.state === stateFilter);
+    if (dateFilter !== "all") {
+      const now = new Date();
+      let from: Date | null = null;
+      if (dateFilter === "30") {
+        from = new Date();
+        from.setDate(now.getDate() - 30);
+      } else if (dateFilter === "90") {
+        from = new Date();
+        from.setDate(now.getDate() - 90);
+      } else if (dateFilter === "year") {
+        from = new Date(now.getFullYear(), 0, 1);
+      }
+      if (from) rows = rows.filter((c) => new Date(c.created_at || 0) >= from!);
+    }
+    return rows;
+  }, [data, search, stateFilter, dateFilter]);
 
-  // Reset pagination when filters change
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [searchTerm, selectedState, selectedDateRange]);
+  // pagination (client-side)
+  const [page, setPage] = React.useState(1);
+  const pageSize = 10;
+  const pageCount = Math.max(1, Math.ceil((filtered?.length ?? 0) / pageSize));
+  React.useEffect(() => setPage(1), [search, stateFilter, dateFilter]);
+  const pageRows = React.useMemo(() => {
+    const start = (page - 1) * pageSize;
+    return filtered.slice(start, start + pageSize);
+  }, [filtered, page]);
 
-  // Early return if dealer is still loading
-  if (isDealerLoading) {
-    return <LoadingState message="Loading dealer profile..." />;
+  // Early return for dealer loading
+  if (dealerLoading) {
+    return (
+      <>
+        <SEO
+          title="Customers | Dealer Dashboard"
+          description="View and manage your dealership's customers."
+          canonical="/app/customers"
+          noIndex
+        />
+        <div className="min-h-[50vh] flex items-center justify-center">
+          <LoadingState message="Loading dealer profile..." />
+        </div>
+      </>
+    );
   }
 
-  // Early return if no dealer profile found
+  // Early return for no dealer
   if (!dealer) {
     return (
-      <div className="text-center py-12">
-        <h2 className="text-xl font-semibold">No Dealer Profile Found</h2>
-        <p className="text-muted-foreground mt-2">Please complete your profile setup first.</p>
-      </div>
+      <>
+        <SEO
+          title="Customers | Dealer Dashboard"
+          description="View and manage your dealership's customers."
+          canonical="/app/customers"
+          noIndex
+        />
+        <div className="min-h-[50vh] flex items-center justify-center">
+          <div className="text-center space-y-4">
+            <p className="text-muted-foreground">No dealer profile found.</p>
+            <p className="text-sm text-muted-foreground">Please complete your onboarding first.</p>
+          </div>
+        </div>
+      </>
     );
   }
 
   const handleExport = () => {
-    if (!filtered.length) {
-      toast.error("No customers to export");
-      return;
-    }
-
-    const headers = ["First Name", "Last Name", "Email", "Phone", "City", "State", "Total Spent", "Date Added"];
-    const csvContent = [
-      headers.join(","),
-      ...filtered.map(customer => [
-        `"${customer.first_name}"`,
-        `"${customer.last_name}"`,
-        `"${customer.email}"`,
-        `"${customer.phone || ""}"`,
-        `"${customer.city || ""}"`,
-        `"${customer.state || ""}"`,
-        `"${customer.total_spent || 0}"`,
-        `"${formatDate(customer.created_at)}"`
-      ].join(","))
-    ].join("\n");
-
-    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const rows = [
+      ["First Name", "Last Name", "Email", "Phone", "City", "State", "Total Spent", "Created"],
+      ...filtered.map((c) => [
+        c.first_name,
+        c.last_name,
+        c.email ?? "",
+        c.phone ?? "",
+        c.city ?? "",
+        c.state ?? "",
+        String(Number(c.total_spent ?? 0)),
+        c.created_at ? new Date(c.created_at).toISOString() : "",
+      ]),
+    ];
+    const csv = rows.map((r) => r.map((v) => `"${String(v).replace(/"/g, '""')}"`).join(",")).join("\n");
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
-    if (link.download !== undefined) {
-      const url = URL.createObjectURL(blob);
-      link.setAttribute("href", url);
-      link.setAttribute("download", `customers_${new Date().toISOString().split('T')[0]}.csv`);
-      link.style.visibility = "hidden";
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-    }
-    
-    toast.success("Customer data exported successfully");
+    link.href = url;
+    link.download = `customers_export_${Date.now()}.csv`;
+    link.click();
+    URL.revokeObjectURL(url);
   };
 
   const onAdd = () => {
-    setEditingCustomer(null);
-    setIsFormOpen(true);
+    setEditValues(undefined);
+    setFormOpen(true);
   };
-
-  const onEdit = (customer: Customer) => {
-    setEditingCustomer(customer);
-    setIsFormOpen(true);
+  const onEdit = (c: Customer) => {
+    setEditValues(c);
+    setFormOpen(true);
   };
-
-  const onView = (customer: Customer) => {
-    setViewingCustomer(customer);
-    setIsDrawerOpen(true);
+  const onView = (c: Customer) => {
+    setSelected(c);
+    setDrawerOpen(true);
   };
-
-  const handleDelete = async (customer: Customer) => {
+  const handleDelete = async (c: Customer) => {
     try {
-      await deleteCustomerMutation.mutateAsync(customer.id);
-      toast.success("Customer deleted successfully");
+      await deleteCustomer.mutateAsync(c.id);
+      toast({ title: "Customer deleted", description: `${c.first_name} ${c.last_name} has been removed.` });
     } catch (error) {
-      console.error("Error deleting customer:", error);
-      toast.error("Failed to delete customer");
+      toast({ 
+        title: "Error", 
+        description: "Failed to delete customer",
+        variant: "destructive"
+      });
     }
-    setDeletingCustomer(null);
   };
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Customers</h1>
-          <p className="text-muted-foreground">Manage and track your customer relationships</p>
-        </div>
-        <div className="flex items-center gap-2">
-          <Button variant="outline" onClick={handleExport} disabled={!filtered.length}>
-            <Download className="h-4 w-4 mr-2" />
-            Export CSV
-          </Button>
-          <Button onClick={onAdd}>
-            <Plus className="h-4 w-4 mr-2" />
-            Add Customer
-          </Button>
-        </div>
-      </div>
-
-      {/* KPIs */}
-      <CustomerKPIs 
-        data={customers} 
-        isLoading={isCustomersLoading} 
-        error={customersError} 
+    <>
+      <SEO
+        title="Customers | Dealer Dashboard"
+        description="View and manage your dealership's customers."
+        canonical="/app/customers"
+        noIndex
       />
-
-      {/* Main Content */}
-      <Card>
-        <CardHeader className="space-y-4">
-          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-            <div>
-              <CardTitle>Customer List</CardTitle>
-              <p className="text-sm text-muted-foreground mt-1">
-                {filtered.length} {filtered.length === 1 ? 'customer' : 'customers'} found
-              </p>
-            </div>
-            <div className="flex flex-col sm:flex-row gap-3 w-full lg:w-auto">
-              <div className="relative flex-1 min-w-[200px]">
-                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                <Input
-                  placeholder="Search customers..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-9"
-                />
-              </div>
-              <Select value={selectedState} onValueChange={setSelectedState}>
-                <SelectTrigger className="w-full sm:w-[140px]">
-                  <SelectValue placeholder="All states" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="">All states</SelectItem>
-                  {uniqueStates.map((state) => (
-                    <SelectItem key={state} value={state}>
-                      {state}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <Select value={selectedDateRange} onValueChange={setSelectedDateRange}>
-                <SelectTrigger className="w-full sm:w-[140px]">
-                  <SelectValue placeholder="All time" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="">All time</SelectItem>
-                  <SelectItem value="7d">Last 7 days</SelectItem>
-                  <SelectItem value="30d">Last 30 days</SelectItem>
-                  <SelectItem value="90d">Last 90 days</SelectItem>
-                  <SelectItem value="1y">Last year</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+      <section className="animate-fade-in space-y-8">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div className="space-y-2">
+            <h1 className="text-3xl font-semibold tracking-tight">Customers</h1>
+            <p className="text-muted-foreground">Customer directory and insights</p>
           </div>
-        </CardHeader>
-        <CardContent>
-          {isCustomersLoading ? (
-            <LoadingState message="Loading customers..." />
-          ) : customersError ? (
-            <div className="text-center py-8">
-              <p className="text-destructive">Error loading customers: {customersError.message}</p>
-            </div>
-          ) : paginatedData.length === 0 ? (
-            <div className="text-center py-8">
-              <p className="text-muted-foreground">
-                {customers?.length === 0 ? "No customers found." : "No customers match your search criteria."}
-              </p>
-            </div>
-          ) : (
-            <>
-              <div className="rounded-md border">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Name</TableHead>
-                      <TableHead>Email</TableHead>
-                      <TableHead>Phone</TableHead>
-                      <TableHead>Location</TableHead>
-                      <TableHead>Total Spent</TableHead>
-                      <TableHead>Date Added</TableHead>
-                      <TableHead className="text-right">Actions</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {paginatedData.map((customer) => (
-                      <TableRow key={customer.id}>
-                        <TableCell className="font-medium">
-                          {customer.first_name} {customer.last_name}
-                        </TableCell>
-                        <TableCell>{customer.email}</TableCell>
-                        <TableCell>{customer.phone || "-"}</TableCell>
-                        <TableCell>
-                          {customer.city && customer.state ? `${customer.city}, ${customer.state}` : "-"}
-                        </TableCell>
-                        <TableCell>
-                          <div className="font-medium text-green-600">
-                            {formatCurrency(customer.total_spent)}
-                          </div>
-                        </TableCell>
-                        <TableCell>{formatDate(customer.created_at)}</TableCell>
-                        <TableCell className="text-right">
-                          <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                              <Button variant="ghost" className="h-8 w-8 p-0">
-                                <span className="sr-only">Open menu</span>
-                                <Eye className="h-4 w-4" />
-                              </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end">
-                              <DropdownMenuItem onClick={() => onView(customer)}>
-                                <Eye className="mr-2 h-4 w-4" />
-                                View Details
-                              </DropdownMenuItem>
-                              <DropdownMenuItem onClick={() => onEdit(customer)}>
-                                <Edit2 className="mr-2 h-4 w-4" />
-                                Edit
-                              </DropdownMenuItem>
-                              <DropdownMenuItem onClick={() => window.open(`tel:${customer.phone}`)}>
-                                <Phone className="mr-2 h-4 w-4" />
-                                Call
-                              </DropdownMenuItem>
-                              <DropdownMenuItem onClick={() => window.open(`mailto:${customer.email}`)}>
-                                <Mail className="mr-2 h-4 w-4" />
-                                Email
-                              </DropdownMenuItem>
-                              <DropdownMenuItem onClick={() => window.open(`sms:${customer.phone}`)}>
-                                <MessageSquare className="mr-2 h-4 w-4" />
-                                SMS
-                              </DropdownMenuItem>
-                              <DropdownMenuItem 
-                                onClick={() => setDeletingCustomer(customer)}
-                                className="text-red-600"
-                              >
-                                <Trash2 className="mr-2 h-4 w-4" />
-                                Delete
-                              </DropdownMenuItem>
-                            </DropdownMenuContent>
-                          </DropdownMenu>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </div>
+          <div className="flex items-center gap-3">
+            <Button variant="outline" onClick={handleExport}>
+              <Download className="h-4 w-4 mr-2" /> Export CSV
+            </Button>
+            <Button onClick={onAdd}>
+              <Plus className="h-4 w-4 mr-2" /> Add Customer
+            </Button>
+          </div>
+        </div>
 
-              {/* Pagination */}
-              {totalPages > 1 && (
-                <div className="mt-6 flex justify-center">
-                  <div className="flex items-center gap-2">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => setCurrentPage(currentPage - 1)}
-                      disabled={currentPage <= 1}
-                    >
+        <CustomerKPIs 
+          data={data} 
+          isLoading={customersLoading} 
+          error={customersError} 
+        />
+
+        <Card className="glass-card">
+          <CardHeader className="space-y-4">
+            <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+              <div className="space-y-1">
+                <CardTitle className="text-xl">Customer List</CardTitle>
+                <CardDescription>All customers associated with your dealership</CardDescription>
+              </div>
+              <div className="flex flex-col sm:flex-row gap-3 w-full lg:w-auto">
+                <div className="relative flex-1 min-w-[220px]">
+                  <Input
+                    placeholder="Search name, email, phone..."
+                    value={search}
+                    onChange={(e) => setSearch(e.currentTarget.value)}
+                    className="h-10"
+                  />
+                </div>
+                <Select value={stateFilter} onValueChange={setStateFilter}>
+                  <SelectTrigger className="w-[180px] h-10 glass-card"><SelectValue placeholder="State" /></SelectTrigger>
+                  <SelectContent className="glass-card">
+                    <SelectItem value="all">All states</SelectItem>
+                    {uniqueStates.map((s) => (
+                      <SelectItem key={s} value={s}>{s}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <Select value={dateFilter} onValueChange={setDateFilter}>
+                  <SelectTrigger className="w-[180px] h-10 glass-card"><SelectValue placeholder="Date range" /></SelectTrigger>
+                  <SelectContent className="glass-card">
+                    <SelectItem value="all">All time</SelectItem>
+                    <SelectItem value="30">Last 30 days</SelectItem>
+                    <SelectItem value="90">Last 90 days</SelectItem>
+                    <SelectItem value="year">This year</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent>
+            {customersLoading && (
+              <div className="space-y-2">
+                {[...Array(8)].map((_, i) => (
+                  <Skeleton key={i} className="h-10 w-full" />
+                ))}
+              </div>
+            )}
+            {customersError && <div className="text-destructive">{(customersError as any).message}</div>}
+            {!customersLoading && !customersError && (
+              <>
+                {pageRows && pageRows.length > 0 ? (
+                  <div className="rounded-md border">
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>Customer</TableHead>
+                          <TableHead>Contact</TableHead>
+                          <TableHead>Location</TableHead>
+                          <TableHead>Spent</TableHead>
+                          <TableHead>Joined</TableHead>
+                          <TableHead className="w-[100px]">Actions</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {pageRows.map((c) => {
+                          const isRecent = new Date(c.created_at) > new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+                          
+                          return (
+                            <TableRow key={c.id}>
+                              <TableCell>
+                                <div className="flex items-center space-x-3">
+                                   <Avatar className="h-8 w-8">
+                                     <AvatarFallback className="text-xs">
+                                       {(c.first_name?.[0] || "U").toUpperCase()}{(c.last_name?.[0] || "U").toUpperCase()}
+                                     </AvatarFallback>
+                                  </Avatar>
+                                  <div>
+                                    <div className="flex items-center space-x-2">
+                                      <div className="font-medium">
+                                        {c.first_name || "Unknown"} {c.last_name || "User"}
+                                      </div>
+                                      {isRecent && (
+                                        <span className="inline-flex items-center px-2 py-1 text-xs font-medium bg-primary/10 text-primary rounded-full">
+                                          RECENT
+                                        </span>
+                                      )}
+                                    </div>
+                                  </div>
+                                </div>
+                              </TableCell>
+                              <TableCell>
+                                <div className="space-y-1">
+                                  <div className="text-sm">{c.email}</div>
+                                  {c.phone && (
+                                    <div className="text-sm text-muted-foreground">{c.phone}</div>
+                                  )}
+                                </div>
+                              </TableCell>
+                              <TableCell>
+                                {c.city && c.state ? (
+                                  <div className="text-sm">
+                                    {c.city}, {c.state}
+                                  </div>
+                                ) : (
+                                  <div className="text-sm text-muted-foreground">—</div>
+                                )}
+                              </TableCell>
+                              <TableCell>
+                                <div className="font-medium">{formatCurrency(c.total_spent || 0)}</div>
+                              </TableCell>
+                              <TableCell>
+                                <div className="text-sm text-muted-foreground">
+                                  {formatDate(c.created_at)}
+                                </div>
+                              </TableCell>
+                              <TableCell>
+                                <div className="flex items-center space-x-1">
+                                  {c.phone && (
+                                    <Button variant="ghost" size="icon" className="h-8 w-8">
+                                      <Phone className="h-4 w-4" />
+                                    </Button>
+                                  )}
+                                  <Button variant="ghost" size="icon" className="h-8 w-8">
+                                    <Mail className="h-4 w-4" />
+                                  </Button>
+                                  <DropdownMenu>
+                                    <DropdownMenuTrigger asChild>
+                                      <Button variant="ghost" size="icon" className="h-8 w-8">
+                                        <MoreHorizontal className="h-4 w-4" />
+                                      </Button>
+                                    </DropdownMenuTrigger>
+                                    <DropdownMenuContent align="end" className="glass-card">
+                                      <DropdownMenuItem onClick={() => onView(c)}>
+                                        <Eye className="h-4 w-4 mr-2" />
+                                        View Details
+                                      </DropdownMenuItem>
+                                      <DropdownMenuItem onClick={() => onEdit(c)}>
+                                        <Edit className="h-4 w-4 mr-2" />
+                                        Edit Customer
+                                      </DropdownMenuItem>
+                                      <DropdownMenuSeparator />
+                                      <AlertDialog>
+                                        <AlertDialogTrigger asChild>
+                                          <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+                                            <Trash2 className="h-4 w-4 mr-2" />
+                                            Delete
+                                          </DropdownMenuItem>
+                                        </AlertDialogTrigger>
+                                        <AlertDialogContent className="glass-card">
+                                          <AlertDialogHeader>
+                                            <AlertDialogTitle>Delete Customer</AlertDialogTitle>
+                                            <AlertDialogDescription>
+                                              Are you sure you want to delete {c.first_name} {c.last_name}? This action cannot be undone.
+                                            </AlertDialogDescription>
+                                          </AlertDialogHeader>
+                                          <AlertDialogFooter>
+                                            <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                            <AlertDialogAction 
+                                              onClick={() => handleDelete(c)}
+                                              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                                            >
+                                              Delete
+                                            </AlertDialogAction>
+                                          </AlertDialogFooter>
+                                        </AlertDialogContent>
+                                      </AlertDialog>
+                                    </DropdownMenuContent>
+                                  </DropdownMenu>
+                                </div>
+                              </TableCell>
+                            </TableRow>
+                          );
+                        })}
+                      </TableBody>
+                    </Table>
+                  </div>
+                ) : (
+                  <div className="py-12 text-center text-muted-foreground">No customers found.</div>
+                )}
+
+                <div className="flex items-center justify-between mt-4 text-sm text-muted-foreground">
+                  <div>
+                    Page {page} of {pageCount}
+                  </div>
+                  <div className="flex gap-2">
+                    <Button variant="outline" size="sm" disabled={page <= 1} onClick={() => setPage((p) => Math.max(1, p - 1))}>
                       Previous
                     </Button>
-                    <span className="text-sm text-muted-foreground">
-                      Page {currentPage} of {totalPages}
-                    </span>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => setCurrentPage(currentPage + 1)}
-                      disabled={currentPage >= totalPages}
-                    >
+                    <Button variant="outline" size="sm" disabled={page >= pageCount} onClick={() => setPage((p) => Math.min(pageCount, p + 1))}>
                       Next
                     </Button>
                   </div>
                 </div>
-              )}
-            </>
-          )}
-        </CardContent>
-      </Card>
+              </>
+            )}
+          </CardContent>
+        </Card>
+      </section>
 
-      {/* Dialogs */}
       <CustomerFormDialog
-        open={isFormOpen}
-        onOpenChange={setIsFormOpen}
-        initialValues={editingCustomer ? {
-          id: editingCustomer.id,
-          first_name: editingCustomer.first_name,
-          last_name: editingCustomer.last_name,
-          email: editingCustomer.email,
-          phone: editingCustomer.phone || "",
-          city: editingCustomer.city || "",
-          state: editingCustomer.state || ""
-        } : undefined}
+        open={formOpen}
+        onOpenChange={setFormOpen}
+        initialValues={editValues}
       />
 
-      <CustomerDrawer
-        open={isDrawerOpen}
-        onOpenChange={setIsDrawerOpen}
-        customer={viewingCustomer}
-      />
-
-      <ConfirmDialog
-        open={!!deletingCustomer}
-        onOpenChange={(open) => !open && setDeletingCustomer(null)}
-        title="Delete Customer"
-        description={`Are you sure you want to delete ${deletingCustomer?.first_name} ${deletingCustomer?.last_name}? This action cannot be undone.`}
-        onConfirm={() => deletingCustomer && handleDelete(deletingCustomer)}
-      />
-    </div>
+      <CustomerDrawer open={drawerOpen} onOpenChange={setDrawerOpen} customer={selected ?? undefined} />
+    </>
   );
-}
+};
+
+export default Customers;

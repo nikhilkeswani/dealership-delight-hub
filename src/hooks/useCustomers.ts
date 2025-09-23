@@ -22,7 +22,7 @@ export const useCustomers = () => {
     queryFn: async () => {
       if (!dealer?.id) throw new Error("No dealer found");
       
-      const { data: customers, error } = await supabase
+      const { data, error } = await supabase
         .from("customers")
         .select("*")
         .eq("dealer_id", dealer.id)
@@ -30,7 +30,27 @@ export const useCustomers = () => {
       
       if (error) throw error;
       
-      return customers || [];
+      // Debug logging and data validation in development
+      if (import.meta.env.DEV) {
+        console.log("useCustomers data received:", { 
+          count: data?.length || 0,
+          firstCustomer: data?.[0] ? {
+            id: data[0].id,
+            firstName: data[0].first_name,
+            lastName: data[0].last_name,
+            email: data[0].email
+          } : null,
+          allCustomersValid: data?.every(c => c.first_name && c.last_name) || false
+        });
+        
+        // Check for data corruption
+        const corruptedCustomers = data?.filter(c => !c.first_name || !c.last_name);
+        if (corruptedCustomers && corruptedCustomers.length > 0) {
+          console.error("Detected corrupted customer data:", corruptedCustomers);
+        }
+      }
+      
+      return data || [];
     },
     enabled: !!dealer?.id,
   });
@@ -77,55 +97,6 @@ export const useUpdateCustomer = () => {
 
       if (error) throw error;
       return data;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["customers", dealer?.id] });
-    },
-  });
-};
-
-export const useConvertLeadToCustomer = () => {
-  const queryClient = useQueryClient();
-  const { data: dealer } = useDealer();
-
-  return useMutation({
-    mutationFn: async (leadId: string) => {
-      if (!dealer?.id) throw new Error("No dealer found");
-
-      // Get the lead data
-      const { data: lead, error: leadError } = await supabase
-        .from("leads")
-        .select("*")
-        .eq("id", leadId)
-        .single();
-
-      if (leadError) throw leadError;
-
-      // Create customer from lead data
-      const { data: customer, error: customerError } = await supabase
-        .from("customers")
-        .insert({
-          dealer_id: dealer.id,
-          lead_id: leadId,
-          first_name: lead.first_name,
-          last_name: lead.last_name,
-          email: lead.email,
-          phone: lead.phone,
-        })
-        .select()
-        .single();
-
-      if (customerError) throw customerError;
-
-      // Mark lead as converted
-      const { error: updateError } = await supabase
-        .from("leads")
-        .update({ status: "converted" })
-        .eq("id", leadId);
-
-      if (updateError) throw updateError;
-
-      return customer;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["customers", dealer?.id] });

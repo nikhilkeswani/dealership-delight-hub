@@ -15,7 +15,7 @@ export const useCreateLead = () => {
           phone: leadData.phone || null,
           notes: leadData.message || null,
           dealer_id: leadData.dealer_id,
-          source: leadData.source || 'website',
+          source: (leadData.source as any) || 'website',
           status: 'new',
         })
         .select()
