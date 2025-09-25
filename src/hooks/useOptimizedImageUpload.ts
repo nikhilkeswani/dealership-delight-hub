@@ -39,6 +39,15 @@ export const useOptimizedImageUpload = () => {
   ): Promise<VehicleImageData[]> => {
     if (files.length === 0) return [];
 
+    // Get authenticated user ID (required for RLS policy)
+    const { data: sessionData } = await supabase.auth.getSession();
+    const userId = sessionData.session?.user?.id;
+    
+    if (!userId) {
+      toast.error('Authentication required for image upload');
+      return [];
+    }
+
     setIsUploading(true);
     const uploadedImages: VehicleImageData[] = [];
 
@@ -79,7 +88,7 @@ export const useOptimizedImageUpload = () => {
               const timestamp = Date.now();
               const randomId = Math.random().toString(36).substring(2);
               const fileName = `${vehicleId}_${sizeName}_${timestamp}_${randomId}.jpg`;
-              const filePath = `${folder}/${vehicleId}/${sizeName}/${fileName}`;
+              const filePath = `${userId}/${folder}/${vehicleId}/${sizeName}/${fileName}`;
               
               const { data, error } = await supabase.storage
                 .from('dealer-assets')
@@ -159,10 +168,18 @@ export const useOptimizedImageUpload = () => {
         return !error;
       }
 
-      // Delete all sizes for this image
+      // Delete all sizes for this image - handle both old and new path structures
       const sizeNames = ['thumbnail', 'medium', 'large', 'original'];
       const deletePromises = sizeNames.map(async (sizeName) => {
-        const sizePath = imageUrl.replace('/medium/', `/${sizeName}/`);
+        let sizePath;
+        if (imageUrl.includes('/vehicles/')) {
+          // New path structure: userId/vehicles/vehicleId/size/filename
+          sizePath = imageUrl.replace(/\/vehicles\/[^/]+\/medium\//, `/vehicles/${vehicleId}/${sizeName}/`);
+        } else {
+          // Old path structure: vehicles/vehicleId/size/filename
+          sizePath = imageUrl.replace('/medium/', `/${sizeName}/`);
+        }
+        
         const urlPath = sizePath.split('/dealer-assets/')[1];
         
         if (urlPath) {
@@ -190,7 +207,7 @@ export const useOptimizedImageUpload = () => {
   ): string => {
     if (!baseUrl.includes('/vehicles/')) return baseUrl;
     
-    // Parse the URL structure: .../vehicles/{vehicleId}/{currentSize}/{filename}
+    // Parse the URL structure: .../userId/vehicles/{vehicleId}/{currentSize}/{filename}
     const urlParts = baseUrl.split('/vehicles/');
     if (urlParts.length !== 2) return baseUrl;
     
@@ -202,7 +219,7 @@ export const useOptimizedImageUpload = () => {
     const [vehicleId, currentSize, ...filenameParts] = pathSegments;
     const filename = filenameParts.join('/');
     
-    // Construct new URL with desired size
+    // Construct new URL with desired size - maintain the userId prefix
     return `${basePart}/vehicles/${vehicleId}/${size}/${filename}`;
   };
 
