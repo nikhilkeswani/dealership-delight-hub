@@ -26,7 +26,7 @@ export const usePublicVehicles = (dealerId: string | undefined) => {
       if (!dealerId) return [];
 
       const { data, error } = await supabase
-        .from("vehicles")
+        .from("public_vehicles")  // Use the secure view instead of direct table access
         .select(`
           id,
           make,
@@ -44,7 +44,6 @@ export const usePublicVehicles = (dealerId: string | undefined) => {
           created_at
         `)
         .eq("dealer_id", dealerId)
-        .eq("status", "available")
         .order("created_at", { ascending: false });
 
       if (error) throw error;

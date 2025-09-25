@@ -42,7 +42,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { usePublicDealer } from "@/hooks/usePublicDealer";
 import { usePublicVehicles } from "@/hooks/usePublicVehicles";
 import { usePublicDealerWebsite } from "@/hooks/usePublicDealerWebsite";
-import { useCreateLead } from "@/hooks/useLeads";
+import { useCreatePublicLead } from "@/hooks/useCreatePublicLead";
 import { formatCurrency } from "@/lib/format";
 const sampleVehicles: VehicleData[] = [
   {
@@ -81,7 +81,7 @@ const DealerSite = () => {
   const { data: publicDealer, isLoading: dealerLoading } = usePublicDealer(slug);
   const { data: publicVehicles, isLoading: vehiclesLoading } = usePublicVehicles(publicDealer?.id);
   const { data: websiteConfig, isLoading: websiteLoading } = usePublicDealerWebsite(publicDealer?.id);
-  const createLead = useCreateLead();
+  const createPublicLead = useCreatePublicLead();
 
   // Demo fallback data
   const dealerName = publicDealer?.business_name || (slug || "demo-motors")
@@ -178,6 +178,7 @@ const DealerSite = () => {
     vehicleId: z.string().min(1, "Select a vehicle"),
     date: z.string().optional(),
     message: z.string().min(5, "Please add a short message"),
+    honeypot: z.string().optional(), // Hidden field for spam detection
   });
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -188,6 +189,7 @@ const DealerSite = () => {
       vehicleId: "",
       date: "",
       message: "",
+      honeypot: "", // Hidden field for spam detection
     },
   });
   const { toast } = useToast();
@@ -223,32 +225,24 @@ const DealerSite = () => {
 
     try {
       const [firstName, ...lastNameParts] = values.name.split(' ');
-      await createLead.mutateAsync({
+      await createPublicLead.mutateAsync({
         first_name: firstName,
         last_name: lastNameParts.join(' ') || firstName,
         email: values.email,
         phone: values.phone || undefined,
         notes: values.message,
         source: contactIntent === 'testdrive' ? 'website_testdrive' : 'website_inquiry',
-        status: 'new',
+        dealer_id: publicDealer.id,
+        honeypot: values.honeypot || '', // Add honeypot field for spam detection
       });
 
-      toast({
-        title: "Request submitted successfully!",
-        description: "Thank you for your interest. We'll contact you shortly.",
-      });
+      // Success is handled by the hook
       form.reset();
     } catch (error) {
+      // Error handling is done by the hook
       if (import.meta.env.DEV) {
-        if (import.meta.env.DEV) {
-          console.error('Error submitting lead:', error);
-        }
+        console.error('Error submitting lead:', error);
       }
-      toast({
-        title: "Error",
-        description: "Unable to submit request. Please try again later.",
-        variant: "destructive",
-      });
     }
   };
 
@@ -727,6 +721,26 @@ const DealerSite = () => {
                         </FormItem>
                       )}
                     />
+                    
+                    {/* Hidden honeypot field for spam detection */}
+                    <FormField
+                      control={form.control}
+                      name="honeypot"
+                      render={({ field }) => (
+                        <FormItem style={{ display: 'none' }}>
+                          <FormLabel>Leave this field empty</FormLabel>
+                          <FormControl>
+                            <Input 
+                              {...field} 
+                              tabIndex={-1}
+                              autoComplete="off"
+                              style={{ display: 'none' }}
+                            />
+                          </FormControl>
+                        </FormItem>
+                      )}
+                    />
+                    
                     <div className="sm:col-span-2">
                       <Button type="submit" variant="hero" size="lg" className="w-full sm:w-auto">
                         {contactIntent === "testdrive" ? "Request test drive" : "Send inquiry"}
