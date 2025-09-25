@@ -388,6 +388,13 @@ export type Database = {
             foreignKeyName: "leads_vehicle_id_fkey"
             columns: ["vehicle_id"]
             isOneToOne: false
+            referencedRelation: "public_vehicles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "leads_vehicle_id_fkey"
+            columns: ["vehicle_id"]
+            isOneToOne: false
             referencedRelation: "vehicles"
             referencedColumns: ["id"]
           },
@@ -531,6 +538,13 @@ export type Database = {
             columns: ["lead_id"]
             isOneToOne: false
             referencedRelation: "leads"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "sales_vehicle_id_fkey"
+            columns: ["vehicle_id"]
+            isOneToOne: false
+            referencedRelation: "public_vehicles"
             referencedColumns: ["id"]
           },
           {
@@ -782,7 +796,68 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      public_vehicles: {
+        Row: {
+          body_type: string | null
+          condition: string | null
+          created_at: string | null
+          dealer_id: string | null
+          description: string | null
+          fuel_type: string | null
+          id: string | null
+          images: string[] | null
+          make: string | null
+          mileage: number | null
+          model: string | null
+          price: number | null
+          status: Database["public"]["Enums"]["vehicle_status"] | null
+          transmission: string | null
+          year: number | null
+        }
+        Insert: {
+          body_type?: string | null
+          condition?: string | null
+          created_at?: string | null
+          dealer_id?: string | null
+          description?: string | null
+          fuel_type?: string | null
+          id?: string | null
+          images?: string[] | null
+          make?: string | null
+          mileage?: number | null
+          model?: string | null
+          price?: number | null
+          status?: Database["public"]["Enums"]["vehicle_status"] | null
+          transmission?: string | null
+          year?: number | null
+        }
+        Update: {
+          body_type?: string | null
+          condition?: string | null
+          created_at?: string | null
+          dealer_id?: string | null
+          description?: string | null
+          fuel_type?: string | null
+          id?: string | null
+          images?: string[] | null
+          make?: string | null
+          mileage?: number | null
+          model?: string | null
+          price?: number | null
+          status?: Database["public"]["Enums"]["vehicle_status"] | null
+          transmission?: string | null
+          year?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "vehicles_dealer_id_fkey"
+            columns: ["dealer_id"]
+            isOneToOne: false
+            referencedRelation: "dealers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Functions: {
       check_subscription_limit: {
