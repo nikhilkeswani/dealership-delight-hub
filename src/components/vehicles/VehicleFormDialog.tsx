@@ -53,6 +53,19 @@ const VehicleFormDialog: React.FC<Props> = ({ open, onOpenChange, initialValues,
   const { uploadOptimizedImages } = useOptimizedImageUpload();
 
   const isNewVehicle = !initialValues?.id || initialValues.id.startsWith('temp-');
+  const vehicleId = initialValues?.id && !initialValues.id.startsWith('temp-') ? initialValues.id : undefined;
+
+  // Debug logging
+  React.useEffect(() => {
+    if (open) {
+      console.log('VehicleFormDialog opened:', {
+        isNewVehicle,
+        vehicleId,
+        initialValues: initialValues?.id,
+        hasImages: initialValues?.images?.length
+      });
+    }
+  }, [open, isNewVehicle, vehicleId, initialValues]);
 
   React.useEffect(() => {
     setValues({ ...emptyValues, ...(initialValues ?? {}) });
@@ -191,7 +204,7 @@ const VehicleFormDialog: React.FC<Props> = ({ open, onOpenChange, initialValues,
                   images={values.images || []} 
                   onImagesChange={updateImages}
                   maxImages={8}
-                  vehicleId={initialValues?.id}
+                  vehicleId={vehicleId}
                   vehicleData={{
                     make: values.make,
                     model: values.model,
