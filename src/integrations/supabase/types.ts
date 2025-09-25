@@ -294,6 +294,39 @@ export type Database = {
           },
         ]
       }
+      lead_rate_limiting: {
+        Row: {
+          created_at: string
+          dealer_id: string
+          email: string | null
+          first_submission: string | null
+          id: string
+          ip_address: unknown
+          last_submission: string | null
+          submission_count: number | null
+        }
+        Insert: {
+          created_at?: string
+          dealer_id: string
+          email?: string | null
+          first_submission?: string | null
+          id?: string
+          ip_address: unknown
+          last_submission?: string | null
+          submission_count?: number | null
+        }
+        Update: {
+          created_at?: string
+          dealer_id?: string
+          email?: string | null
+          first_submission?: string | null
+          id?: string
+          ip_address?: unknown
+          last_submission?: string | null
+          submission_count?: number | null
+        }
+        Relationships: []
+      }
       leads: {
         Row: {
           created_at: string
@@ -770,15 +803,26 @@ export type Database = {
         }[]
       }
       create_public_lead: {
-        Args: {
-          p_dealer_id: string
-          p_email: string
-          p_first_name: string
-          p_last_name: string
-          p_notes?: string
-          p_phone?: string
-          p_source?: string
-        }
+        Args:
+          | {
+              p_dealer_id: string
+              p_email: string
+              p_first_name: string
+              p_ip_address?: unknown
+              p_last_name: string
+              p_notes?: string
+              p_phone?: string
+              p_source?: string
+            }
+          | {
+              p_dealer_id: string
+              p_email: string
+              p_first_name: string
+              p_last_name: string
+              p_notes?: string
+              p_phone?: string
+              p_source?: string
+            }
         Returns: string
       }
       get_user_provider_id: {
