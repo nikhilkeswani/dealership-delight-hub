@@ -12,6 +12,7 @@ export type CustomerFormValues = {
   phone?: string;
   city?: string;
   state?: string;
+  total_spent?: number;
 };
 
 export const useCustomers = () => {

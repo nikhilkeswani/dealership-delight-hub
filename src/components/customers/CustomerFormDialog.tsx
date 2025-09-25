@@ -19,6 +19,7 @@ const emptyValues: CustomerFormValues = {
   phone: "",
   city: "",
   state: "",
+  total_spent: 0,
 };
 
 const CustomerFormDialog: React.FC<Props> = ({ open, onOpenChange, initialValues }) => {
@@ -31,8 +32,10 @@ const CustomerFormDialog: React.FC<Props> = ({ open, onOpenChange, initialValues
     setValues({ ...emptyValues, ...(initialValues ?? {}) });
   }, [initialValues, open]);
 
-  const update = (key: keyof CustomerFormValues) => (e: React.ChangeEvent<HTMLInputElement>) =>
-    setValues((v) => ({ ...v, [key]: e.currentTarget.value }));
+  const update = (key: keyof CustomerFormValues) => (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = key === 'total_spent' ? parseFloat(e.currentTarget.value) || 0 : e.currentTarget.value;
+    setValues((v) => ({ ...v, [key]: value }));
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -86,6 +89,18 @@ const CustomerFormDialog: React.FC<Props> = ({ open, onOpenChange, initialValues
             <div>
               <Label htmlFor="state">State</Label>
               <Input id="state" value={values.state} onChange={update("state")} />
+            </div>
+            <div>
+              <Label htmlFor="total_spent">Total Spent</Label>
+              <Input 
+                id="total_spent" 
+                type="number" 
+                step="0.01" 
+                min="0" 
+                value={values.total_spent || 0} 
+                onChange={update("total_spent")} 
+                placeholder="0.00"
+              />
             </div>
           </div>
           <DialogFooter>
