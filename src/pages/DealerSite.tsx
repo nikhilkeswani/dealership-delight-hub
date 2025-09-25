@@ -497,7 +497,7 @@ const DealerSite = () => {
                         condition: (v as any).status === 'available' ? 'Available' : (v as any).status,
                         description: (v as any).description || `${(v as any).year} ${(v as any).make} ${(v as any).model}`,
                         features: (v as any).features ? Object.keys((v as any).features) : [],
-                        images: (v as any).images?.length ? (v as any).images : [sedan],
+                        images: (v as any).images?.length ? (v as any).images : ["data:image/svg+xml,%3Csvg width='400' height='300' xmlns='http://www.w3.org/2000/svg'%3E%3Crect width='100%25' height='100%25' fill='%23f3f4f6'/%3E%3Ctext x='50%25' y='45%25' dominant-baseline='middle' text-anchor='middle' font-family='Arial, sans-serif' font-size='18' fill='%23666'%3ENo Image Available%3C/text%3E%3Ctext x='50%25' y='60%25' dominant-baseline='middle' text-anchor='middle' font-family='Arial, sans-serif' font-size='14' fill='%23999'%3EContact dealer for photos%3C/text%3E%3C/svg%3E"],
                       };
                       
                       return (
