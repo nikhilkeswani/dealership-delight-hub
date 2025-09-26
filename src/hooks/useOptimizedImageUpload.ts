@@ -152,12 +152,12 @@ export const useOptimizedImageUpload = () => {
   };
 
   /**
-   * Delete optimized images (all sizes) using list and delete approach
+   * Delete optimized images (all sizes) and update database
    */
   const deleteOptimizedImage = async (imageUrl: string, vehicleId?: string): Promise<boolean> => {
     try {
       if (!vehicleId) {
-        // Fallback to original delete method
+        // Fallback to original delete method for single file
         const urlPath = imageUrl.split('/dealer-assets/')[1];
         if (!urlPath) return false;
 
@@ -174,39 +174,14 @@ export const useOptimizedImageUpload = () => {
       
       if (!userId) {
         console.error('Authentication required for image deletion');
+        toast.error('Authentication required for image deletion');
         return false;
       }
 
-      // Extract the base filename pattern from the URL to identify related files
-      const urlPath = imageUrl.split('/dealer-assets/')[1];
-      if (!urlPath) {
-        console.error('Could not parse image URL path:', imageUrl);
-        return false;
-      }
+      console.log(`Starting deletion for vehicle ${vehicleId}, image: ${imageUrl}`);
 
-      // Get the filename from the URL to identify the specific image set
-      const filename = urlPath.split('/').pop();
-      if (!filename) {
-        console.error('Could not extract filename from URL:', imageUrl);
-        return false;
-      }
-
-      // Extract the base identifier from the filename (everything before the size and timestamp)
-      // Format: vehicleId_size_timestamp_randomId.jpg
-      const filenameParts = filename.split('_');
-      if (filenameParts.length < 4) {
-        console.error('Unexpected filename format:', filename);
-        return false;
-      }
-      
-      const baseIdentifier = filenameParts[0]; // This should be the vehicleId
-      console.log(`Looking for files matching vehicle ${baseIdentifier} in user ${userId}`);
-
-      // List all files in the vehicle's directory
+      // PHASE 1: Nuclear storage deletion - delete ALL files in vehicle folder
       const vehicleFolder = `${userId}/vehicles/${vehicleId}`;
-      console.log(`Listing files in folder: ${vehicleFolder}`);
-
-      // Get all files in all size subdirectories
       const sizeNames = ['thumbnail', 'medium', 'large', 'original'];
       const filesToDelete: string[] = [];
 
@@ -218,49 +193,75 @@ export const useOptimizedImageUpload = () => {
           .list(sizePath);
 
         if (listError) {
-          console.log(`No files found in ${sizePath} (this is normal):`, listError.message);
+          console.log(`No files found in ${sizePath}:`, listError.message);
           continue;
         }
 
         if (files && files.length > 0) {
-          // Find files that match the base identifier
-          const matchingFiles = files.filter(file => 
-            file.name.startsWith(baseIdentifier) && file.name.includes(filename.split('_')[3])
-          );
-          
-          matchingFiles.forEach(file => {
+          // Add ALL files in this size directory for deletion
+          files.forEach(file => {
             filesToDelete.push(`${sizePath}/${file.name}`);
           });
           
-          console.log(`Found ${matchingFiles.length} matching files in ${sizePath}:`, matchingFiles.map(f => f.name));
+          console.log(`Found ${files.length} files in ${sizePath}:`, files.map(f => f.name));
         }
       }
 
-      console.log(`Total files to delete: ${filesToDelete.length}`, filesToDelete);
+      console.log(`Total files to delete from storage: ${filesToDelete.length}`);
 
-      // Delete all found files
+      // Delete all files from storage
       if (filesToDelete.length > 0) {
-        const { data: deletedFiles, error: deleteError } = await supabase.storage
+        const { error: deleteError } = await supabase.storage
           .from('dealer-assets')
           .remove(filesToDelete);
 
         if (deleteError) {
-          console.error('Failed to delete files:', deleteError);
+          console.error('Failed to delete files from storage:', deleteError);
+          toast.error('Failed to delete image files from storage');
           return false;
         }
 
-        console.log(`Successfully deleted ${filesToDelete.length} files:`, deletedFiles);
-        toast.success(`Deleted image and all its optimized sizes`);
-      } else {
-        console.log('No matching files found to delete');
-        toast.success('Image deleted from database');
+        console.log(`Successfully deleted ${filesToDelete.length} files from storage`);
       }
 
+      // PHASE 2: Update database to remove image URL from vehicle's images array
+      const { data: vehicle, error: fetchError } = await supabase
+        .from('vehicles')
+        .select('images')
+        .eq('id', vehicleId)
+        .single();
+
+      if (fetchError) {
+        console.error('Failed to fetch vehicle for database update:', fetchError);
+        toast.error('Failed to update vehicle database record');
+        return false;
+      }
+
+      if (vehicle && vehicle.images) {
+        // Remove the specific image URL from the array
+        const updatedImages = vehicle.images.filter((url: string) => url !== imageUrl);
+        
+        const { error: updateError } = await supabase
+          .from('vehicles')
+          .update({ images: updatedImages })
+          .eq('id', vehicleId);
+
+        if (updateError) {
+          console.error('Failed to update vehicle images in database:', updateError);
+          toast.error('Image files deleted but failed to update database');
+          return false;
+        }
+
+        console.log(`Successfully updated vehicle database, removed image: ${imageUrl}`);
+      }
+
+      // Success - both storage and database operations completed
+      toast.success('Image and all optimized sizes deleted successfully');
       return true;
 
     } catch (error) {
-      console.error('Delete error:', error);
-      toast.error('Failed to delete image');
+      console.error('Delete operation failed:', error);
+      toast.error('Failed to delete image - please try again');
       return false;
     }
   };
