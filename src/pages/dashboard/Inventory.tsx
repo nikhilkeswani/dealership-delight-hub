@@ -158,8 +158,9 @@ const Inventory: React.FC = () => {
                            <TableHead>Vehicle</TableHead>
                            <TableHead className="text-right">Price</TableHead>
                            <TableHead>Status</TableHead>
-                           <TableHead className="hidden sm:table-cell">Mileage</TableHead>
-                           <TableHead className="hidden md:table-cell">Updated</TableHead>
+                            <TableHead className="hidden sm:table-cell">Mileage</TableHead>
+                            <TableHead className="hidden md:table-cell">Created</TableHead>
+                            <TableHead className="hidden md:table-cell">Updated</TableHead>
                            <TableHead className="text-right">Actions</TableHead>
                          </TableRow>
                       </TableHeader>
@@ -188,12 +189,15 @@ const Inventory: React.FC = () => {
                             <TableCell>
                               <StatusBadge status={v.status ?? "-"} className="capitalize" />
                             </TableCell>
-                            <TableCell className="hidden sm:table-cell">
-                              {v.mileage != null ? `${formatNumber(Number(v.mileage))} miles` : "-"}
-                            </TableCell>
-                            <TableCell className="hidden md:table-cell">
-                              {v.updated_at ? formatDate(v.updated_at) : "-"}
-                            </TableCell>
+                             <TableCell className="hidden sm:table-cell">
+                               {v.mileage != null ? `${formatNumber(Number(v.mileage))} miles` : "-"}
+                             </TableCell>
+                             <TableCell className="hidden md:table-cell">
+                               {v.created_at ? formatDate(v.created_at) : "-"}
+                             </TableCell>
+                             <TableCell className="hidden md:table-cell">
+                               {v.updated_at ? formatDate(v.updated_at) : "-"}
+                             </TableCell>
                             <TableCell className="text-right">
                               <div className="flex justify-end gap-2">
                                 <Button 
