@@ -152,7 +152,7 @@ export const useOptimizedImageUpload = () => {
   };
 
   /**
-   * Delete optimized images (all sizes)
+   * Delete optimized images (all sizes) using list and delete approach
    */
   const deleteOptimizedImage = async (imageUrl: string, vehicleId?: string): Promise<boolean> => {
     try {
@@ -168,57 +168,99 @@ export const useOptimizedImageUpload = () => {
         return !error;
       }
 
-      // Delete all sizes for this image - preserve userId prefix
+      // Get authenticated user ID
+      const { data: sessionData } = await supabase.auth.getSession();
+      const userId = sessionData.session?.user?.id;
+      
+      if (!userId) {
+        console.error('Authentication required for image deletion');
+        return false;
+      }
+
+      // Extract the base filename pattern from the URL to identify related files
+      const urlPath = imageUrl.split('/dealer-assets/')[1];
+      if (!urlPath) {
+        console.error('Could not parse image URL path:', imageUrl);
+        return false;
+      }
+
+      // Get the filename from the URL to identify the specific image set
+      const filename = urlPath.split('/').pop();
+      if (!filename) {
+        console.error('Could not extract filename from URL:', imageUrl);
+        return false;
+      }
+
+      // Extract the base identifier from the filename (everything before the size and timestamp)
+      // Format: vehicleId_size_timestamp_randomId.jpg
+      const filenameParts = filename.split('_');
+      if (filenameParts.length < 4) {
+        console.error('Unexpected filename format:', filename);
+        return false;
+      }
+      
+      const baseIdentifier = filenameParts[0]; // This should be the vehicleId
+      console.log(`Looking for files matching vehicle ${baseIdentifier} in user ${userId}`);
+
+      // List all files in the vehicle's directory
+      const vehicleFolder = `${userId}/vehicles/${vehicleId}`;
+      console.log(`Listing files in folder: ${vehicleFolder}`);
+
+      // Get all files in all size subdirectories
       const sizeNames = ['thumbnail', 'medium', 'large', 'original'];
-      const deletePromises = sizeNames.map(async (sizeName) => {
-        // Parse the full URL path to extract userId and construct proper deletion path
-        const urlPath = imageUrl.split('/dealer-assets/')[1];
+      const filesToDelete: string[] = [];
+
+      for (const sizeName of sizeNames) {
+        const sizePath = `${vehicleFolder}/${sizeName}`;
         
-        if (!urlPath) {
-          console.error('Could not parse image URL path:', imageUrl);
+        const { data: files, error: listError } = await supabase.storage
+          .from('dealer-assets')
+          .list(sizePath);
+
+        if (listError) {
+          console.log(`No files found in ${sizePath} (this is normal):`, listError.message);
+          continue;
+        }
+
+        if (files && files.length > 0) {
+          // Find files that match the base identifier
+          const matchingFiles = files.filter(file => 
+            file.name.startsWith(baseIdentifier) && file.name.includes(filename.split('_')[3])
+          );
+          
+          matchingFiles.forEach(file => {
+            filesToDelete.push(`${sizePath}/${file.name}`);
+          });
+          
+          console.log(`Found ${matchingFiles.length} matching files in ${sizePath}:`, matchingFiles.map(f => f.name));
+        }
+      }
+
+      console.log(`Total files to delete: ${filesToDelete.length}`, filesToDelete);
+
+      // Delete all found files
+      if (filesToDelete.length > 0) {
+        const { data: deletedFiles, error: deleteError } = await supabase.storage
+          .from('dealer-assets')
+          .remove(filesToDelete);
+
+        if (deleteError) {
+          console.error('Failed to delete files:', deleteError);
           return false;
         }
 
-        let deletePath;
-        if (urlPath.includes('/vehicles/')) {
-          // New path structure: userId/vehicles/vehicleId/size/filename
-          // Replace the size part while preserving userId prefix
-          const pathParts = urlPath.split('/');
-          if (pathParts.length >= 4) {
-            const userId = pathParts[0];
-            const filename = pathParts[pathParts.length - 1];
-            deletePath = `${userId}/vehicles/${vehicleId}/${sizeName}/${filename}`;
-          } else {
-            console.error('Unexpected URL structure:', urlPath);
-            return false;
-          }
-        } else {
-          // Old path structure: vehicles/vehicleId/size/filename
-          const sizePath = imageUrl.replace('/medium/', `/${sizeName}/`);
-          deletePath = sizePath.split('/dealer-assets/')[1];
-        }
+        console.log(`Successfully deleted ${filesToDelete.length} files:`, deletedFiles);
+        toast.success(`Deleted image and all its optimized sizes`);
+      } else {
+        console.log('No matching files found to delete');
+        toast.success('Image deleted from database');
+      }
 
-        console.log(`Attempting to delete: ${deletePath}`);
-        
-        if (deletePath) {
-          const { error } = await supabase.storage
-            .from('dealer-assets')
-            .remove([deletePath]);
-          
-          if (error) {
-            console.error(`Failed to delete ${sizeName}:`, error);
-            return false;
-          }
-          return true;
-        }
-        return false;
-      });
-
-      await Promise.all(deletePromises);
       return true;
 
     } catch (error) {
       console.error('Delete error:', error);
+      toast.error('Failed to delete image');
       return false;
     }
   };
