@@ -257,12 +257,14 @@ export const useOptimizedImageUpload = () => {
         console.log(`Successfully updated vehicle database, removed image: ${imageUrl}`);
       }
 
-      // PHASE 3: Invalidate React Query cache to refresh UI
+      // PHASE 3: Synchronously refetch React Query cache to ensure fresh data
       try {
-        await queryClient.invalidateQueries({ queryKey: ["vehicles"] });
-        console.log('Successfully invalidated vehicles query cache');
+        await queryClient.refetchQueries({ queryKey: ["vehicles"] });
+        console.log('Successfully refetched vehicles query cache');
       } catch (cacheError) {
-        console.warn('Cache invalidation failed, but deletion succeeded:', cacheError);
+        console.error('Cache refetch failed after successful deletion:', cacheError);
+        // Don't fail the operation since storage and DB were updated successfully
+        toast.error('Image deleted but UI may need refresh to update');
       }
 
       // Success - both storage and database operations completed

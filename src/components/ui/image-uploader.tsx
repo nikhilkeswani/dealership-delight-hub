@@ -83,13 +83,26 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({
 
   const removeImage = async (index: number) => {
     const imageUrl = images[index];
-    const deleted = await deleteOptimizedImage(imageUrl, vehicleId);
-    if (deleted) {
-      const newImages = images.filter((_, i) => i !== index);
-      onImagesChange(newImages);
-      toast.success('Image deleted successfully');
-    } else {
-      toast.error('Failed to delete image');
+    
+    // Optimistic update: immediately remove from UI
+    const newImages = images.filter((_, i) => i !== index);
+    onImagesChange(newImages);
+    
+    try {
+      // Attempt actual deletion
+      const deleted = await deleteOptimizedImage(imageUrl, vehicleId);
+      if (deleted) {
+        toast.success('Image deleted successfully');
+      } else {
+        // Revert optimistic update on failure
+        onImagesChange(images);
+        toast.error('Failed to delete image');
+      }
+    } catch (error) {
+      // Revert optimistic update on error
+      onImagesChange(images);
+      toast.error('Failed to delete image - please try again');
+      console.error('Image deletion error:', error);
     }
   };
 
