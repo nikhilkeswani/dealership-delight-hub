@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { toast } from 'sonner';
+import { useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { 
   generateImageSizes, 
@@ -27,6 +28,7 @@ interface VehicleData {
 export const useOptimizedImageUpload = () => {
   const [isUploading, setIsUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState<{ [key: string]: number }>({});
+  const queryClient = useQueryClient();
 
   /**
    * Upload optimized images with multiple sizes
@@ -253,6 +255,14 @@ export const useOptimizedImageUpload = () => {
         }
 
         console.log(`Successfully updated vehicle database, removed image: ${imageUrl}`);
+      }
+
+      // PHASE 3: Invalidate React Query cache to refresh UI
+      try {
+        await queryClient.invalidateQueries({ queryKey: ["vehicles"] });
+        console.log('Successfully invalidated vehicles query cache');
+      } catch (cacheError) {
+        console.warn('Cache invalidation failed, but deletion succeeded:', cacheError);
       }
 
       // Success - both storage and database operations completed
