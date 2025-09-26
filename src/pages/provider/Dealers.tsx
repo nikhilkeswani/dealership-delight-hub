@@ -15,7 +15,7 @@ import {
 import { Plus, Search, MoreHorizontal } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { format } from "date-fns";
+import { formatDate } from "@/lib/format";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -122,7 +122,7 @@ const Dealers: React.FC = () => {
                       {getStatusBadge(dealer.status)}
                     </TableCell>
                     <TableCell>
-                      {format(new Date(dealer.created_at), "MMM d, yyyy")}
+                      {formatDate(dealer.created_at)}
                     </TableCell>
                     <TableCell>
                       <DropdownMenu>

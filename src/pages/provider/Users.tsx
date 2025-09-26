@@ -21,6 +21,7 @@ import {
 import { MoreHorizontal, Search, UserPlus } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { formatDate } from "@/lib/format";
 
 const Users: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -118,7 +119,7 @@ const Users: React.FC = () => {
                       </TableCell>
                       <TableCell>{getRoleBadge(user.role)}</TableCell>
                       <TableCell>
-                        {new Date(user.created_at).toLocaleDateString()}
+                        {formatDate(user.created_at)}
                       </TableCell>
                       <TableCell>
                         <DropdownMenu>
