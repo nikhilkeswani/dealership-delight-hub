@@ -6,7 +6,7 @@ import { Separator } from "@/components/ui/separator";
 import { Download, FileText, CreditCard } from "lucide-react";
 import { useSubscription } from "@/hooks/useSubscription";
 import { useBillingHistory } from "@/hooks/useBillingHistory";
-import { format } from "date-fns";
+import { formatDate } from "@/lib/format";
 import LoadingState from "@/components/common/LoadingState";
 
 export const InvoicesCard: React.FC = () => {
@@ -75,7 +75,7 @@ export const InvoicesCard: React.FC = () => {
                   <div>
                     <p className="font-medium text-sm">{invoice.description}</p>
                     <p className="text-xs text-muted-foreground">
-                      {format(new Date(invoice.date), "MMM d, yyyy")}
+                      {formatDate(invoice.date)}
                     </p>
                   </div>
                 </div>

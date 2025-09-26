@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { TrendingUp, Activity, Users, CreditCard } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { formatDate } from "@/lib/format";
 
 const Analytics: React.FC = () => {
   const { data: monthlyStats = [], isLoading } = useQuery({
@@ -20,10 +21,7 @@ const Analytics: React.FC = () => {
       // Group by month
       const monthlyData: Record<string, number> = {};
       data.forEach(dealer => {
-        const month = new Date(dealer.created_at).toLocaleDateString('en-US', { 
-          year: 'numeric', 
-          month: 'short' 
-        });
+        const month = formatDate(dealer.created_at);
         monthlyData[month] = (monthlyData[month] || 0) + 1;
       });
 
@@ -103,7 +101,7 @@ const Analytics: React.FC = () => {
                     <div key={activity.id} className="flex justify-between items-center text-sm">
                       <span>{activity.action} on {activity.resource_type}</span>
                       <span className="text-muted-foreground">
-                        {new Date(activity.created_at).toLocaleDateString()}
+                        {formatDate(activity.created_at)}
                       </span>
                     </div>
                   ))

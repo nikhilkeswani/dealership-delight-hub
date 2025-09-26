@@ -13,6 +13,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Settings as SettingsIcon, Building, Mail, Bell, Shield } from "lucide-react";
+import { formatDate } from "@/lib/format";
 
 const Settings: React.FC = () => {
   const { data: provider } = useProvider();
@@ -170,7 +171,7 @@ const Settings: React.FC = () => {
               <div>
                 <Label className="text-sm font-medium">Account Created</Label>
                 <p className="text-sm text-muted-foreground mt-1">
-                  {provider?.created_at ? new Date(provider.created_at).toLocaleDateString() : "N/A"}
+                  {provider?.created_at ? formatDate(provider.created_at) : "N/A"}
                 </p>
               </div>
             </div>

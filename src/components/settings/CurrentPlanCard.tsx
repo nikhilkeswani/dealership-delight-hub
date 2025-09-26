@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Crown, Zap, Star } from "lucide-react";
 import { useDealer } from "@/hooks/useDealer";
 import { useSubscription } from "@/hooks/useSubscription";
-import { format } from "date-fns";
+import { formatDate } from "@/lib/format";
 
 const getTierIcon = (tier: string) => {
   switch (tier) {
@@ -82,7 +82,7 @@ export const CurrentPlanCard: React.FC = () => {
               <div>
                 <p className="text-sm text-muted-foreground">Next Billing Date</p>
                 <p className="font-medium">
-                  {format(new Date(subscription.next_billing_date), "MMMM d, yyyy")}
+                  {formatDate(subscription.next_billing_date)}
                 </p>
               </div>
             )}

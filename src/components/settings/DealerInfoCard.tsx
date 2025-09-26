@@ -4,7 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Building2, Mail, Phone, MapPin, Edit } from "lucide-react";
 import { useDealer } from "@/hooks/useDealer";
-import { format } from "date-fns";
+import { formatDate } from "@/lib/format";
 
 export const DealerInfoCard: React.FC = () => {
   const { data: dealer, isLoading } = useDealer();
@@ -102,7 +102,7 @@ export const DealerInfoCard: React.FC = () => {
           </div>
           <div className="flex justify-between text-sm mt-1">
             <span className="text-muted-foreground">Member since:</span>
-            <span>{format(new Date(dealer.created_at), "MMMM d, yyyy")}</span>
+            <span>{formatDate(dealer.created_at)}</span>
           </div>
         </div>
 

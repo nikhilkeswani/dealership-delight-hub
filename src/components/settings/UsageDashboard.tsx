@@ -6,6 +6,7 @@ import { Users, Car, MessageSquare, AlertTriangle } from "lucide-react";
 import { useSubscriptionLimits } from "@/hooks/useUsageTracking";
 import { useSubscription } from "@/hooks/useSubscription";
 import LoadingState from "@/components/common/LoadingState";
+import { formatDate } from "@/lib/format";
 
 const getUsageIcon = (feature: string) => {
   switch (feature) {
@@ -143,10 +144,7 @@ export const UsageDashboard: React.FC = () => {
         </CardHeader>
         <CardContent>
           <div className="text-sm text-muted-foreground">
-            Current billing period: {new Date().toLocaleDateString('en-US', { 
-              month: 'long', 
-              year: 'numeric' 
-            })}
+            Current billing period: {formatDate(new Date())}
           </div>
           <div className="text-xs text-muted-foreground mt-1">
             Usage counters reset monthly on your billing date
