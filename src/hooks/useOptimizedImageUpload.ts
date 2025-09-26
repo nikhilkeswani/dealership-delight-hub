@@ -168,25 +168,50 @@ export const useOptimizedImageUpload = () => {
         return !error;
       }
 
-      // Delete all sizes for this image - handle both old and new path structures
+      // Delete all sizes for this image - preserve userId prefix
       const sizeNames = ['thumbnail', 'medium', 'large', 'original'];
       const deletePromises = sizeNames.map(async (sizeName) => {
-        let sizePath;
-        if (imageUrl.includes('/vehicles/')) {
+        // Parse the full URL path to extract userId and construct proper deletion path
+        const urlPath = imageUrl.split('/dealer-assets/')[1];
+        
+        if (!urlPath) {
+          console.error('Could not parse image URL path:', imageUrl);
+          return false;
+        }
+
+        let deletePath;
+        if (urlPath.includes('/vehicles/')) {
           // New path structure: userId/vehicles/vehicleId/size/filename
-          sizePath = imageUrl.replace(/\/vehicles\/[^/]+\/medium\//, `/vehicles/${vehicleId}/${sizeName}/`);
+          // Replace the size part while preserving userId prefix
+          const pathParts = urlPath.split('/');
+          if (pathParts.length >= 4) {
+            const userId = pathParts[0];
+            const filename = pathParts[pathParts.length - 1];
+            deletePath = `${userId}/vehicles/${vehicleId}/${sizeName}/${filename}`;
+          } else {
+            console.error('Unexpected URL structure:', urlPath);
+            return false;
+          }
         } else {
           // Old path structure: vehicles/vehicleId/size/filename
-          sizePath = imageUrl.replace('/medium/', `/${sizeName}/`);
+          const sizePath = imageUrl.replace('/medium/', `/${sizeName}/`);
+          deletePath = sizePath.split('/dealer-assets/')[1];
         }
+
+        console.log(`Attempting to delete: ${deletePath}`);
         
-        const urlPath = sizePath.split('/dealer-assets/')[1];
-        
-        if (urlPath) {
-          await supabase.storage
+        if (deletePath) {
+          const { error } = await supabase.storage
             .from('dealer-assets')
-            .remove([urlPath]);
+            .remove([deletePath]);
+          
+          if (error) {
+            console.error(`Failed to delete ${sizeName}:`, error);
+            return false;
+          }
+          return true;
         }
+        return false;
       });
 
       await Promise.all(deletePromises);
