@@ -11,16 +11,3 @@ export interface SupabaseError extends Error {
   details?: string;
   hint?: string;
 }
-
-// Form validation error type
-export interface FormError {
-  field: string;
-  message: string;
-}
-
-// Generic API response wrapper
-export interface ApiResponse<T = unknown> {
-  data?: T;
-  error?: ApiError;
-  success: boolean;
-}

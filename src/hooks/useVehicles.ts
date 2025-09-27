@@ -1,35 +1,44 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useDealer } from "./useDealer";
-import type { Tables } from "@/integrations/supabase/types";
 import { toast } from "sonner";
 import { errorHandlers } from "@/lib/errors";
 import { useOptimizedImageUpload } from "./useOptimizedImageUpload";
 import type { StagedImage } from "@/components/ui/image-staging";
+import type { 
+  Vehicle, 
+  VehicleFormValues,
+  DatabaseError,
+  MutationError,
+  ValidationError
+} from "@/types/database";
+import type {
+  UseVehiclesResult,
+  UseCreateVehicleResult,
+  UseUpdateVehicleResult,
+  UseDeleteVehicleResult
+} from "@/types/hooks";
 
-export type Vehicle = Tables<"vehicles">;
-
-export type VehicleFormValues = {
-  make: string;
-  model: string;
-  year: number;
-  price?: number;
-  mileage?: number;
-  vin?: string;
-  status: "available" | "sold" | "pending" | "service";
-  description?: string;
-  features?: Record<string, any>;
-  images?: string[];
-  stagedImages?: StagedImage[]; // For two-phase upload
+// Extended form values for two-phase upload
+export type VehicleFormSubmitValues = VehicleFormValues & {
+  stagedImages?: StagedImage[];
 };
 
-export const useVehicles = () => {
+// Re-export types for components
+export type { Vehicle, VehicleFormValues };
+
+export const useVehicles = (): UseVehiclesResult => {
   const { data: dealer } = useDealer();
   
-  return useQuery<Vehicle[]>({
+  return useQuery<Vehicle[], DatabaseError>({
     queryKey: ["vehicles"],
     queryFn: async () => {
-      if (!dealer?.id) throw new Error("No dealer found");
+      if (!dealer?.id) {
+        const error: DatabaseError = new Error("No dealer found") as DatabaseError;
+        error.table = "dealers";
+        error.operation = "select";
+        throw error;
+      }
       
       const { data, error } = await supabase
         .from("vehicles")
@@ -37,20 +46,28 @@ export const useVehicles = () => {
         .eq("dealer_id", dealer.id)
         .order("updated_at", { ascending: false });
       
-      if (error) throw error;
+      if (error) {
+        const dbError: DatabaseError = new Error(error.message) as DatabaseError;
+        dbError.code = error.code;
+        dbError.details = error.details;
+        dbError.hint = error.hint;
+        dbError.table = "vehicles";
+        dbError.operation = "select";
+        throw dbError;
+      }
       return data || [];
     },
     enabled: !!dealer?.id,
   });
 };
 
-export const useCreateVehicle = () => {
+export const useCreateVehicle = (): UseCreateVehicleResult => {
   const queryClient = useQueryClient();
   const { data: dealer } = useDealer();
   const { uploadOptimizedImages } = useOptimizedImageUpload();
 
-  return useMutation({
-    mutationFn: async (values: VehicleFormValues) => {
+  return useMutation<Vehicle, MutationError, VehicleFormSubmitValues>({
+    mutationFn: async (values: VehicleFormSubmitValues) => {
       if (!dealer?.id) throw new Error("No dealer found");
 
       // Phase 1: Create vehicle without images
@@ -123,16 +140,16 @@ export const useCreateVehicle = () => {
       queryClient.invalidateQueries({ queryKey: ["vehicles"] });
       toast.success("Vehicle added successfully");
     },
-    onError: (error: any) => {
-      errorHandlers.database(error);
+    onError: (error: MutationError) => {
+      errorHandlers.database(error as DatabaseError);
     },
   });
 };
 
-export const useUpdateVehicle = () => {
+export const useUpdateVehicle = (): UseUpdateVehicleResult => {
   const queryClient = useQueryClient();
 
-  return useMutation({
+  return useMutation<Vehicle, MutationError, { id: string; values: Partial<VehicleFormValues> }>({
     mutationFn: async ({ id, values }: { id: string; values: Partial<VehicleFormValues> }) => {
       const { data, error } = await supabase
         .from("vehicles")
@@ -148,16 +165,16 @@ export const useUpdateVehicle = () => {
       queryClient.invalidateQueries({ queryKey: ["vehicles"] });
       toast.success("Vehicle updated successfully");
     },
-    onError: (error: any) => {
-      errorHandlers.database(error);
+    onError: (error: MutationError) => {
+      errorHandlers.database(error as DatabaseError);
     },
   });
 };
 
-export const useDeleteVehicle = () => {
+export const useDeleteVehicle = (): UseDeleteVehicleResult => {
   const queryClient = useQueryClient();
 
-  return useMutation({
+  return useMutation<void, MutationError, string>({
     mutationFn: async (id: string) => {
       const { error } = await supabase
         .from("vehicles")
@@ -170,8 +187,8 @@ export const useDeleteVehicle = () => {
       queryClient.invalidateQueries({ queryKey: ["vehicles"] });
       toast.success("Vehicle deleted successfully");
     },
-    onError: (error: any) => {
-      errorHandlers.database(error);
+    onError: (error: MutationError) => {
+      errorHandlers.database(error as DatabaseError);
     },
   });
 };

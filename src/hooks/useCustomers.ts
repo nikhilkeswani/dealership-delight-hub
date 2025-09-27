@@ -1,24 +1,26 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useDealer } from "./useDealer";
-import type { Tables } from "@/integrations/supabase/types";
+import type { 
+  Customer, 
+  CustomerFormValues,
+  DatabaseError,
+  MutationError
+} from "@/types/database";
+import type {
+  UseCustomersResult,
+  UseCreateCustomerResult,
+  UseUpdateCustomerResult,
+  UseDeleteCustomerResult
+} from "@/types/hooks";
 
-export type Customer = Tables<"customers">;
+// Re-export types for other components
+export type { Customer, CustomerFormValues };
 
-export type CustomerFormValues = {
-  first_name: string;
-  last_name: string;
-  email: string;
-  phone?: string;
-  city?: string;
-  state?: string;
-  total_spent?: number;
-};
-
-export const useCustomers = () => {
+export const useCustomers = (): UseCustomersResult => {
   const { data: dealer } = useDealer();
   
-  return useQuery<Customer[]>({
+  return useQuery<Customer[], DatabaseError>({
     queryKey: ["customers", dealer?.id],
     queryFn: async () => {
       if (!dealer?.id) throw new Error("No dealer found");
@@ -37,11 +39,11 @@ export const useCustomers = () => {
   });
 };
 
-export const useCreateCustomer = () => {
+export const useCreateCustomer = (): UseCreateCustomerResult => {
   const queryClient = useQueryClient();
   const { data: dealer } = useDealer();
 
-  return useMutation({
+  return useMutation<Customer, MutationError, CustomerFormValues>({
     mutationFn: async (values: CustomerFormValues) => {
       if (!dealer?.id) throw new Error("No dealer found");
 
@@ -63,11 +65,11 @@ export const useCreateCustomer = () => {
   });
 };
 
-export const useUpdateCustomer = () => {
+export const useUpdateCustomer = (): UseUpdateCustomerResult => {
   const queryClient = useQueryClient();
   const { data: dealer } = useDealer();
 
-  return useMutation({
+  return useMutation<Customer, MutationError, { id: string; values: Partial<CustomerFormValues> }>({
     mutationFn: async ({ id, values }: { id: string; values: Partial<CustomerFormValues> }) => {
       const { data, error } = await supabase
         .from("customers")
@@ -85,11 +87,11 @@ export const useUpdateCustomer = () => {
   });
 };
 
-export const useDeleteCustomer = () => {
+export const useDeleteCustomer = (): UseDeleteCustomerResult => {
   const queryClient = useQueryClient();
   const { data: dealer } = useDealer();
 
-  return useMutation({
+  return useMutation<void, MutationError, string>({
     mutationFn: async (id: string) => {
       const { error } = await supabase
         .from("customers")

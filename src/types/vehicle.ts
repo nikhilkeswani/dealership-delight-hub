@@ -13,10 +13,6 @@ export interface VehicleFilters {
   condition?: string;
 }
 
-export interface VehicleFeatures {
-  [key: string]: boolean | string | number;
-}
-
 export interface DisplayVehicle {
   id: string;
   make: string;
@@ -32,7 +28,7 @@ export interface DisplayVehicle {
   body_type?: string | null;
   status: "available" | "sold" | "pending" | "service";
   created_at: string;
-  features?: VehicleFeatures | null;
+  features?: Record<string, unknown> | null;
   vin?: string | null;
 }
 

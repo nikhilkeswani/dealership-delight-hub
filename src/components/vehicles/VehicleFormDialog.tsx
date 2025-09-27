@@ -10,28 +10,13 @@ import { ImageStaging, type StagedImage } from "@/components/ui/image-staging";
 import { useOptimizedImageUpload } from "@/hooks/useOptimizedImageUpload";
 import { toast } from "sonner";
 
-export type VehicleFormValues = {
-  id?: string;
-  make: string;
-  model: string;
-  year: number;
-  price?: number;
-  mileage?: number;
-  vin?: string;
-  status: "available" | "sold" | "pending" | "service";
-  description?: string;
-  images?: string[];
-};
-
-export type VehicleFormSubmitData = VehicleFormValues & {
-  stagedImages?: StagedImage[];
-};
+import type { VehicleFormValues, VehicleFormSubmitValues } from "@/hooks/useVehicles";
 
 type Props = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   initialValues?: Partial<VehicleFormValues>;
-  onSubmit?: (values: VehicleFormSubmitData) => void;
+  onSubmit?: (values: VehicleFormSubmitValues) => void;
 };
 
 const emptyValues: VehicleFormValues = {
@@ -87,13 +72,12 @@ const VehicleFormDialog: React.FC<Props> = ({ open, onOpenChange, initialValues,
     
     try {
       // For new vehicles, include staged images for two-phase upload
-      const submitData: VehicleFormSubmitData = {
+      const submitData: VehicleFormSubmitValues = {
         ...values,
         ...(isNewVehicle && stagedImages.length > 0 ? { stagedImages } : {})
       };
       
-      await onSubmit?.(submitData);
-      onOpenChange(false);
+      onSubmit?.(submitData as VehicleFormSubmitValues);
     } catch (error) {
       console.error('Error submitting vehicle:', error);
       toast.error('Failed to save vehicle. Please try again.');

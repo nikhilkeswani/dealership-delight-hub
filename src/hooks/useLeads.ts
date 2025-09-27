@@ -1,27 +1,28 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useDealer } from "./useDealer";
-import type { Tables, TablesUpdate } from "@/integrations/supabase/types";
 import { toast } from "sonner";
 import { errorHandlers } from "@/lib/errors";
+import type { 
+  Lead, 
+  LeadFormValues,
+  DatabaseError,
+  MutationError
+} from "@/types/database";
+import type {
+  UseLeadsResult,
+  UseCreateLeadResult,
+  UseUpdateLeadResult,
+  UseDeleteLeadResult
+} from "@/types/hooks";
 
-export type Lead = Tables<"leads">;
+// Re-export types for other hooks
+export type { Lead, LeadFormValues };
 
-export type LeadFormValues = {
-  first_name: string;
-  last_name: string;
-  email: string;
-  phone?: string;
-  source: "website" | "phone" | "email" | "referral" | "walk_in" | "social_media" | "website_testdrive" | "website_inquiry";
-  status: "new" | "contacted" | "qualified" | "converted" | "lost";
-  notes?: string;
-  follow_up_date?: string;
-};
-
-export const useLeads = () => {
+export const useLeads = (): UseLeadsResult => {
   const { data: dealer } = useDealer();
   
-  return useQuery<Lead[]>({
+  return useQuery<Lead[], DatabaseError>({
     queryKey: ["leads", dealer?.id],
     staleTime: 5 * 60 * 1000, // 5 minutes
     queryFn: async () => {
@@ -40,11 +41,11 @@ export const useLeads = () => {
   });
 };
 
-export const useCreateLead = () => {
+export const useCreateLead = (): UseCreateLeadResult => {
   const queryClient = useQueryClient();
   const { data: dealer } = useDealer();
 
-  return useMutation({
+  return useMutation<Lead, MutationError, LeadFormValues>({
     mutationFn: async (values: LeadFormValues) => {
       if (!dealer?.id) throw new Error("No dealer found");
 
@@ -64,17 +65,17 @@ export const useCreateLead = () => {
       queryClient.invalidateQueries({ queryKey: ["leads", dealer?.id] });
       toast.success("Lead created successfully");
     },
-    onError: (error: any) => {
+    onError: (error: MutationError) => {
       errorHandlers.database(error);
     },
   });
 };
 
-export const useUpdateLead = () => {
+export const useUpdateLead = (): UseUpdateLeadResult => {
   const queryClient = useQueryClient();
   const { data: dealer } = useDealer();
 
-  return useMutation({
+  return useMutation<Lead, MutationError, { id: string; values: Partial<LeadFormValues> }>({
     mutationFn: async ({ id, values }: { id: string; values: Partial<LeadFormValues> }) => {
       // If setting status to "converted", first create customer record
       if (values.status === "converted") {
@@ -129,7 +130,7 @@ export const useUpdateLead = () => {
       queryClient.invalidateQueries({ queryKey: ["lead-customer-consistency"] });
       toast.success("Lead updated successfully");
     },
-    onError: (error: any) => {
+    onError: (error: MutationError) => {
       // Show user-friendly error messages
       if (error.message?.includes("Convert to Customer")) {
         toast.error(error.message);
@@ -140,11 +141,11 @@ export const useUpdateLead = () => {
   });
 };
 
-export const useDeleteLead = () => {
+export const useDeleteLead = (): UseDeleteLeadResult => {
   const queryClient = useQueryClient();
   const { data: dealer } = useDealer();
 
-  return useMutation({
+  return useMutation<void, MutationError, string>({
     mutationFn: async (id: string) => {
       const { error } = await supabase
         .from("leads")
@@ -157,7 +158,7 @@ export const useDeleteLead = () => {
       queryClient.invalidateQueries({ queryKey: ["leads", dealer?.id] });
       toast.success("Lead deleted successfully");
     },
-    onError: (error: any) => {
+    onError: (error: MutationError) => {
       errorHandlers.database(error);
     },
   });

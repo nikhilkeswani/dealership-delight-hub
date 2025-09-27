@@ -18,18 +18,15 @@ export interface LeadFormData {
   source?: 'website' | 'phone' | 'email' | 'referral' | 'walk_in' | 'social_media' | 'website_testdrive' | 'website_inquiry';
 }
 
+// Form validation error type
+export interface FormError {
+  field: string;
+  message: string;
+}
+
 // Generic form field type
 export interface FormField<T = string> {
   value: T;
   error?: string;
   touched?: boolean;
-}
-
-// Form state manager type
-export interface FormState<T extends Record<string, unknown>> {
-  values: T;
-  errors: Partial<Record<keyof T, string>>;
-  touched: Partial<Record<keyof T, boolean>>;
-  isValid: boolean;
-  isSubmitting: boolean;
 }
