@@ -37,15 +37,13 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({
   const [showAltTextEditor, setShowAltTextEditor] = useState<string | null>(null);
 
   const onDrop = useCallback(async (acceptedFiles: File[]) => {
-    console.log('ImageUploader onDrop:', { vehicleId, acceptedFiles: acceptedFiles.length, currentImages: images.length });
-    
     if (images.length + acceptedFiles.length > maxImages) {
       toast.error(`Maximum ${maxImages} images allowed`);
       return;
     }
 
     if (!vehicleId) {
-      console.error('ImageUploader: No vehicleId provided:', { vehicleId });
+      console.error('ImageUploader: No vehicleId provided for upload');
       toast.error("Unable to upload images: Vehicle must be saved first. Please save the vehicle details and try again.");
       return;
     }
@@ -62,7 +60,6 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({
         const newUrls = uploadedImages.map(img => img.url);
         const updatedImages = [...images, ...newUrls];
         onImagesChange(updatedImages);
-        console.log('Images uploaded successfully:', { uploaded: uploadedImages.length, total: updatedImages.length });
       } else {
         toast.error("No images were uploaded successfully. Please try again.");
       }

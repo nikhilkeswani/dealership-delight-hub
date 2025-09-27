@@ -10,7 +10,7 @@ import { toast } from "sonner";
 import { useDealer } from "@/hooks/useDealer";
 import { useDealerSiteConfig } from "@/hooks/useDealerSiteConfig";
 import { DEFAULT_DEALER_SITE_CONFIG } from "@/constants/theme";
-import { ThemeDebugPanel } from "./ThemeDebugPanel";
+
 
 const presetThemes = [
   {
@@ -109,12 +109,6 @@ export function ThemeConfig() {
 
   // Sync state when config changes with improved detection
   useEffect(() => {
-    if (import.meta.env.DEV) {
-      if (import.meta.env.DEV) {
-        console.log('[ThemeConfig] Config colors changed:', config.colors);
-      }
-    }
-    
     // Find matching preset theme with exact match
     const matchingPreset = presetThemes.find(theme => 
       theme.primary.toLowerCase() === config.colors.primary.toLowerCase() && 
@@ -122,21 +116,11 @@ export function ThemeConfig() {
     );
 
     if (matchingPreset) {
-      if (import.meta.env.DEV) {
-        if (import.meta.env.DEV) {
-          console.log('[ThemeConfig] Found matching preset:', matchingPreset.name);
-        }
-      }
       if (selectedTheme.name !== matchingPreset.name) {
         setSelectedTheme(matchingPreset);
         setIsCustomMode(false);
       }
     } else {
-      if (import.meta.env.DEV) {
-        if (import.meta.env.DEV) {
-          console.log('[ThemeConfig] No matching preset, using custom mode');
-        }
-      }
       if (!isCustomMode) {
         setIsCustomMode(true);
       }
@@ -150,23 +134,12 @@ export function ThemeConfig() {
     }
   }, [config.colors, selectedTheme.name, isCustomMode, customPrimary, customAccent]);
 
-  const handlePresetSelect = (theme: typeof presetThemes[0]) => {
-    if (import.meta.env.DEV) {
-      if (import.meta.env.DEV) {
-        console.log('[ThemeConfig] Theme selected:', theme.name, theme.primary, theme.accent);
-      }
-    }
-    
+  const handlePresetSelect = (theme: typeof presetThemes[0]) => {    
     // Prevent selection if already selected (avoid infinite loops)
     if (selectedTheme.name === theme.name && 
         config.colors.primary === theme.primary && 
         config.colors.accent === theme.accent && 
         !isCustomMode) {
-      if (import.meta.env.DEV) {
-        if (import.meta.env.DEV) {
-          console.log('[ThemeConfig] Theme already selected, skipping');
-        }
-      }
       return;
     }
     
@@ -193,11 +166,6 @@ export function ThemeConfig() {
   };
 
   const handleCustomColorChange = (type: 'primary' | 'accent', color: string) => {
-    if (import.meta.env.DEV) {
-      if (import.meta.env.DEV) {
-        console.log('Custom color changed:', type, color);
-      }
-    }
     
     // Validate color format
     if (!color || !color.startsWith('#') || color.length !== 7) {
@@ -275,13 +243,6 @@ export function ThemeConfig() {
       </CardHeader>
       
       <CardContent className="space-y-6">
-        {/* Debug Panel */}
-        <ThemeDebugPanel 
-          config={config} 
-          storageKey={`dealerSite:config:${slug}`}
-          onClearData={clearThemeData}
-        />
-        
         {/* Preset Themes */}
         <div className="space-y-4">
           <div className="flex items-center justify-between">

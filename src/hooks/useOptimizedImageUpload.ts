@@ -180,8 +180,6 @@ export const useOptimizedImageUpload = () => {
         return false;
       }
 
-      console.log(`Starting deletion for vehicle ${vehicleId}, image: ${imageUrl}`);
-
       // PHASE 1: Nuclear storage deletion - delete ALL files in vehicle folder
       const vehicleFolder = `${userId}/vehicles/${vehicleId}`;
       const sizeNames = ['thumbnail', 'medium', 'large', 'original'];
@@ -195,7 +193,6 @@ export const useOptimizedImageUpload = () => {
           .list(sizePath);
 
         if (listError) {
-          console.log(`No files found in ${sizePath}:`, listError.message);
           continue;
         }
 
@@ -204,12 +201,8 @@ export const useOptimizedImageUpload = () => {
           files.forEach(file => {
             filesToDelete.push(`${sizePath}/${file.name}`);
           });
-          
-          console.log(`Found ${files.length} files in ${sizePath}:`, files.map(f => f.name));
         }
       }
-
-      console.log(`Total files to delete from storage: ${filesToDelete.length}`);
 
       // Delete all files from storage
       if (filesToDelete.length > 0) {
@@ -222,8 +215,6 @@ export const useOptimizedImageUpload = () => {
           toast.error('Failed to delete image files from storage');
           return false;
         }
-
-        console.log(`Successfully deleted ${filesToDelete.length} files from storage`);
       }
 
       // PHASE 2: Update database to remove image URL from vehicle's images array
@@ -254,13 +245,12 @@ export const useOptimizedImageUpload = () => {
           return false;
         }
 
-        console.log(`Successfully updated vehicle database, removed image: ${imageUrl}`);
+        
       }
 
       // PHASE 3: Synchronously refetch React Query cache to ensure fresh data
       try {
         await queryClient.refetchQueries({ queryKey: ["vehicles"] });
-        console.log('Successfully refetched vehicles query cache');
       } catch (cacheError) {
         console.error('Cache refetch failed after successful deletion:', cacheError);
         // Don't fail the operation since storage and DB were updated successfully

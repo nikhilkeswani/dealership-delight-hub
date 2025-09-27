@@ -55,17 +55,6 @@ const VehicleFormDialog: React.FC<Props> = ({ open, onOpenChange, initialValues,
   const isNewVehicle = !initialValues?.id || initialValues.id.startsWith('temp-');
   const vehicleId = initialValues?.id && !initialValues.id.startsWith('temp-') ? initialValues.id : undefined;
 
-  // Debug logging
-  React.useEffect(() => {
-    if (open) {
-      console.log('VehicleFormDialog opened:', {
-        isNewVehicle,
-        vehicleId,
-        initialValues: initialValues?.id,
-        hasImages: initialValues?.images?.length
-      });
-    }
-  }, [open, isNewVehicle, vehicleId, initialValues]);
 
   React.useEffect(() => {
     setValues({ ...emptyValues, ...(initialValues ?? {}) });
