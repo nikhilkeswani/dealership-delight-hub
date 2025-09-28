@@ -32,8 +32,25 @@ const DealerInventory = () => {
   const [showFilters, setShowFilters] = useState(false);
   const vehiclesPerPage = 12;
 
-  const { data: publicDealer } = usePublicDealer(slug);
-  const { data: publicVehicles, isLoading } = usePublicVehicles(publicDealer?.id);
+  const { data: publicDealer, isLoading: dealerLoading, error: dealerError } = usePublicDealer(slug);
+  const { data: publicVehicles, isLoading: vehiclesLoading } = usePublicVehicles(publicDealer?.id);
+  
+  const isLoading = dealerLoading || vehiclesLoading;
+
+  // Show error if dealer not found
+  if (dealerError || (!dealerLoading && !publicDealer && slug)) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center">
+          <h1 className="text-2xl font-semibold mb-2">Dealer Not Found</h1>
+          <p className="text-muted-foreground mb-4">The dealer "{slug}" could not be found or is not active.</p>
+          <Button asChild>
+            <Link to="/">Return Home</Link>
+          </Button>
+        </div>
+      </div>
+    );
+  }
 
   const dealerName = publicDealer?.business_name || (slug || "demo-motors")
     .replace(/-/g, " ")

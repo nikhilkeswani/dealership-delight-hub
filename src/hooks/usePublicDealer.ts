@@ -8,18 +8,31 @@ export const usePublicDealer = (slug: string | undefined) => {
     queryFn: async () => {
       if (!slug) return null;
 
-      // Convert slug back to business name (replace hyphens with spaces and capitalize)
-      const businessName = slug
+      // First try exact match with basic conversion
+      const basicName = slug
         .split('-')
         .map(word => word.charAt(0).toUpperCase() + word.slice(1))
         .join(' ');
 
-      const { data, error } = await supabase
+      let { data, error } = await supabase
         .from("dealers")
         .select("*")
-        .ilike("business_name", businessName)
+        .ilike("business_name", basicName)
         .eq("is_active", true)
         .maybeSingle();
+
+      // If no match found, try partial match with LIKE to handle compound words
+      if (!data && !error) {
+        const { data: partialData, error: partialError } = await supabase
+          .from("dealers")
+          .select("*")
+          .ilike("business_name", `%${slug.replace(/-/g, '%')}%`)
+          .eq("is_active", true)
+          .maybeSingle();
+        
+        data = partialData;
+        error = partialError;
+      }
 
       if (error) throw error;
       return data;
