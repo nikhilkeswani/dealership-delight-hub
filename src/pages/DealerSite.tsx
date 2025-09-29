@@ -31,7 +31,7 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import { Phone, Mail, Clock, Star, Award, ShieldCheck, Tag, Search, Settings } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import CustomizeSheet from "@/components/dealer/CustomizeSheet";
 
 type ContactIntent = "inquiry" | "testdrive";
@@ -152,7 +152,7 @@ const DealerSite = () => {
   const brandInitials = (config.brand.name || "").split(" ").slice(0,2).map(w=>w[0]).join("").toUpperCase() || "DL";
 
   // Listen for theme changes and force re-render
-  React.useEffect(() => {
+  useEffect(() => {
     const handleThemeChange = () => {
       setThemeKey(prev => prev + 1);
     };

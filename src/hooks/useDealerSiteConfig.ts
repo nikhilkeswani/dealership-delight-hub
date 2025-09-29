@@ -109,7 +109,7 @@ export function useDealerSiteConfig(slug: string | undefined, defaults: DealerSi
           brand: { ...defaults.brand, ...(parsed.brand || {}) }, 
           hero: { ...defaults.hero, ...(parsed.hero || {}) }, 
           contact: { ...defaults.contact, ...(parsed.contact || {}) }, 
-          colors: { ...defaults.colors, ...(parsed.colors || {}) }, // Preserve user colors
+          colors: (parsed.colors?.primary && parsed.colors?.accent) ? parsed.colors : defaults.colors,
           content: { ...defaults.content, ...(parsed.content || {}) }
         } as DealerSiteConfig;
         
@@ -137,7 +137,7 @@ export function useDealerSiteConfig(slug: string | undefined, defaults: DealerSi
             brand: { ...defaults.brand, ...(parsed.brand || {}) }, 
             hero: { ...defaults.hero, ...(parsed.hero || {}) }, 
             contact: { ...defaults.contact, ...(parsed.contact || {}) }, 
-            colors: { ...defaults.colors, ...(parsed.colors || {}) },
+            colors: (parsed.colors?.primary && parsed.colors?.accent) ? parsed.colors : defaults.colors,
             content: { ...defaults.content, ...(parsed.content || {}) }
           } as DealerSiteConfig;
           setConfig(updatedConfig);
