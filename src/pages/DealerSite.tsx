@@ -119,7 +119,8 @@ const DealerSite = () => {
       email: contactConfig?.email || email, 
       address: contactConfig?.address || address 
     },
-    colors: themeConfig?.colors || DEFAULT_COLORS,
+    // In preview mode, use DEFAULT_COLORS to let localStorage override; otherwise use database theme
+    colors: isPreviewMode ? DEFAULT_COLORS : (themeConfig?.colors || DEFAULT_COLORS),
     content: {
       aboutContent: "We're committed to providing exceptional service and helping you find the perfect vehicle. With years of experience in the automotive industry, we pride ourselves on transparent pricing, quality vehicles, and customer satisfaction.",
       servicesEnabled: true,
@@ -140,11 +141,8 @@ const DealerSite = () => {
     },
   };
 
-  // In preview mode, prioritize localStorage config; otherwise use database config as defaults
-  const { config, setConfig, saveLocal, reset } = useDealerSiteConfig(
-    slug, 
-    isPreviewMode ? defaults : defaults
-  );
+  // useDealerSiteConfig loads from localStorage and merges with defaults
+  const { config, setConfig, saveLocal, reset } = useDealerSiteConfig(slug, defaults);
 
   const { data: dealer } = useDealer();
   const isDemo = !publicDealer || (slug || "").toLowerCase() === "demo-motors" || (typeof window !== "undefined" && new URLSearchParams(window.location.search).get("demo") === "1");

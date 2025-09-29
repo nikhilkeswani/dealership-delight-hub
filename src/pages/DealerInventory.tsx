@@ -13,6 +13,7 @@ import { DealerSiteThemeProvider } from "@/components/DealerSiteThemeProvider";
 import { usePublicDealerWebsite } from "@/hooks/usePublicDealerWebsite";
 import { DEFAULT_COLORS } from "@/constants/theme";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
+import { useDealerSiteConfig } from "@/hooks/useDealerSiteConfig";
 
 interface SimpleVehicle {
   id: string;
@@ -45,7 +46,10 @@ const DealerInventoryNew = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   
-  // Fetch dealer website configuration for theming
+  // Check if we're in preview mode
+  const isPreviewMode = typeof window !== "undefined" && new URLSearchParams(window.location.search).get("preview") === "true";
+  
+  // Fetch dealer website configuration for theming (only if not in preview mode)
   const { data: websiteConfig } = usePublicDealerWebsite(dealer?.id);
 
   // Load dealer and vehicles
@@ -142,8 +146,16 @@ const DealerInventoryNew = () => {
       }
     });
 
-  // Get theme colors from dealer configuration
-  const themeColors = (websiteConfig?.theme_config as any)?.colors || DEFAULT_COLORS;
+  // Get theme colors from localStorage in preview mode, otherwise from database
+  const localConfig = useDealerSiteConfig(slug, {
+    brand: { name: dealer?.business_name || "", tagline: "Quality vehicles, trusted service" },
+    hero: { headline: "", subtitle: "" },
+    contact: { phone: "", email: "", address: "" },
+    colors: isPreviewMode ? DEFAULT_COLORS : ((websiteConfig?.theme_config as any)?.colors || DEFAULT_COLORS),
+    content: {},
+  });
+  
+  const themeColors = localConfig.config.colors;
   const dealerBrand = (websiteConfig?.theme_config as any)?.brand || { name: dealer?.business_name, tagline: "Quality vehicles, trusted service" };
   const contactInfo = (websiteConfig?.contact_config as any) || {};
   const brandInitials = (dealerBrand.name || dealer?.business_name || "")
