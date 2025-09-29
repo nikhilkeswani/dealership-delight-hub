@@ -81,14 +81,20 @@ export function useDealerSiteConfig(slug: string | undefined, defaults: DealerSi
   const [config, setConfig] = useState<DealerSiteConfig>(() => {
     try {
       const raw = localStorage.getItem(storageKey);
+      console.log('[useDealerSiteConfig] storageKey:', storageKey);
+      console.log('[useDealerSiteConfig] localStorage raw:', raw);
       
       if (raw) {
         const parsed = JSON.parse(raw);
+        console.log('[useDealerSiteConfig] parsed colors:', parsed.colors);
+        console.log('[useDealerSiteConfig] defaults colors:', defaults.colors);
         
         // Only migrate if the config is truly corrupted (missing required fields)
         const isCorrupted = !parsed.colors || !parsed.colors.primary || !parsed.colors.accent;
+        console.log('[useDealerSiteConfig] isCorrupted:', isCorrupted);
         
         if (isCorrupted) {
+          console.log('[useDealerSiteConfig] Using defaults due to corruption');
           const cleanedConfig = { 
             ...defaults, 
             ...parsed, 
@@ -103,18 +109,22 @@ export function useDealerSiteConfig(slug: string | undefined, defaults: DealerSi
         }
         
         // Use existing config without aggressive migration
+        const finalColors = (parsed.colors?.primary && parsed.colors?.accent) ? parsed.colors : defaults.colors;
+        console.log('[useDealerSiteConfig] Final colors selected:', finalColors);
+        
         const validConfig = { 
           ...defaults, 
           ...parsed, 
           brand: { ...defaults.brand, ...(parsed.brand || {}) }, 
           hero: { ...defaults.hero, ...(parsed.hero || {}) }, 
           contact: { ...defaults.contact, ...(parsed.contact || {}) }, 
-          colors: (parsed.colors?.primary && parsed.colors?.accent) ? parsed.colors : defaults.colors,
+          colors: finalColors,
           content: { ...defaults.content, ...(parsed.content || {}) }
         } as DealerSiteConfig;
         
         return validConfig;
       }
+      console.log('[useDealerSiteConfig] No localStorage data, using defaults');
     } catch (error) {
       console.error('Error loading dealer site config:', error);
     }

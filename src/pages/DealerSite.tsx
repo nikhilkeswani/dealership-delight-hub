@@ -143,6 +143,10 @@ const DealerSite = () => {
 
   // useDealerSiteConfig loads from localStorage and merges with defaults
   const { config, setConfig, saveLocal, reset } = useDealerSiteConfig(slug, defaults);
+  
+  console.log('[DealerSite] slug:', slug);
+  console.log('[DealerSite] config.colors:', config.colors);
+  console.log('[DealerSite] defaults.colors:', defaults.colors);
 
   const { data: dealer } = useDealer();
   const isDemo = !publicDealer || (slug || "").toLowerCase() === "demo-motors" || (typeof window !== "undefined" && new URLSearchParams(window.location.search).get("demo") === "1");
