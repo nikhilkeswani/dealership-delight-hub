@@ -41,7 +41,17 @@ export default function Configure() {
 
   const handlePublish = async () => {
     if (!dealer?.id) return;
-    publish({});
+    
+    // Pass the current theme configuration to the database
+    publish({
+      theme_config: {
+        colors: config.colors,
+        brand: config.brand,
+        hero: config.hero,
+        content: config.content,
+      },
+      contact_config: config.contact,
+    });
   };
 
   const handlePreview = () => {
