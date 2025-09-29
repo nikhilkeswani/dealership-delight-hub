@@ -88,6 +88,9 @@ export function DealerSiteThemeProvider({ primary, accent, children }: DealerSit
   useEffect(() => {
     if (!containerRef.current || !themeStyles) return;
 
+    console.log('[DealerSiteThemeProvider] Applying theme:', { primary, accent });
+    console.log('[DealerSiteThemeProvider] Theme styles:', themeStyles);
+
     const { primaryHsl, accentHsl, primaryGlow, gradientPrimary, shadowElegant, shadowGlow } = themeStyles;
     
     // Create a unique style element ID to avoid conflicts

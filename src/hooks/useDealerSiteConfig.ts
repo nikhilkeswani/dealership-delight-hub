@@ -81,14 +81,18 @@ export function useDealerSiteConfig(slug: string | undefined, defaults: DealerSi
   const [config, setConfig] = useState<DealerSiteConfig>(() => {
     try {
       const raw = localStorage.getItem(storageKey);
+      console.log('[useDealerSiteConfig] Loading config with key:', storageKey);
+      console.log('[useDealerSiteConfig] Raw localStorage value:', raw);
       
       if (raw) {
         const parsed = JSON.parse(raw);
+        console.log('[useDealerSiteConfig] Parsed config:', parsed);
         
         // Only migrate if the config is truly corrupted (missing required fields)
         const isCorrupted = !parsed.colors || !parsed.colors.primary || !parsed.colors.accent;
         
         if (isCorrupted) {
+          console.log('[useDealerSiteConfig] Config is corrupted, using defaults');
           const cleanedConfig = { 
             ...defaults, 
             ...parsed, 
@@ -113,8 +117,11 @@ export function useDealerSiteConfig(slug: string | undefined, defaults: DealerSi
           content: { ...defaults.content, ...(parsed.content || {}) }
         } as DealerSiteConfig;
         
+        console.log('[useDealerSiteConfig] Final config with colors:', validConfig.colors);
         return validConfig;
       }
+      
+      console.log('[useDealerSiteConfig] No localStorage data, using defaults:', defaults.colors);
     } catch (error) {
       console.error('Error loading dealer site config:', error);
     }
