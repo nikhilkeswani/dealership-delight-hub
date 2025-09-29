@@ -148,8 +148,22 @@ const DealerSite = () => {
   const isDemo = !publicDealer || (slug || "").toLowerCase() === "demo-motors" || (typeof window !== "undefined" && new URLSearchParams(window.location.search).get("demo") === "1");
   const [customizeOpen, setCustomizeOpen] = useState(false);
   const [contactIntent, setContactIntent] = useState<ContactIntent>("inquiry");
+  const [themeKey, setThemeKey] = useState(0);
   const brandInitials = (config.brand.name || "").split(" ").slice(0,2).map(w=>w[0]).join("").toUpperCase() || "DL";
 
+  // Listen for theme changes and force re-render
+  React.useEffect(() => {
+    const handleThemeChange = () => {
+      setThemeKey(prev => prev + 1);
+    };
+
+    window.addEventListener('themeChanged', handleThemeChange);
+    window.addEventListener('dealerConfigUpdate', handleThemeChange);
+    return () => {
+      window.removeEventListener('themeChanged', handleThemeChange);
+      window.removeEventListener('dealerConfigUpdate', handleThemeChange);
+    };
+  }, []);
   const saveToWebsite = async () => {
     if (!dealer?.id) return;
     const { error } = await supabase.from("dealer_websites").upsert({

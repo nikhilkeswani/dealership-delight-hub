@@ -202,6 +202,14 @@ export function useDealerSiteConfig(slug: string | undefined, defaults: DealerSi
         detail: { storageKey, config: configWithVersion } 
       }));
       
+      // Also dispatch theme change event for immediate UI updates
+      window.dispatchEvent(new CustomEvent('themeChanged', {
+        detail: { 
+          primary: configWithVersion.colors.primary, 
+          accent: configWithVersion.colors.accent 
+        }
+      }));
+      
       setTimeout(() => setIsUpdating(false), 100); // Debounce to prevent loops
     } catch (error) {
       console.error('Error saving dealer site config:', error);

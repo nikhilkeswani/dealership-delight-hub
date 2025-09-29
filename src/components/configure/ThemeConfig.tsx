@@ -167,6 +167,15 @@ export function ThemeConfig() {
       
       // Save immediately to localStorage with latest config
       saveLocal(updatedConfig);
+      
+      // Force a small delay to ensure localStorage is written before any preview updates
+      setTimeout(() => {
+        // Dispatch a custom event to notify other components of theme change
+        window.dispatchEvent(new CustomEvent('themeChanged', {
+          detail: { primary: theme.primary, accent: theme.accent }
+        }));
+      }, 50);
+      
       toast.success(`${theme.name} theme applied!`);
     }
   };
@@ -216,6 +225,17 @@ export function ThemeConfig() {
     
     // Save immediately to localStorage with latest config
     saveLocal(updatedConfig);
+    
+    // Force a small delay to ensure localStorage is written before any preview updates
+    setTimeout(() => {
+      // Dispatch a custom event to notify other components of theme change
+      window.dispatchEvent(new CustomEvent('themeChanged', {
+        detail: { 
+          primary: updatedConfig.colors.primary, 
+          accent: updatedConfig.colors.accent 
+        }
+      }));
+    }, 50);
   };
 
   const resetToDefault = () => {
@@ -226,6 +246,17 @@ export function ThemeConfig() {
   const saveTheme = () => {
     // Save the current configuration to localStorage
     saveLocal();
+    
+    // Dispatch theme change event
+    setTimeout(() => {
+      window.dispatchEvent(new CustomEvent('themeChanged', {
+        detail: { 
+          primary: config.colors.primary, 
+          accent: config.colors.accent 
+        }
+      }));
+    }, 50);
+    
     toast.success("Theme settings saved!");
   };
 

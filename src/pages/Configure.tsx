@@ -21,6 +21,7 @@ import { toast } from "sonner";
 
 export default function Configure() {
   const [activeTab, setActiveTab] = useState("customize");
+  const [previewKey, setPreviewKey] = useState(0);
   const { data: dealer } = useDealer();
   const { publish, isPublishing, isPublished } = useWebsitePublishing();
   const navigate = useNavigate();
@@ -39,6 +40,15 @@ export default function Configure() {
   };
   const { config } = useDealerSiteConfig(slug, defaultConfig);
 
+  // Listen for theme changes and force preview refresh
+  React.useEffect(() => {
+    const handleThemeChange = () => {
+      setPreviewKey(prev => prev + 1);
+    };
+
+    window.addEventListener('themeChanged', handleThemeChange);
+    return () => window.removeEventListener('themeChanged', handleThemeChange);
+  }, []);
   const handlePublish = async () => {
     if (!dealer?.id) return;
     
@@ -67,6 +77,7 @@ export default function Configure() {
   };
 
   return (
+    <DealerSiteThemeProvider primary={config.colors.primary} accent={config.colors.accent}>
     <>
       <SEO 
         title="Configure Website - Dealer Portal"
@@ -164,5 +175,6 @@ export default function Configure() {
         </div>
       </div>
     </>
+    </DealerSiteThemeProvider>
   );
 }
