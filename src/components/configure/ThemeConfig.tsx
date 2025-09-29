@@ -157,11 +157,9 @@ export function ThemeConfig() {
         }
       });
       
-      // Auto-save to localStorage after a short delay
-      setTimeout(() => {
-        saveLocal();
-        toast.success(`${theme.name} theme applied!`);
-      }, 200);
+      // Save immediately to localStorage
+      saveLocal();
+      toast.success(`${theme.name} theme applied!`);
     }
   };
 
@@ -192,10 +190,8 @@ export function ThemeConfig() {
     
     setIsCustomMode(true);
     
-    // Debounced auto-save
-    setTimeout(() => {
-      saveLocal();
-    }, 300);
+    // Save immediately to localStorage
+    saveLocal();
   };
 
   const resetToDefault = () => {

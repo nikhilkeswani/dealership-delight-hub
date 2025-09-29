@@ -146,12 +146,12 @@ const DealerInventoryNew = () => {
       }
     });
 
-  // Get theme colors from localStorage in preview mode, otherwise from database
+  // Get theme colors - useDealerSiteConfig loads from localStorage and merges with defaults
   const localConfig = useDealerSiteConfig(slug, {
     brand: { name: dealer?.business_name || "", tagline: "Quality vehicles, trusted service" },
     hero: { headline: "", subtitle: "" },
     contact: { phone: "", email: "", address: "" },
-    colors: isPreviewMode ? DEFAULT_COLORS : ((websiteConfig?.theme_config as any)?.colors || DEFAULT_COLORS),
+    colors: ((websiteConfig?.theme_config as any)?.colors || DEFAULT_COLORS),
     content: {},
   });
   
