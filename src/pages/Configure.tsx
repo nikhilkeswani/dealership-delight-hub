@@ -12,7 +12,6 @@ import { SeoConfig } from "@/components/configure/SeoConfig";
 import { DomainConfig } from "@/components/configure/DomainConfig";
 import { ContactConfig } from "@/components/configure/ContactConfig";
 import { WebsitePreview } from "@/components/configure/WebsitePreview";
-import { DealerSiteThemeProvider } from "@/components/DealerSiteThemeProvider";
 import { useDealer } from "@/hooks/useDealer";
 import { useWebsitePublishing } from "@/hooks/useWebsitePublishing";
 import { useDealerSiteConfig } from "@/hooks/useDealerSiteConfig";
@@ -77,7 +76,6 @@ export default function Configure() {
   };
 
   return (
-    <DealerSiteThemeProvider primary={config.colors.primary} accent={config.colors.accent}>
     <>
       <SEO 
         title="Configure Website - Dealer Portal"
@@ -175,6 +173,5 @@ export default function Configure() {
         </div>
       </div>
     </>
-    </DealerSiteThemeProvider>
   );
 }
