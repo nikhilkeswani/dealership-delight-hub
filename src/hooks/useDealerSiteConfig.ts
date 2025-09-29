@@ -81,20 +81,14 @@ export function useDealerSiteConfig(slug: string | undefined, defaults: DealerSi
   const [config, setConfig] = useState<DealerSiteConfig>(() => {
     try {
       const raw = localStorage.getItem(storageKey);
-      console.log('[useDealerSiteConfig] storageKey:', storageKey);
-      console.log('[useDealerSiteConfig] localStorage raw:', raw);
       
       if (raw) {
         const parsed = JSON.parse(raw);
-        console.log('[useDealerSiteConfig] parsed colors:', parsed.colors);
-        console.log('[useDealerSiteConfig] defaults colors:', defaults.colors);
         
         // Only migrate if the config is truly corrupted (missing required fields)
         const isCorrupted = !parsed.colors || !parsed.colors.primary || !parsed.colors.accent;
-        console.log('[useDealerSiteConfig] isCorrupted:', isCorrupted);
         
         if (isCorrupted) {
-          console.log('[useDealerSiteConfig] Using defaults due to corruption');
           const cleanedConfig = { 
             ...defaults, 
             ...parsed, 
@@ -109,22 +103,18 @@ export function useDealerSiteConfig(slug: string | undefined, defaults: DealerSi
         }
         
         // Use existing config without aggressive migration
-        const finalColors = (parsed.colors?.primary && parsed.colors?.accent) ? parsed.colors : defaults.colors;
-        console.log('[useDealerSiteConfig] Final colors selected:', finalColors);
-        
         const validConfig = { 
           ...defaults, 
           ...parsed, 
           brand: { ...defaults.brand, ...(parsed.brand || {}) }, 
           hero: { ...defaults.hero, ...(parsed.hero || {}) }, 
           contact: { ...defaults.contact, ...(parsed.contact || {}) }, 
-          colors: finalColors,
+          colors: { ...defaults.colors, ...(parsed.colors || {}) }, // Preserve user colors
           content: { ...defaults.content, ...(parsed.content || {}) }
         } as DealerSiteConfig;
         
         return validConfig;
       }
-      console.log('[useDealerSiteConfig] No localStorage data, using defaults');
     } catch (error) {
       console.error('Error loading dealer site config:', error);
     }
@@ -147,7 +137,7 @@ export function useDealerSiteConfig(slug: string | undefined, defaults: DealerSi
             brand: { ...defaults.brand, ...(parsed.brand || {}) }, 
             hero: { ...defaults.hero, ...(parsed.hero || {}) }, 
             contact: { ...defaults.contact, ...(parsed.contact || {}) }, 
-            colors: (parsed.colors?.primary && parsed.colors?.accent) ? parsed.colors : defaults.colors,
+            colors: { ...defaults.colors, ...(parsed.colors || {}) },
             content: { ...defaults.content, ...(parsed.content || {}) }
           } as DealerSiteConfig;
           setConfig(updatedConfig);
@@ -157,20 +147,8 @@ export function useDealerSiteConfig(slug: string | undefined, defaults: DealerSi
       }
     };
 
-    // Listen for custom events from same window
-    const handleConfigUpdate = (e: Event) => {
-      const customEvent = e as CustomEvent;
-      if (customEvent.detail.storageKey === storageKey && !isUpdating) {
-        setConfig(customEvent.detail.config);
-      }
-    };
-
     window.addEventListener('storage', handleStorageChange);
-    window.addEventListener('dealerConfigUpdate', handleConfigUpdate);
-    return () => {
-      window.removeEventListener('storage', handleStorageChange);
-      window.removeEventListener('dealerConfigUpdate', handleConfigUpdate);
-    };
+    return () => window.removeEventListener('storage', handleStorageChange);
   }, [storageKey, defaults, isUpdating]);
 
   // Note: CSS variables are NOT applied globally to avoid affecting the main SaaS platform
@@ -193,11 +171,10 @@ export function useDealerSiteConfig(slug: string | undefined, defaults: DealerSi
     });
   };
 
-  const saveLocal = (latestConfig?: DealerSiteConfig) => {
+  const saveLocal = () => {
     try {
       setIsUpdating(true);
-      const configToSave = latestConfig || config;
-      const configWithVersion = { ...configToSave, themeVersion: "1.0.0" };
+      const configWithVersion = { ...config, themeVersion: "1.0.0" };
       
       // Validate colors before saving
       if (!configWithVersion.colors?.primary || !configWithVersion.colors?.accent) {
@@ -206,19 +183,6 @@ export function useDealerSiteConfig(slug: string | undefined, defaults: DealerSi
       }
       
       localStorage.setItem(storageKey, JSON.stringify(configWithVersion));
-      
-      // Dispatch custom event to sync other hook instances in same window
-      window.dispatchEvent(new CustomEvent('dealerConfigUpdate', { 
-        detail: { storageKey, config: configWithVersion } 
-      }));
-      
-      // Also dispatch theme change event for immediate UI updates
-      window.dispatchEvent(new CustomEvent('themeChanged', {
-        detail: { 
-          primary: configWithVersion.colors.primary, 
-          accent: configWithVersion.colors.accent 
-        }
-      }));
       
       setTimeout(() => setIsUpdating(false), 100); // Debounce to prevent loops
     } catch (error) {

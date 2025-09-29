@@ -12,6 +12,7 @@ import { SeoConfig } from "@/components/configure/SeoConfig";
 import { DomainConfig } from "@/components/configure/DomainConfig";
 import { ContactConfig } from "@/components/configure/ContactConfig";
 import { WebsitePreview } from "@/components/configure/WebsitePreview";
+import { DealerSiteThemeProvider } from "@/components/DealerSiteThemeProvider";
 import { useDealer } from "@/hooks/useDealer";
 import { useWebsitePublishing } from "@/hooks/useWebsitePublishing";
 import { useDealerSiteConfig } from "@/hooks/useDealerSiteConfig";
@@ -20,7 +21,6 @@ import { toast } from "sonner";
 
 export default function Configure() {
   const [activeTab, setActiveTab] = useState("customize");
-  const [previewKey, setPreviewKey] = useState(0);
   const { data: dealer } = useDealer();
   const { publish, isPublishing, isPublished } = useWebsitePublishing();
   const navigate = useNavigate();
@@ -39,34 +39,12 @@ export default function Configure() {
   };
   const { config } = useDealerSiteConfig(slug, defaultConfig);
 
-  // Listen for theme changes and force preview refresh
-  React.useEffect(() => {
-    const handleThemeChange = () => {
-      setPreviewKey(prev => prev + 1);
-    };
-
-    window.addEventListener('themeChanged', handleThemeChange);
-    return () => window.removeEventListener('themeChanged', handleThemeChange);
-  }, []);
   const handlePublish = async () => {
     if (!dealer?.id) return;
-    
-    // Pass the current theme configuration to the database
-    publish({
-      theme_config: {
-        colors: config.colors,
-        brand: config.brand,
-        hero: config.hero,
-        content: config.content,
-      },
-      contact_config: config.contact,
-    });
+    publish({});
   };
 
-  const handlePreview = async () => {
-    // Wait for any pending localStorage writes from child components
-    await new Promise(resolve => setTimeout(resolve, 150));
-    
+  const handlePreview = () => {
     if (dealer?.business_name) {
       const slug = dealer.business_name.toLowerCase().replace(/[^a-z0-9]+/g, '-');
       window.open(`/dealer/${slug}?preview=true`, '_blank');

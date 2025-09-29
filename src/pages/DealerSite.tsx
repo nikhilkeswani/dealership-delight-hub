@@ -31,7 +31,7 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import { Phone, Mail, Clock, Star, Award, ShieldCheck, Tag, Search, Settings } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import CustomizeSheet from "@/components/dealer/CustomizeSheet";
 
 type ContactIntent = "inquiry" | "testdrive";
@@ -119,8 +119,7 @@ const DealerSite = () => {
       email: contactConfig?.email || email, 
       address: contactConfig?.address || address 
     },
-    // Use database colors or defaults - useDealerSiteConfig will load from localStorage and override
-    colors: (themeConfig?.colors || DEFAULT_COLORS),
+    colors: themeConfig?.colors || DEFAULT_COLORS,
     content: {
       aboutContent: "We're committed to providing exceptional service and helping you find the perfect vehicle. With years of experience in the automotive industry, we pride ourselves on transparent pricing, quality vehicles, and customer satisfaction.",
       servicesEnabled: true,
@@ -141,33 +140,18 @@ const DealerSite = () => {
     },
   };
 
-  // useDealerSiteConfig loads from localStorage and merges with defaults
-  const { config, setConfig, saveLocal, reset } = useDealerSiteConfig(slug, defaults);
-  
-  console.log('[DealerSite] slug:', slug);
-  console.log('[DealerSite] config.colors:', config.colors);
-  console.log('[DealerSite] defaults.colors:', defaults.colors);
+  // In preview mode, prioritize localStorage config; otherwise use database config as defaults
+  const { config, setConfig, saveLocal, reset } = useDealerSiteConfig(
+    slug, 
+    isPreviewMode ? defaults : defaults
+  );
 
   const { data: dealer } = useDealer();
   const isDemo = !publicDealer || (slug || "").toLowerCase() === "demo-motors" || (typeof window !== "undefined" && new URLSearchParams(window.location.search).get("demo") === "1");
   const [customizeOpen, setCustomizeOpen] = useState(false);
   const [contactIntent, setContactIntent] = useState<ContactIntent>("inquiry");
-  const [themeKey, setThemeKey] = useState(0);
   const brandInitials = (config.brand.name || "").split(" ").slice(0,2).map(w=>w[0]).join("").toUpperCase() || "DL";
 
-  // Listen for theme changes and force re-render
-  useEffect(() => {
-    const handleThemeChange = () => {
-      setThemeKey(prev => prev + 1);
-    };
-
-    window.addEventListener('themeChanged', handleThemeChange);
-    window.addEventListener('dealerConfigUpdate', handleThemeChange);
-    return () => {
-      window.removeEventListener('themeChanged', handleThemeChange);
-      window.removeEventListener('dealerConfigUpdate', handleThemeChange);
-    };
-  }, []);
   const saveToWebsite = async () => {
     if (!dealer?.id) return;
     const { error } = await supabase.from("dealer_websites").upsert({

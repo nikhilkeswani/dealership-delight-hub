@@ -32,9 +32,7 @@ export function WebsitePreview({ device }: WebsitePreviewProps) {
   
   const { config } = useDealerSiteConfig(slug, defaultConfig);
   
-  // Get current theme colors for inline styles
-  const primaryColor = config.colors.primary;
-  const accentColor = config.colors.accent;
+  // Colors are now handled by DealerSiteThemeProvider via CSS variables
   
   const businessName = config.brand.name;
   const businessInitials = businessName
@@ -71,7 +69,7 @@ export function WebsitePreview({ device }: WebsitePreviewProps) {
           <div className="flex items-center gap-3">
             <Avatar className="h-8 w-8">
               <AvatarImage src={config.brand.logoUrl || undefined} alt={`${businessName} logo`} />
-              <AvatarFallback style={{ backgroundColor: primaryColor, color: '#ffffff', fontSize: '12px' }}>{businessInitials}</AvatarFallback>
+              <AvatarFallback style={{ backgroundColor: '#f3f4f6', color: '#111827', fontSize: '12px' }}>{businessInitials}</AvatarFallback>
             </Avatar>
             <div>
               <p style={{ fontSize: '12px', color: '#6b7280' }}>Powered by DealerDelight</p>
@@ -81,7 +79,7 @@ export function WebsitePreview({ device }: WebsitePreviewProps) {
           </div>
           <div className="flex gap-2">
             <button style={{ backgroundColor: '#ffffff', border: '1px solid #d1d5db', color: '#111827', padding: '6px 12px', borderRadius: '6px', fontSize: '14px' }}>Contact</button>
-            <button style={{ backgroundColor: primaryColor, color: '#ffffff', padding: '6px 12px', borderRadius: '6px', fontSize: '14px', border: 'none' }}>Test Drive</button>
+            <button className="bg-primary text-primary-foreground hover:bg-primary/90" style={{ padding: '6px 12px', borderRadius: '6px', fontSize: '14px', border: 'none' }}>Test Drive</button>
           </div>
         </div>
       </header>
@@ -90,16 +88,16 @@ export function WebsitePreview({ device }: WebsitePreviewProps) {
       <section style={{ padding: '16px 24px', background: 'linear-gradient(135deg, #ede9fe 0%, #f3e8ff 50%, #dcfce7 100%)' }}>
         <div className="space-y-4">
           <div className="flex flex-wrap gap-1">
-            <span style={{ backgroundColor: '#ffffff', color: primaryColor, padding: '4px 8px', borderRadius: '4px', fontSize: '12px', border: `1px solid ${primaryColor}`, display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+            <span style={{ backgroundColor: '#ffffff', color: '#374151', padding: '4px 8px', borderRadius: '4px', fontSize: '12px', border: '1px solid #d1d5db', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
               <Star className="h-3 w-3" /> 4.9 Rating
             </span>
-            <span style={{ backgroundColor: '#ffffff', color: primaryColor, padding: '4px 8px', borderRadius: '4px', fontSize: '12px', border: `1px solid ${primaryColor}`, display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+            <span style={{ backgroundColor: '#ffffff', color: '#374151', padding: '4px 8px', borderRadius: '4px', fontSize: '12px', border: '1px solid #d1d5db', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
               <Award className="h-3 w-3" /> Award Winning
             </span>
-            <span style={{ backgroundColor: '#ffffff', color: primaryColor, padding: '4px 8px', borderRadius: '4px', fontSize: '12px', border: `1px solid ${primaryColor}`, display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+            <span style={{ backgroundColor: '#ffffff', color: '#374151', padding: '4px 8px', borderRadius: '4px', fontSize: '12px', border: '1px solid #d1d5db', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
               <ShieldCheck className="h-3 w-3" /> Certified
             </span>
-            <span style={{ backgroundColor: '#ffffff', color: primaryColor, padding: '4px 8px', borderRadius: '4px', fontSize: '12px', border: `1px solid ${primaryColor}`, display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+            <span style={{ backgroundColor: '#ffffff', color: '#374151', padding: '4px 8px', borderRadius: '4px', fontSize: '12px', border: '1px solid #d1d5db', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
               <Tag className="h-3 w-3" /> Best Prices
             </span>
           </div>
@@ -124,20 +122,20 @@ export function WebsitePreview({ device }: WebsitePreviewProps) {
               <div className="flex flex-wrap gap-1" style={{ fontSize: '12px' }}>
                 <span style={{ color: '#4b5563' }}>Popular:</span>
                 {["SUVs", "Sedans", "Electric"].map((term) => (
-                  <button key={term} style={{ height: '28px', fontSize: '12px', padding: '0 8px', backgroundColor: '#ffffff', border: `1px solid ${primaryColor}`, color: primaryColor, borderRadius: '4px' }}>
+                  <button key={term} style={{ height: '28px', fontSize: '12px', padding: '0 8px', backgroundColor: '#ffffff', border: '1px solid #d1d5db', color: '#374151', borderRadius: '4px' }}>
                     {term}
                   </button>
                 ))}
               </div>
               <div className="flex flex-col sm:flex-row gap-2">
-                <button style={{ width: '100%', padding: '10px 16px', borderRadius: '6px', fontSize: '14px', border: 'none', fontWeight: '500', backgroundColor: primaryColor, color: '#ffffff' }}>
+                <button className="bg-primary text-primary-foreground hover:bg-primary/90" style={{ width: '100%', padding: '10px 16px', borderRadius: '6px', fontSize: '14px', border: 'none', fontWeight: '500' }}>
                   Search Now
                 </button>
                 <button
   style={{width: "100%",
     backgroundColor: "#ffffff",   // white bg
-    border: `1px solid ${primaryColor}`,  // theme border
-    color: primaryColor,             // theme text
+    border: "1px solid #d1d5db",  // light gray border
+    color: "#111827",             // black/dark gray text
     padding: "10px 16px",
     borderRadius: "6px",
     fontSize: "14px",
@@ -165,13 +163,13 @@ export function WebsitePreview({ device }: WebsitePreviewProps) {
               <div style={{ padding: '12px' }} className="space-y-2">
                 <div className="flex items-center justify-between">
                   <p style={{ fontWeight: '500', fontSize: '14px', color: '#111827' }}>2024 Sample Car</p>
-                  <span style={{ fontSize: '12px', backgroundColor: `${primaryColor}20`, color: primaryColor, padding: '2px 6px', borderRadius: '4px', border: `1px solid ${primaryColor}40` }}>New</span>
+                  <span style={{ fontSize: '12px', backgroundColor: '#dcfce7', color: '#166534', padding: '2px 6px', borderRadius: '4px', border: '1px solid #bbf7d0' }}>New</span>
                 </div>
                 <p style={{ fontSize: '18px', fontWeight: '600', color: '#111827' }}>$35,990</p>
                 <p style={{ fontSize: '12px', color: '#4b5563' }}>
                   Premium features, great mileage
                 </p>
-                <button style={{ width: '100%', backgroundColor: '#ffffff', border: `1px solid ${primaryColor}`, color: primaryColor, padding: '8px 12px', borderRadius: '6px', fontSize: '14px' }}>
+                <button style={{ width: '100%', backgroundColor: '#ffffff', border: '1px solid #d1d5db', color: '#111827', padding: '8px 12px', borderRadius: '6px', fontSize: '14px' }}>
                   View Details
                 </button>
               </div>
@@ -190,15 +188,15 @@ export function WebsitePreview({ device }: WebsitePreviewProps) {
         </p>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div style={{ textAlign: 'center', padding: '12px', backgroundColor: '#ffffff', borderRadius: '8px', border: '1px solid #d1d5db' }}>
-            <p style={{ fontWeight: '600', fontSize: '18px', color: primaryColor }}>500+</p>
+            <p style={{ fontWeight: '600', fontSize: '18px', color: '#111827' }}>500+</p>
             <p style={{ fontSize: '12px', color: '#4b5563' }}>Happy Customers</p>
           </div>
           <div style={{ textAlign: 'center', padding: '12px', backgroundColor: '#ffffff', borderRadius: '8px', border: '1px solid #d1d5db' }}>
-            <p style={{ fontWeight: '600', fontSize: '18px', color: primaryColor }}>15+</p>
+            <p style={{ fontWeight: '600', fontSize: '18px', color: '#111827' }}>15+</p>
             <p style={{ fontSize: '12px', color: '#4b5563' }}>Years Experience</p>
           </div>
           <div style={{ textAlign: 'center', padding: '12px', backgroundColor: '#ffffff', borderRadius: '8px', border: '1px solid #d1d5db' }}>
-            <p style={{ fontWeight: '600', fontSize: '18px', color: primaryColor }}>4.9/5</p>
+            <p style={{ fontWeight: '600', fontSize: '18px', color: '#111827' }}>4.9/5</p>
             <p style={{ fontSize: '12px', color: '#4b5563' }}>Customer Rating</p>
           </div>
         </div>
@@ -209,8 +207,8 @@ export function WebsitePreview({ device }: WebsitePreviewProps) {
         <h3 style={{ fontWeight: '600', marginBottom: '16px', color: '#111827' }}>Contact Us</h3>
         <div className="space-y-3">
           <div className="flex items-center gap-3">
-            <div style={{ padding: '8px', backgroundColor: `${primaryColor}20`, borderRadius: '50%' }}>
-              <Phone className="h-4 w-4" style={{ color: primaryColor }} />
+            <div style={{ padding: '8px', backgroundColor: '#f3f4f6', borderRadius: '50%' }}>
+              <Phone className="h-4 w-4" style={{ color: '#4b5563' }} />
             </div>
             <div>
               <p style={{ fontWeight: '500', fontSize: '14px', color: '#111827' }}>{config.contact.phone}</p>
@@ -219,8 +217,8 @@ export function WebsitePreview({ device }: WebsitePreviewProps) {
           </div>
           
           <div className="flex items-center gap-3">
-            <div style={{ padding: '8px', backgroundColor: `${primaryColor}20`, borderRadius: '50%' }}>
-              <Mail className="h-4 w-4" style={{ color: primaryColor }} />
+            <div style={{ padding: '8px', backgroundColor: '#f3f4f6', borderRadius: '50%' }}>
+              <Mail className="h-4 w-4" style={{ color: '#4b5563' }} />
             </div>
             <div>
               <p style={{ fontWeight: '500', fontSize: '14px', color: '#111827' }}>{config.contact.email}</p>
@@ -229,8 +227,8 @@ export function WebsitePreview({ device }: WebsitePreviewProps) {
           </div>
           
           <div className="flex items-center gap-3">
-            <div style={{ padding: '8px', backgroundColor: `${primaryColor}20`, borderRadius: '50%' }}>
-              <MapPin className="h-4 w-4" style={{ color: primaryColor }} />
+            <div style={{ padding: '8px', backgroundColor: '#f3f4f6', borderRadius: '50%' }}>
+              <MapPin className="h-4 w-4" style={{ color: '#4b5563' }} />
             </div>
             <div>
               <p style={{ fontWeight: '500', fontSize: '14px', color: '#111827' }}>Visit Our Showroom</p>
@@ -240,7 +238,7 @@ export function WebsitePreview({ device }: WebsitePreviewProps) {
             </div>
           </div>
           
-          <button style={{ width: '100%', marginTop: '16px', padding: '10px 16px', borderRadius: '6px', fontSize: '14px', border: 'none', fontWeight: '500', backgroundColor: primaryColor, color: '#ffffff' }}>Get Directions</button>
+          <button className="bg-primary text-primary-foreground hover:bg-primary/90" style={{ width: '100%', marginTop: '16px', padding: '10px 16px', borderRadius: '6px', fontSize: '14px', border: 'none', fontWeight: '500' }}>Get Directions</button>
         </div>
       </section>
 

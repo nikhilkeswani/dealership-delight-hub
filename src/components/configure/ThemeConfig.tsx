@@ -150,14 +150,6 @@ export function ThemeConfig() {
     
     // Only update if colors are actually different
     if (config.colors.primary !== theme.primary || config.colors.accent !== theme.accent) {
-      const updatedConfig = {
-        ...config,
-        colors: {
-          primary: theme.primary,
-          accent: theme.accent,
-        }
-      };
-      
       updateConfig({
         colors: {
           primary: theme.primary,
@@ -165,18 +157,11 @@ export function ThemeConfig() {
         }
       });
       
-      // Save immediately to localStorage with latest config
-      saveLocal(updatedConfig);
-      
-      // Force a small delay to ensure localStorage is written before any preview updates
+      // Auto-save to localStorage after a short delay
       setTimeout(() => {
-        // Dispatch a custom event to notify other components of theme change
-        window.dispatchEvent(new CustomEvent('themeChanged', {
-          detail: { primary: theme.primary, accent: theme.accent }
-        }));
-      }, 50);
-      
-      toast.success(`${theme.name} theme applied!`);
+        saveLocal();
+        toast.success(`${theme.name} theme applied!`);
+      }, 200);
     }
   };
 
@@ -187,17 +172,8 @@ export function ThemeConfig() {
       return;
     }
     
-    let updatedConfig = config;
-    
     if (type === 'primary' && config.colors.primary !== color) {
       setCustomPrimary(color);
-      updatedConfig = {
-        ...config,
-        colors: {
-          ...config.colors,
-          primary: color,
-        }
-      };
       updateConfig({
         colors: {
           ...config.colors,
@@ -206,13 +182,6 @@ export function ThemeConfig() {
       });
     } else if (type === 'accent' && config.colors.accent !== color) {
       setCustomAccent(color);
-      updatedConfig = {
-        ...config,
-        colors: {
-          ...config.colors,
-          accent: color,
-        }
-      };
       updateConfig({
         colors: {
           ...config.colors,
@@ -223,19 +192,10 @@ export function ThemeConfig() {
     
     setIsCustomMode(true);
     
-    // Save immediately to localStorage with latest config
-    saveLocal(updatedConfig);
-    
-    // Force a small delay to ensure localStorage is written before any preview updates
+    // Debounced auto-save
     setTimeout(() => {
-      // Dispatch a custom event to notify other components of theme change
-      window.dispatchEvent(new CustomEvent('themeChanged', {
-        detail: { 
-          primary: updatedConfig.colors.primary, 
-          accent: updatedConfig.colors.accent 
-        }
-      }));
-    }, 50);
+      saveLocal();
+    }, 300);
   };
 
   const resetToDefault = () => {
@@ -246,17 +206,6 @@ export function ThemeConfig() {
   const saveTheme = () => {
     // Save the current configuration to localStorage
     saveLocal();
-    
-    // Dispatch theme change event
-    setTimeout(() => {
-      window.dispatchEvent(new CustomEvent('themeChanged', {
-        detail: { 
-          primary: config.colors.primary, 
-          accent: config.colors.accent 
-        }
-      }));
-    }, 50);
-    
     toast.success("Theme settings saved!");
   };
 

@@ -113,7 +113,7 @@ export function DealerSiteThemeProvider({ primary, accent, children }: DealerSit
         --brand-foreground: 210 40% 98% !important;
       }
       
-      /* Force all theme-related styles with highest specificity */
+      /* Force button styles with highest specificity */
       [data-theme-container] .bg-primary { 
         background-color: hsl(${primaryHsl}) !important; 
       }
@@ -130,7 +130,7 @@ export function DealerSiteThemeProvider({ primary, accent, children }: DealerSit
         background-color: hsl(${accentHsl}) !important; 
       }
       
-      /* Hero button variants and all gradient elements */
+      /* Hero button variants - target all gradient classes */
       [data-theme-container] button[class*="hero"] {
         background: ${gradientPrimary} !important;
         background-image: ${gradientPrimary} !important;
@@ -143,50 +143,9 @@ export function DealerSiteThemeProvider({ primary, accent, children }: DealerSit
         background-image: ${gradientPrimary} !important;
       }
       
-      /* Force all button variants to use theme colors */
-      [data-theme-container] .btn-primary,
-      [data-theme-container] button[variant="hero"],
-      [data-theme-container] button[class*="bg-primary"] {
-        background: ${gradientPrimary} !important;
-        background-image: ${gradientPrimary} !important;
-        color: hsl(var(--brand-foreground)) !important;
-      }
-      
-      /* Override any inline styles that might conflict */
-      [data-theme-container] button[style*="background"] {
-        background: ${gradientPrimary} !important;
-      }
-      
-      /* Force badge colors */
-      [data-theme-container] .badge-primary {
-        background-color: hsl(${primaryHsl}) !important;
-        color: hsl(var(--primary-foreground)) !important;
-      }
-      
-      /* Force avatar fallback colors */
-      [data-theme-container] .bg-primary\/10 {
-        background-color: hsl(${primaryHsl} / 0.1) !important;
-      }
-      
       /* Override any inline gradient styles */
       [data-theme-container] [style*="--gradient-primary"] {
         background: ${gradientPrimary} !important;
-      }
-      
-      /* Force theme on all elements with primary color classes */
-      [data-theme-container] *[class*="primary"] {
-        --primary: ${primaryHsl} !important;
-      }
-      
-      /* Override Tailwind's default primary color utilities */
-      [data-theme-container] .text-primary-600 {
-        color: hsl(${primaryHsl}) !important;
-      }
-      
-      /* Force theme on preview elements specifically */
-      [data-theme-container] .preview-primary {
-        background-color: hsl(${primaryHsl}) !important;
-        color: hsl(var(--primary-foreground)) !important;
       }
     `;
     
