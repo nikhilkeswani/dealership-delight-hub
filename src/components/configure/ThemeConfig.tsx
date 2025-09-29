@@ -150,6 +150,14 @@ export function ThemeConfig() {
     
     // Only update if colors are actually different
     if (config.colors.primary !== theme.primary || config.colors.accent !== theme.accent) {
+      const updatedConfig = {
+        ...config,
+        colors: {
+          primary: theme.primary,
+          accent: theme.accent,
+        }
+      };
+      
       updateConfig({
         colors: {
           primary: theme.primary,
@@ -157,8 +165,8 @@ export function ThemeConfig() {
         }
       });
       
-      // Save immediately to localStorage
-      saveLocal();
+      // Save immediately to localStorage with latest config
+      saveLocal(updatedConfig);
       toast.success(`${theme.name} theme applied!`);
     }
   };
@@ -170,8 +178,17 @@ export function ThemeConfig() {
       return;
     }
     
+    let updatedConfig = config;
+    
     if (type === 'primary' && config.colors.primary !== color) {
       setCustomPrimary(color);
+      updatedConfig = {
+        ...config,
+        colors: {
+          ...config.colors,
+          primary: color,
+        }
+      };
       updateConfig({
         colors: {
           ...config.colors,
@@ -180,6 +197,13 @@ export function ThemeConfig() {
       });
     } else if (type === 'accent' && config.colors.accent !== color) {
       setCustomAccent(color);
+      updatedConfig = {
+        ...config,
+        colors: {
+          ...config.colors,
+          accent: color,
+        }
+      };
       updateConfig({
         colors: {
           ...config.colors,
@@ -190,8 +214,8 @@ export function ThemeConfig() {
     
     setIsCustomMode(true);
     
-    // Save immediately to localStorage
-    saveLocal();
+    // Save immediately to localStorage with latest config
+    saveLocal(updatedConfig);
   };
 
   const resetToDefault = () => {

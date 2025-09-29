@@ -37,7 +37,7 @@ export default function Configure() {
       address: dealer?.address || DEFAULT_DEALER_SITE_CONFIG.contact.address,
     },
   };
-  const { config, saveLocal } = useDealerSiteConfig(slug, defaultConfig);
+  const { config } = useDealerSiteConfig(slug, defaultConfig);
 
   const handlePublish = async () => {
     if (!dealer?.id) return;
@@ -55,9 +55,8 @@ export default function Configure() {
   };
 
   const handlePreview = async () => {
-    // Ensure theme is saved before preview
-    saveLocal();
-    await new Promise(resolve => setTimeout(resolve, 150)); // Wait for localStorage write
+    // Wait for any pending localStorage writes from child components
+    await new Promise(resolve => setTimeout(resolve, 150));
     
     if (dealer?.business_name) {
       const slug = dealer.business_name.toLowerCase().replace(/[^a-z0-9]+/g, '-');

@@ -147,8 +147,20 @@ export function useDealerSiteConfig(slug: string | undefined, defaults: DealerSi
       }
     };
 
+    // Listen for custom events from same window
+    const handleConfigUpdate = (e: Event) => {
+      const customEvent = e as CustomEvent;
+      if (customEvent.detail.storageKey === storageKey && !isUpdating) {
+        setConfig(customEvent.detail.config);
+      }
+    };
+
     window.addEventListener('storage', handleStorageChange);
-    return () => window.removeEventListener('storage', handleStorageChange);
+    window.addEventListener('dealerConfigUpdate', handleConfigUpdate);
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+      window.removeEventListener('dealerConfigUpdate', handleConfigUpdate);
+    };
   }, [storageKey, defaults, isUpdating]);
 
   // Note: CSS variables are NOT applied globally to avoid affecting the main SaaS platform
@@ -171,10 +183,11 @@ export function useDealerSiteConfig(slug: string | undefined, defaults: DealerSi
     });
   };
 
-  const saveLocal = () => {
+  const saveLocal = (latestConfig?: DealerSiteConfig) => {
     try {
       setIsUpdating(true);
-      const configWithVersion = { ...config, themeVersion: "1.0.0" };
+      const configToSave = latestConfig || config;
+      const configWithVersion = { ...configToSave, themeVersion: "1.0.0" };
       
       // Validate colors before saving
       if (!configWithVersion.colors?.primary || !configWithVersion.colors?.accent) {
@@ -183,6 +196,11 @@ export function useDealerSiteConfig(slug: string | undefined, defaults: DealerSi
       }
       
       localStorage.setItem(storageKey, JSON.stringify(configWithVersion));
+      
+      // Dispatch custom event to sync other hook instances in same window
+      window.dispatchEvent(new CustomEvent('dealerConfigUpdate', { 
+        detail: { storageKey, config: configWithVersion } 
+      }));
       
       setTimeout(() => setIsUpdating(false), 100); // Debounce to prevent loops
     } catch (error) {
