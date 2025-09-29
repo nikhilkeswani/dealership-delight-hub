@@ -119,11 +119,8 @@ const DealerSite = () => {
       email: contactConfig?.email || email, 
       address: contactConfig?.address || address 
     },
-    // In preview mode: use marker colors that force localStorage read
-    // In published mode: use database colors or defaults
-    colors: isPreviewMode 
-      ? { primary: '#000000', accent: '#ffffff' } 
-      : (themeConfig?.colors || DEFAULT_COLORS),
+    // Use database colors or defaults - useDealerSiteConfig will load from localStorage and override
+    colors: (themeConfig?.colors || DEFAULT_COLORS),
     content: {
       aboutContent: "We're committed to providing exceptional service and helping you find the perfect vehicle. With years of experience in the automotive industry, we pride ourselves on transparent pricing, quality vehicles, and customer satisfaction.",
       servicesEnabled: true,
