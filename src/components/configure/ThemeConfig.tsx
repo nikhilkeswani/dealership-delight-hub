@@ -198,10 +198,10 @@ export function ThemeConfig() {
     
     setIsCustomMode(true);
     
-    // Debounced auto-save
+    // Immediate save for color changes
     setTimeout(() => {
       saveLocal();
-    }, 300);
+    }, 100);
   };
 
   const resetToDefault = () => {
@@ -212,6 +212,12 @@ export function ThemeConfig() {
   const saveTheme = () => {
     // Save the current configuration to localStorage
     saveLocal();
+    
+    // Force update any open dealer site previews
+    window.dispatchEvent(new CustomEvent('dealer-theme-updated', {
+      detail: { colors: config.colors }
+    }));
+    
     toast.success("Theme settings saved!");
   };
 

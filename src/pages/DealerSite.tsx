@@ -44,6 +44,7 @@ import { usePublicVehicles } from "@/hooks/usePublicVehicles";
 import { usePublicDealerWebsite } from "@/hooks/usePublicDealerWebsite";
 import { useCreatePublicLead } from "@/hooks/useCreatePublicLead";
 import { formatCurrency } from "@/lib/format";
+import { useEffect } from "react";
 const sampleVehicles: VehicleData[] = [
   {
     id: "1",
@@ -146,6 +147,48 @@ const DealerSite = () => {
     isPreviewMode ? defaults : defaults
   );
 
+  // Listen for theme updates from the configure page
+  useEffect(() => {
+    const handleThemeUpdate = (event: CustomEvent) => {
+      if (event.detail?.colors) {
+        setConfig({
+          colors: event.detail.colors
+        });
+      }
+    };
+
+    window.addEventListener('dealer-theme-updated', handleThemeUpdate as EventListener);
+    return () => window.removeEventListener('dealer-theme-updated', handleThemeUpdate as EventListener);
+  }, [setConfig]);
+
+  // Force reload config when in preview mode to get latest changes
+  useEffect(() => {
+    if (isPreviewMode) {
+      // Small delay to ensure localStorage is updated
+      const timer = setTimeout(() => {
+        const storageKey = `dealerSite:config:${slug || "demo"}`;
+        try {
+          const raw = localStorage.getItem(storageKey);
+          if (raw) {
+            const parsed = JSON.parse(raw);
+            if (parsed.colors) {
+              setConfig({
+                colors: parsed.colors,
+                brand: parsed.brand || config.brand,
+                hero: parsed.hero || config.hero,
+                contact: parsed.contact || config.contact,
+                content: parsed.content || config.content,
+              });
+            }
+          }
+        } catch (error) {
+          console.error('Error loading preview config:', error);
+        }
+      }, 100);
+      
+      return () => clearTimeout(timer);
+    }
+  }, [isPreviewMode, slug, setConfig, config]);
   const { data: dealer } = useDealer();
   const isDemo = !publicDealer || (slug || "").toLowerCase() === "demo-motors" || (typeof window !== "undefined" && new URLSearchParams(window.location.search).get("demo") === "1");
   const [customizeOpen, setCustomizeOpen] = useState(false);
@@ -324,7 +367,7 @@ const DealerSite = () => {
 
   return (
     <DealerSiteThemeProvider primary={config.colors.primary} accent={config.colors.accent}>
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen bg-background" data-dealer-site>
       <SEO
         title={`${dealerName} – Inventory & Test Drives | DealerDelight`}
         description={`${dealerName}: Browse vehicles, book test drives, and contact our showroom. Powered by DealerDelight.`}

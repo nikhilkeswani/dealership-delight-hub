@@ -179,7 +179,7 @@ const DealerInventoryNew = () => {
 
   return (
     <DealerSiteThemeProvider primary={themeColors.primary} accent={themeColors.accent}>
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen bg-background" data-dealer-site>
         <SEO
           title={`${dealer.business_name} - Vehicle Inventory`}
           description={`Browse ${filteredVehicles.length} quality vehicles at ${dealer.business_name}. Find your perfect car today!`}

@@ -81,18 +81,14 @@ export function useDealerSiteConfig(slug: string | undefined, defaults: DealerSi
   const [config, setConfig] = useState<DealerSiteConfig>(() => {
     try {
       const raw = localStorage.getItem(storageKey);
-      console.log('[useDealerSiteConfig] Loading config with key:', storageKey);
-      console.log('[useDealerSiteConfig] Raw localStorage value:', raw);
       
       if (raw) {
         const parsed = JSON.parse(raw);
-        console.log('[useDealerSiteConfig] Parsed config:', parsed);
         
         // Only migrate if the config is truly corrupted (missing required fields)
         const isCorrupted = !parsed.colors || !parsed.colors.primary || !parsed.colors.accent;
         
         if (isCorrupted) {
-          console.log('[useDealerSiteConfig] Config is corrupted, using defaults');
           const cleanedConfig = { 
             ...defaults, 
             ...parsed, 
@@ -117,11 +113,9 @@ export function useDealerSiteConfig(slug: string | undefined, defaults: DealerSi
           content: { ...defaults.content, ...(parsed.content || {}) }
         } as DealerSiteConfig;
         
-        console.log('[useDealerSiteConfig] Final config with colors:', validConfig.colors);
         return validConfig;
       }
       
-      console.log('[useDealerSiteConfig] No localStorage data, using defaults:', defaults.colors);
     } catch (error) {
       console.error('Error loading dealer site config:', error);
     }
@@ -158,8 +152,6 @@ export function useDealerSiteConfig(slug: string | undefined, defaults: DealerSi
     return () => window.removeEventListener('storage', handleStorageChange);
   }, [storageKey, defaults, isUpdating]);
 
-  // Note: CSS variables are NOT applied globally to avoid affecting the main SaaS platform
-  // Custom colors are only applied in specific dealer site contexts
 
   const update = (partial: Partial<DealerSiteConfig>) => {
     setConfig((prev) => {
@@ -173,6 +165,13 @@ export function useDealerSiteConfig(slug: string | undefined, defaults: DealerSi
         content: { ...prev.content, ...(partial.content || {}) },
         themeVersion: "1.0.0"
       };
+      
+      // Immediately save to localStorage when config changes
+      try {
+        localStorage.setItem(storageKey, JSON.stringify(newConfig));
+      } catch (error) {
+        console.error('Error auto-saving config:', error);
+      }
       
       return newConfig;
     });
@@ -191,6 +190,13 @@ export function useDealerSiteConfig(slug: string | undefined, defaults: DealerSi
       
       localStorage.setItem(storageKey, JSON.stringify(configWithVersion));
       
+      // Force a storage event to notify other instances
+      window.dispatchEvent(new StorageEvent('storage', {
+        key: storageKey,
+        newValue: JSON.stringify(configWithVersion),
+        storageArea: localStorage
+      }));
+      
       setTimeout(() => setIsUpdating(false), 100); // Debounce to prevent loops
     } catch (error) {
       console.error('Error saving dealer site config:', error);
@@ -203,6 +209,13 @@ export function useDealerSiteConfig(slug: string | undefined, defaults: DealerSi
     try {
       localStorage.removeItem(storageKey);
       setConfig(defaults);
+      
+      // Force a storage event to notify other instances
+      window.dispatchEvent(new StorageEvent('storage', {
+        key: storageKey,
+        newValue: null,
+        storageArea: localStorage
+      }));
     } catch (error) {
       console.error('Error clearing theme data:', error);
     }
