@@ -88,7 +88,6 @@ export function DealerSiteThemeProvider({ primary, accent, children }: DealerSit
   useEffect(() => {
     if (!containerRef.current || !themeStyles) return;
 
-
     const { primaryHsl, accentHsl, primaryGlow, gradientPrimary, shadowElegant, shadowGlow } = themeStyles;
     
     // Create a unique style element ID to avoid conflicts
@@ -97,11 +96,11 @@ export function DealerSiteThemeProvider({ primary, accent, children }: DealerSit
     // Remove any existing theme style first
     cleanup();
     
-    // Inject CSS with high specificity but scoped to dealer site only
+    // Inject CSS at document level to override everything
     const style = document.createElement('style');
     style.id = styleId;
     style.textContent = `
-      /* CRITICAL: Only apply theme to dealer site container - DO NOT affect CRM */
+      /* Override CSS variables at root level for theme container */
       [data-theme-container] {
         --primary: ${primaryHsl} !important;
         --accent: ${accentHsl} !important;
@@ -114,7 +113,7 @@ export function DealerSiteThemeProvider({ primary, accent, children }: DealerSit
         --brand-foreground: 210 40% 98% !important;
       }
       
-      /* Apply theme styles ONLY within dealer site container */
+      /* Force button styles with highest specificity */
       [data-theme-container] .bg-primary { 
         background-color: hsl(${primaryHsl}) !important; 
       }
@@ -131,7 +130,7 @@ export function DealerSiteThemeProvider({ primary, accent, children }: DealerSit
         background-color: hsl(${accentHsl}) !important; 
       }
       
-      /* Hero button variants - scoped to dealer site only */
+      /* Hero button variants - target all gradient classes */
       [data-theme-container] button[class*="hero"] {
         background: ${gradientPrimary} !important;
         background-image: ${gradientPrimary} !important;
@@ -144,16 +143,9 @@ export function DealerSiteThemeProvider({ primary, accent, children }: DealerSit
         background-image: ${gradientPrimary} !important;
       }
       
-      /* Override any inline gradient styles within dealer site only */
+      /* Override any inline gradient styles */
       [data-theme-container] [style*="--gradient-primary"] {
         background: ${gradientPrimary} !important;
-      }
-      
-      /* Ensure CRM interface is never affected by dealer themes */
-      body:not([data-dealer-site]) [data-theme-container] {
-        /* Reset any theme variables that might leak */
-        --primary: 258 90% 66% !important;
-        --accent: 210 40% 96.1% !important;
       }
     `;
     
@@ -165,7 +157,7 @@ export function DealerSiteThemeProvider({ primary, accent, children }: DealerSit
   }, [themeStyles, cleanup]);
 
   return (
-    <div ref={containerRef} data-theme-container data-dealer-site className="w-full h-full">
+    <div ref={containerRef} data-theme-container className="w-full h-full">
       {children}
     </div>
   );

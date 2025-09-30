@@ -47,30 +47,9 @@ export default function Configure() {
   const handlePreview = () => {
     if (dealer?.business_name) {
       const slug = dealer.business_name.toLowerCase().replace(/[^a-z0-9]+/g, '-');
-      // Force save current config before opening preview
-      const storageKey = `dealerSite:config:${slug}`;
-      try {
-        const currentConfig = { ...config, themeVersion: "1.0.0" };
-        localStorage.setItem(storageKey, JSON.stringify(currentConfig));
-      } catch (error) {
-        console.error('Error saving config before preview:', error);
-      }
-      
-      // Add timestamp to force cache refresh
-      const timestamp = Date.now();
-      window.open(`/dealer/${slug}?preview=true&t=${timestamp}`, '_blank');
+      window.open(`/dealer/${slug}?preview=true`, '_blank');
     } else {
-      // Force save demo config
-      const storageKey = `dealerSite:config:demo`;
-      try {
-        const currentConfig = { ...config, themeVersion: "1.0.0" };
-        localStorage.setItem(storageKey, JSON.stringify(currentConfig));
-      } catch (error) {
-        console.error('Error saving demo config before preview:', error);
-      }
-      
-      const timestamp = Date.now();
-      window.open(`/dealer/demo-motors?preview=true&t=${timestamp}`, '_blank');
+      window.open('/dealer/demo-motors?preview=true', '_blank');
     }
   };
 

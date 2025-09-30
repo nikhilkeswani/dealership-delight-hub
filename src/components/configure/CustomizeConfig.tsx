@@ -118,7 +118,7 @@ export function CustomizeConfig() {
         }
       });
       saveLocal();
-    }, 200); // Faster auto-save for better responsiveness
+    }, 500);
 
     return () => clearTimeout(timeoutId);
   }, [

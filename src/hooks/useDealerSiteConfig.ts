@@ -115,7 +115,6 @@ export function useDealerSiteConfig(slug: string | undefined, defaults: DealerSi
         
         return validConfig;
       }
-      
     } catch (error) {
       console.error('Error loading dealer site config:', error);
     }
@@ -152,6 +151,8 @@ export function useDealerSiteConfig(slug: string | undefined, defaults: DealerSi
     return () => window.removeEventListener('storage', handleStorageChange);
   }, [storageKey, defaults, isUpdating]);
 
+  // Note: CSS variables are NOT applied globally to avoid affecting the main SaaS platform
+  // Custom colors are only applied in specific dealer site contexts
 
   const update = (partial: Partial<DealerSiteConfig>) => {
     setConfig((prev) => {
@@ -165,13 +166,6 @@ export function useDealerSiteConfig(slug: string | undefined, defaults: DealerSi
         content: { ...prev.content, ...(partial.content || {}) },
         themeVersion: "1.0.0"
       };
-      
-      // Immediately save to localStorage when config changes
-      try {
-        localStorage.setItem(storageKey, JSON.stringify(newConfig));
-      } catch (error) {
-        console.error('Error auto-saving config:', error);
-      }
       
       return newConfig;
     });
@@ -190,13 +184,6 @@ export function useDealerSiteConfig(slug: string | undefined, defaults: DealerSi
       
       localStorage.setItem(storageKey, JSON.stringify(configWithVersion));
       
-      // Force a storage event to notify other instances
-      window.dispatchEvent(new StorageEvent('storage', {
-        key: storageKey,
-        newValue: JSON.stringify(configWithVersion),
-        storageArea: localStorage
-      }));
-      
       setTimeout(() => setIsUpdating(false), 100); // Debounce to prevent loops
     } catch (error) {
       console.error('Error saving dealer site config:', error);
@@ -209,13 +196,6 @@ export function useDealerSiteConfig(slug: string | undefined, defaults: DealerSi
     try {
       localStorage.removeItem(storageKey);
       setConfig(defaults);
-      
-      // Force a storage event to notify other instances
-      window.dispatchEvent(new StorageEvent('storage', {
-        key: storageKey,
-        newValue: null,
-        storageArea: localStorage
-      }));
     } catch (error) {
       console.error('Error clearing theme data:', error);
     }

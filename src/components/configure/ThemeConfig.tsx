@@ -14,12 +14,6 @@ import { DEFAULT_DEALER_SITE_CONFIG } from "@/constants/theme";
 
 const presetThemes = [
   {
-    name: "Luxury Purple",
-    primary: "#8B5CF6",
-    accent: "#F3F4F6",
-    description: "Premium and distinctive",
-  },
-  {
     name: "Corporate Slate",
     primary: "#475569",
     accent: "#f8fafc",
@@ -100,7 +94,7 @@ export function ThemeConfig() {
     const matchingTheme = presetThemes.find(theme => 
       theme.primary === config.colors.primary && theme.accent === config.colors.accent
     );
-    return matchingTheme || presetThemes[0]; // Default to Luxury Purple
+    return matchingTheme || presetThemes[1]; // Default to Luxury Purple
   });
   
   const [customPrimary, setCustomPrimary] = useState(config.colors.primary);
@@ -198,26 +192,20 @@ export function ThemeConfig() {
     
     setIsCustomMode(true);
     
-    // Immediate save for color changes
+    // Debounced auto-save
     setTimeout(() => {
       saveLocal();
-    }, 100);
+    }, 300);
   };
 
   const resetToDefault = () => {
-    const defaultTheme = presetThemes[0]; // Luxury Purple
+    const defaultTheme = presetThemes[1]; // Luxury Purple
     handlePresetSelect(defaultTheme);
   };
 
   const saveTheme = () => {
     // Save the current configuration to localStorage
     saveLocal();
-    
-    // Force update any open dealer site previews
-    window.dispatchEvent(new CustomEvent('dealer-theme-updated', {
-      detail: { colors: config.colors }
-    }));
-    
     toast.success("Theme settings saved!");
   };
 

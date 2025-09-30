@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { ArrowLeft, Search, Phone, Mail, MapPin, Star, Award, ShieldCheck, Tag, Filter, Import as SortAsc } from "lucide-react";
+import { ArrowLeft, Search, Phone, Mail, MapPin, Star, Award, ShieldCheck, Tag, Filter, SortAsc } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { formatCurrency } from "@/lib/format";
 import { DealerSiteThemeProvider } from "@/components/DealerSiteThemeProvider";
@@ -179,7 +179,7 @@ const DealerInventoryNew = () => {
 
   return (
     <DealerSiteThemeProvider primary={themeColors.primary} accent={themeColors.accent}>
-      <div className="min-h-screen bg-background" data-dealer-site>
+      <div className="min-h-screen bg-background">
         <SEO
           title={`${dealer.business_name} - Vehicle Inventory`}
           description={`Browse ${filteredVehicles.length} quality vehicles at ${dealer.business_name}. Find your perfect car today!`}

@@ -59,8 +59,7 @@ export function WebsitePreview({ device }: WebsitePreviewProps) {
     };
 
   return (
-    <div
-      data-dealer-site
+    <div 
       className={`${containerClasses} h-full overflow-auto`} 
       style={{ backgroundColor: '#ffffff', color: '#000000', border: '1px solid #e5e7eb', borderRadius: '8px' }}
     >
